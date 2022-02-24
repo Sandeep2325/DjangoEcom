@@ -1,9 +1,11 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static jazzmin %}
 {% get_jazzmin_ui_tweaks as jazzmin_ui %}
+{% load model_count %}
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 {% block bodyclass %}{{ block.super }} dashboard{% endblock %}
-
+{% comment %} <canvas id="myChart" width="1600" height="900"></canvas> {% endcomment %}
 {% block content_title %} {% trans 'Dashboard' %} {% endblock %}
 
 {% block breadcrumbs %}
@@ -12,22 +14,26 @@
         <li class="breadcrumb-item">{% trans 'Dashboard' %}</li>
     </ol>
 {% endblock %}
-
-
 {% block content %}
 {% get_side_menu using="app_list" as dashboard_list %}
 {% for app in dashboard_list %}
 {% for model in app.models %}
-
-{%if model.name == "Order" or model.name == "Users" or model.name == "Products"%}
-<div class="card bg-secondary text-white">
+{%if model.name == "Order" or model.name == "Users" or model.name == "  Products"%}
+<div class="card bg-secondary m-2 text-white">
     <div class="card-header">
+      {%if model.name == "Users" %}
+        <i class="fa fa-user" aria-hidden="true"></i>
         {{ model.name }}
+        {%else%}
+      <i class="fas fa-shopping-cart"></i>
+        {{ model.name }}
+        {%endif%}
     </div>
     <div class="card-body">
       <h5 class="card-title">Total {{ model.name }}</h5>
+
+      <p class="card-text">{{model.name|length}}</p>
       
-      <p class="card-text">{{ model.name|length}}</p>
       <a class="btn btn-primary" href="{{ model.url }}">{{ model.name }}</a>
       {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
     </div>

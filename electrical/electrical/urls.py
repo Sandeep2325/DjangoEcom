@@ -20,12 +20,18 @@ from django.conf import settings #add this
 from django.conf.urls.static import static
 from rest_framework_simplejwt import views as jwt_views  
 from app1 import pdfviews
+from app1 import views
+from rest_framework_simplejwt.views import TokenVerifyView
 urlpatterns = [
     #path('jet/', include('jet.urls', 'jet')),
     #path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
     path('admin/', admin.site.urls),
-    path('pdf/',pdfviews.GeneratePDF.as_view(),name="pdf"),
+    #path('',views.count),
+    #path('baton/', include('baton.urls')),
+    path('summernote/', include('django_summernote.urls')),
+    #path('pdf/',pdfviews.GeneratePDF.as_view(),name="pdf"),
     path('electrical/',include('app1.urls')),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

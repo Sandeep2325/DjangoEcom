@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+#from django.utils.encoding import python_2_unicode_compatible, smart_text
+#from django.config import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +36,7 @@ INSTALLED_APPS = [
     #'bootstrap_admin',
     #'jet.dashboard',
     #'jet',
+    #'baton',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,7 +46,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app1',
     'rest_framework',
+    'django_filters',
+    #'rest_framework.authtoken',
+    'rest_auth',
+    #'social.apps.django_app.default',
+    #'app1.apps.VideouploaddisplayConfig',
+    'ckeditor',
+    'django_summernote',
+    #'baton.autodiscover',
     #'compressor'
+    
 ]
 
 MIDDLEWARE = [
@@ -57,6 +69,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'electrical.urls'
+#AUTH_USER_MODEL = 'app1.User'
 
 TEMPLATES = [
     {
@@ -65,32 +78,57 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
+                # 'django.core.context_processors.static',
+                # 'django.core.context_processors.tz',
+                # 'django.contrib.messages.context_processors.messages',
+                # 'social.apps.django_app.context_processors.backends',
+                # 'social.apps.django_app.context_processors.login_redirect',
+               
+                
             ],
         },
     },
 ]
+""" AUTHENTICATION_BACKENDS = (
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.ModelBackend',
+) """
+""" AUTHENTICATION_BACKEND = [
+    
+    'django.contrib.auth.backends.ModelBackend',
 
+    'allauth.account.auth_backends.AuthenticationBackend',
+
+    'django_facebook.auth_backends.FacebookBackend',
+
+    'social_core.backends.facebook.FacebookOAuth2',
+    
+]
+ """
 WSGI_APPLICATION = 'electrical.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-""" DATABASES = {
+""" 
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'Electrical',
+        'NAME': 'electrical3',
         'USER': 'root',
         'PASSWORD': 'Sandeep@8105',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 } """
-
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
@@ -100,7 +138,7 @@ DATABASES = {
        'HOST': 'localhost',
        'PORT': '5432',
    }
-}
+} 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -119,7 +157,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-""" REST_FRAMEWORK = {
+REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -127,6 +165,17 @@ AUTH_PASSWORD_VALIDATORS = [
         'rest_framework.permissions.IsAdminUser',
    ),
    'DEFAULT_PERMISSION_CLASSES': ( 'rest_framework.permissions.IsAdminUser', ),
+}
+
+""" REST_FRAMEWORK = {
+   'DEFAULT_PERMISSION_CLASSES': (
+       'rest_framework.permissions.IsAuthenticated',
+   ),
+   'DEFAULT_AUTHENTICATION_CLASSES': (
+       'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+       'rest_framework.authentication.SessionAuthentication',
+       'rest_framework.authentication.BasicAuthentication',
+   ),
 } """
 """ REST_FRAMEWORK = {
    
@@ -160,6 +209,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+""" AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
+
+SITE_ID = 1 """
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #BOOTSTRAP_ADMIN_SIDEBAR_MENU = False
