@@ -44,17 +44,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'embed_video',
     'app1',
+    'corsheaders',
     'rest_framework',
     'django_filters',
     #'rest_framework.authtoken',
     'rest_auth',
     #'social.apps.django_app.default',
+    #'social_django',
     #'app1.apps.VideouploaddisplayConfig',
     'ckeditor',
     'django_summernote',
     #'baton.autodiscover',
     #'compressor'
+    'allauth',
+    #'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',  
+    'allauth.socialaccount.providers.facebook',
+    #'allauth.socialaccount.providers.github',
+    #'allauth.socialaccount.providers.twitter',
     
 ]
 
@@ -66,6 +76,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+CORS_ORIGIN_WHITELIST = [
+     'http://127.0.0.1:8000'
 ]
 
 ROOT_URLCONF = 'electrical.urls'
@@ -84,6 +98,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
                 # 'django.core.context_processors.static',
                 # 'django.core.context_processors.tz',
                 # 'django.contrib.messages.context_processors.messages',
@@ -101,7 +117,7 @@ TEMPLATES = [
     'social.backends.twitter.TwitterOAuth',
     'django.contrib.auth.backends.ModelBackend',
 ) """
-""" AUTHENTICATION_BACKEND = [
+AUTHENTICATION_BACKEND = [
     
     'django.contrib.auth.backends.ModelBackend',
 
@@ -112,7 +128,7 @@ TEMPLATES = [
     'social_core.backends.facebook.FacebookOAuth2',
     
 ]
- """
+
 WSGI_APPLICATION = 'electrical.wsgi.application'
 
 
@@ -209,9 +225,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-""" AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
+AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
 
-SITE_ID = 1 """
+SITE_ID = 1
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #BOOTSTRAP_ADMIN_SIDEBAR_MENU = False

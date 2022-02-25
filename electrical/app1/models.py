@@ -15,6 +15,8 @@ from django.contrib.auth.models import AbstractUser,BaseUserManager
 #from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from datetime import date
+from  embed_video.fields  import  EmbedVideoField
+#from youtubeurl_field.modelfields import YoutubeUrlField
 #######################################################################################################################################
 """ class AccountManager(BaseUserManager):
     def create_superuser(self,email,first_name,password,**other_fields):
@@ -252,7 +254,7 @@ class Coupon(models.Model):
     expires = models.DateTimeField(blank=True, null=True)
     value = models.DecimalField(default=0.0, max_digits=5, decimal_places=2)
     # bound = models.BooleanField(default=False)
-    user = models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE)
+    #user = models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE)
     #product = models.ForeignKey(Product, verbose_name="Product", on_delete=models.CASCADE,null=True,blank=True)
     repeat = models.IntegerField(default=0)
 
@@ -269,8 +271,8 @@ class ClaimedCoupon(models.Model):
 ###################################################################################################################
 #Rating Models 
 STATUS_CHOICES = (
-    ('R', 'Reject'),
-    ('A', 'Approved'),
+    ('Reject', 'Reject'),
+    ('Approve', 'Approved'),
 )
 class Rating(models.Model):
     # Product = models.ForeignKey(to, on_delete)
@@ -297,6 +299,7 @@ class Blog(models.Model):
     title = models.CharField(max_length=120)
     author = models.CharField(max_length=100,null=True)
     description = models.TextField()
+    url= EmbedVideoField(max_length = 200,null=True,blank=True)
     image = models.FileField(upload_to="Blog", blank=True, null=True, max_length=500)  
     # category=models.ForeignKey(BlogCategory, on_delete=models.CASCADE)
     uploaded_date=models.DateField(auto_now_add=True)
@@ -309,16 +312,19 @@ class Blog(models.Model):
             new_img = (500, 500)
             img.thumbnail(new_img)
             img.save(self.image.path)
+    def __unicode__(self):
+        return self.url
 ####################################################################################################################
 
 #FAQ MODEL 
 class FAQ(models.Model):
     Question = models.CharField(max_length=100,null=True)
     Answer = RichTextField(max_length=300,null=True)
-
+    class Meta:
+        verbose_name_plural = "FAQs"
 ####################################################################################################################
 #Contact Model
-class Contact(models.Model):
+class customer_message(models.Model):
     Name=models.CharField(max_length=50, null=True, blank=True)
     Email=models.CharField(max_length=50, null=True, blank=True)
     Phone=models.BigIntegerField(null=True, blank=True)
@@ -326,7 +332,8 @@ class Contact(models.Model):
 
     def __str__(self):
         return str(self.Name,)
-
+    class Meta:
+        verbose_name_plural = "Customer messages"
 ####################################################################################################################
 #Banner Model
 class Banner(models.Model):

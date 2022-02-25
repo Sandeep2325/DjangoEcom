@@ -2,7 +2,6 @@
 {% load i18n static jazzmin %}
 {% get_jazzmin_ui_tweaks as jazzmin_ui %}
 {% load model_count %}
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 {% block bodyclass %}{{ block.super }} dashboard{% endblock %}
 {% comment %} <canvas id="myChart" width="1600" height="900"></canvas> {% endcomment %}
@@ -22,7 +21,7 @@
 <div class="card bg-secondary m-2 text-white">
     <div class="card-header">
       {%if model.name == "Users" %}
-        <i class="fa fa-user" aria-hidden="true"></i>
+        <i class="fa fa-users" aria-hidden="true"></i>
         {{ model.name }}
         {%else%}
       <i class="fas fa-shopping-cart"></i>

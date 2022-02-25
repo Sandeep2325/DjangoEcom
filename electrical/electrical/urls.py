@@ -21,11 +21,14 @@ from django.conf.urls.static import static
 from rest_framework_simplejwt import views as jwt_views  
 from app1 import pdfviews
 from app1 import views
+from rest_framework import routers
 from rest_framework_simplejwt.views import TokenVerifyView
+router = routers.DefaultRouter()
 urlpatterns = [
     #path('jet/', include('jet.urls', 'jet')),
     #path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
     #path('',views.count),
     #path('baton/', include('baton.urls')),
     path('summernote/', include('django_summernote.urls')),

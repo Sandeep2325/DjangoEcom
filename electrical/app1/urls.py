@@ -32,6 +32,7 @@ urlpatterns=[
     path('blog',Listblog.as_view({'get':'list'}),name="blog"),
     path('faq',Listfaq.as_view({'get':'list'}),name="faq"),
     path('rating',Listrating.as_view({'get':'list'}),name="rating"),
-    path('contactus',listcustomermessage.as_view({'get':'list'}),name="contact-us"),
+    path('customer-message',listcustomermessage.as_view({'get':'list'}),name="customer-message"),
+    path('customer/create/', customermsgCreateView.as_view(), name='customer-message-create'),
 
  ]

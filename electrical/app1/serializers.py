@@ -43,7 +43,7 @@ class ratingSerializer(serializers.ModelSerializer):
 class customermessageSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
-        model=Contact
+        model=customer_message
 class CouponSerializer(serializers.ModelSerializer):
     """
     RW Coupon serializer.

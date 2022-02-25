@@ -43,7 +43,7 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
         serializer = categorySerializer(item)
         return Response(serializer.data)
     
-class Productlist(ViewSet):
+class Productlist(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     #serializer_class=productSerializer
     def list(self, request):
@@ -59,7 +59,7 @@ class Productdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset=Product.objects.all()
     serializer_class=productSerializer
 
-class attributelist(ViewSet):
+class attributelist(viewsets.ModelViewSet):
     queryset = Attributes.objects.all()
 
     def list(self, request):
@@ -75,7 +75,7 @@ class attributedetail(generics.RetrieveUpdateDestroyAPIView):
     queryset=Attributes.objects.all()
     serializer_class=attributesSerializer
 
-class orderlist(ViewSet):
+class orderlist(viewsets.ModelViewSet):
     queryset = Order.objects.all()
 
     def list(self, request):
@@ -140,8 +140,13 @@ class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = ratingSerializer
 class listcustomermessage(viewsets.ModelViewSet):
-    queryset=Contact.objects.all()
+    queryset=customer_message.objects.all()
     serializer_class=customermessageSerializer
+
+class customermsgCreateView(CreateAPIView):
+    #permission_classes = (IsAuthenticated, )
+    serializer_class = customermessageSerializer
+    queryset = customer_message.objects.all()
 
 
 def group_required(api_command):
