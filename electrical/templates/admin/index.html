@@ -19,7 +19,7 @@
 {% for model in app.models %}
 {%if model.name == "Order" or model.name == "Users" or model.name == "  Products"%}
 <div class="card bg-secondary m-2 text-white">
-    <div class="card-header">
+    <div class="card-header d-flex">
       {%if model.name == "Users" %}
         <i class="fa fa-users" aria-hidden="true"></i>
         {{ model.name }}

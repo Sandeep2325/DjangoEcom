@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
-
 from . models import *
 from django.urls import path
 from . forms import *
@@ -39,7 +38,6 @@ def count(request):
         'user_count':user,
         'product_count':product,
         'order_count':order,
-
     }
     return render(request,"admin/index.html",context)
 ###########################################################################################################################################
@@ -56,11 +54,9 @@ class imageAdmin(admin.ModelAdmin):
     try:
         def image_tag(self, obj):
             return format_html('<img src="{}"width="{}" height="{}"/>'.format(obj.image.url,"100","100"))
-
         image_tag.short_description = 'Image'
         image_tag.allow_tags = True
         list_display=['id','image_tag']
-
         def get_urls(self):
             urls = super().get_urls()
             new_urls = [path('upload-csv/', self.upload_csv),]
@@ -112,7 +108,6 @@ class CategoryAdmin(ExportActionMixin,admin.ModelAdmin):
         search_fields = ('title', 'description','is_active','updated_at')
         save_on_top = True
         def action_btn(self,obj):
-    
             html="<div class='field-action_btn d-flex '> <a class='fa fa-edit ml-2' href='/admin/app1/category/"+str(obj.id)+"/change/'></a><br></br>"
             html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/category/"+str(obj.id)+"/change/'></a><br></br>"
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/category/"+str(obj.id)+"/delete/'></a></div>"
@@ -176,12 +171,10 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                 k=p.image.first()
                 print(ids)
                 return format_html('<img src="{}" width="{}" height="{}"/>'.format(k.image.url,"100","100"))
-
         def image_tag2(self, obj):
                 return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.product_image.url,"100","100"))
         image_tag2.short_description = 'Image2'
         image_tag2.allow_tags = True  
-  
         list_display = ['id','title','category','image_tag2','price','discounted_price','is_active','updated_at','action_btn']#,'is_active','is_featured'
         list_editable = ('category','is_active',)
         list_filter = ('category','is_active','updated_at')
@@ -251,10 +244,8 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                                 sku=fields[1],
                                 short_description=fields[2],
                                 detail_description=fields[3],
-                                product_image="product/"+fields[4],
-                                
+                                product_image="product/"+fields[4], 
                                 #image=image.objects.get(pk=(fields[5])),
-                                
                                 #is_active=fields[5],
                                 #product_image1="product/"+fields[5],
                                 #product_image2="product/"+fields[6],
@@ -311,11 +302,6 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
         #print(e)      
 ##################################################################################################################################
 class OrderAdmin(admin.ModelAdmin):
-    """ def price():
-        prices=Order.objects.values('product')
-        print(prices.price)
-        
-    price() """
     list_display = ('id','user','address', 'product', 'quantity','price','attributes', 'status', 'ordered_date','created_at','action_btn')
     list_editable = ('quantity', 'status','user','product')
     list_filter = ('status', 'ordered_date')
@@ -329,7 +315,6 @@ class OrderAdmin(admin.ModelAdmin):
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/order/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
     action_btn.short_description="Action"
-
 #############################################################################################################################
 class AttributesAdmin(admin.ModelAdmin):
     list_display=('id','Product','Color','Size','action_btn')
@@ -337,22 +322,26 @@ class AttributesAdmin(admin.ModelAdmin):
     list_per_page = 20
     search_fields = ('Product','Color','Size')
     save_on_top = True
-    
     def action_btn(self,obj):
             html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/attributes/"+str(obj.id)+"/change/'></a><br></br>"
             html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/attributes/"+str(obj.id)+"/change/'></a><br></br>"
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/attributes/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
     action_btn.short_description="Action"
-
 ###############################################################################################################################
 class salesAdmin(admin.ModelAdmin):
-    list_display=('id','campaign_name','startdate','enddate','sales_discount','is_active','created_at')
+    list_display=('id','campaign_name','startdate','enddate','sales_discount','is_active','created_at','action_btn')
     list_filter=('campaign_name','startdate','enddate','sales_discount')
     list_editable = ('is_active', )
     list_per_page = 20
     search_fields = ('campaign_name','startdate','enddate')
     save_on_top = True
+    def action_btn(self,obj):
+            html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/sales/"+str(obj.id)+"/change/'></a><br></br>"
+            html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/sales/"+str(obj.id)+"/change/'></a><br></br>"
+            html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/sales/"+str(obj.id)+"/delete/'></a></div>"
+            return format_html(html)
+    action_btn.short_description="Action"
 ##################################################################################################################################
 class CoupenAdmin(admin.ModelAdmin):
     list_display = ['id','created','updated','code','type','expires','value','repeat','action_btn']
@@ -364,26 +353,20 @@ class CoupenAdmin(admin.ModelAdmin):
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/coupon/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
     action_btn.short_description="Action"
-
 ##############################################################################################################################
 class RatingAdmin(admin.ModelAdmin):
     list_display = ['id','user','product','Message','Rating','Status','action_btn']
     search_fields = ['user']
     list_editable = ('Status','Rating' )
-
-    
     def action_btn(self,obj):
             #html="<input class='text-danger fa fa-check' type='submit' value='Reject' name='form-0-Status'> <input class='text-success fa fa-ban' type='submit' value='Approve' name='form-0-Status'> <input type='hidden' name='id' value=form-0-Status>"
             html="<button class='text-success fa fa-check'></button>"
             html+="<button class='text-danger fa fa-ban'></button>"
             return format_html(html)
     action_btn.short_description="Action"
-
-
 ##############################################################################################################################
 class BlogAdmin(SummernoteModelAdmin):
     try:
-
         """ def dummy(self,obj):
             
             html="<object style='height: 100px; width: 100%'><param name='movie' value='%s'>"
@@ -391,7 +374,6 @@ class BlogAdmin(SummernoteModelAdmin):
             html+="<embed src='%s' type='application/x-shockwave-flash' allowfullscreen='true' allowScriptAccess='always' width='640' height='390'></object>"%(obj.url)
             return format_html(html)        
         dummy.allow_tags=True """
-
         def imagee(self,obj):
             return format_html('<img src="{}" width="{}" height="{}" />'.format(obj.image.url,"100","100"))
         imagee.short_description='image'
@@ -399,11 +381,9 @@ class BlogAdmin(SummernoteModelAdmin):
             return format_html('<a class="fa fa-play" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description='video'
-
         list_display=['id','title','description','imagee','video_url','author','uploaded_date','action_btn']
         search_fields=['title']
         summernote_fields = ('description', )
-
         def action_btn(self,obj):
             html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/blog/"+str(obj.id)+"/change/'></a><br></br>"
             html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/blog/"+str(obj.id)+"/change/'></a><br></br>"
@@ -418,7 +398,6 @@ class FAQAdmin(admin.ModelAdmin):
     list_display=['id','Question','Answer']
     search_fields=['Question']
 ##############################################################################################################################
-
 #Banner Register 
 class BannerAdmin(admin.ModelAdmin):
     def imagee(self,obj):
@@ -426,7 +405,6 @@ class BannerAdmin(admin.ModelAdmin):
     imagee.short_description='image'
     list_display=['id','title','imagee','uploaded_date','action_btn']
     search_fields=['title']
-
     def action_btn(self,obj):
             html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/banner/"+str(obj.id)+"/change/'></a><br></br>"
             html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/banner/"+str(obj.id)+"/change/'></a><br></br>"
@@ -456,13 +434,3 @@ admin.site.register(FAQ,FAQAdmin)
 admin.site.register(customer_message,customer_messageAdmin)
 admin.site.register(Banner,BannerAdmin)
 admin.site.unregister(get_attachment_model())
-#admin.site.unregister()
-#admin.site.unregister(Attachments)
-#admin.site.unregister(dashboard)
-#admin.site.unregister(User)
-""" admin.site.register(Order,OrderAdmin)
-admin.site.register(Category,CategoryAdmin)
-admin.site.register(Product,ProductAdmin)
-admin.site.register(Address,AddressAdmin)
-admin.site.register(Attributes,AttributesAdmin)
-admin.site.register(sales,salesAdmin) """

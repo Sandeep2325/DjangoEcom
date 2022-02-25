@@ -10,29 +10,25 @@ urlpatterns=[
     path('redeemed',ClaimedCouponViewSet.as_view({'get':'list'}),name='redeemed'),
     path('categories',views.listcategory.as_view({'get': 'list'}),name="category"),
     path('categories/<int:pk>/',detailcategory.as_view(),name="single_category"),
-
     path('product',Productlist.as_view({'get':'list'}),name="product"),
     path('product/<int:pk>/',Productdetail.as_view(),name="single_product"), 
-
     path('attributes',attributelist.as_view({'get':'list'}),name="attributes"),
     path('attributes/<int:pk>/',attributedetail.as_view(),name="single_attribute"),
-
     path('order',orderlist.as_view({'get':'list'}),name="order"),
-    path('order/<int:pk>/',orderdetail.as_view(),name="single_order"), 
-
+    path('order/<int:pk>/',orderdetail.as_view(),name="single_order"),
+    path('order-summary/',OrderDetailView.as_view(), name='order-summary'), 
     #path('address',ListCustomerAddress.as_view({'get':'list'}),name="address"),
-    path('addresses/', AddressListView.as_view(), name='address-list'),
+    path('addresses/',AddressListView.as_view(), name='address-list'),
     path('addresses/create/', AddressCreateView.as_view(), name='address-create'),
     path('addresses/<pk>/update/',
-         AddressUpdateView.as_view(), name='address-update'),
+         AddressUpdateView.as_view(),name='address-update'),
     path('addresses/<pk>/delete/',
-         AddressDeleteView.as_view(), name='address-delete'),
-
+         AddressDeleteView.as_view(),name='address-delete'),
     path('banner',Listbanner.as_view({'get':'list'}),name="banner"),
     path('blog',Listblog.as_view({'get':'list'}),name="blog"),
     path('faq',Listfaq.as_view({'get':'list'}),name="faq"),
     path('rating',Listrating.as_view({'get':'list'}),name="rating"),
     path('customer-message',listcustomermessage.as_view({'get':'list'}),name="customer-message"),
-    path('customer/create/', customermsgCreateView.as_view(), name='customer-message-create'),
+    path('customer/create/',customermsgCreateView.as_view(), name='customer-message-create'),
 
  ]

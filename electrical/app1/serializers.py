@@ -116,18 +116,14 @@ class ClaimedCouponSerializer(serializers.ModelSerializer):
         """
         Verify the coupon can be redeemed.
         """
-
         coupon = data['coupon']
         user = data['user']
-
         # Is the coupon expired?
         if coupon.expires and coupon.expires < now():
             raise serializers.ValidationError("Coupon has expired.")
-
         # Is the coupon bound to someone else?
         """ if coupon.bound and coupon.user.id != user.id:
             raise serializers.ValidationError("Coupon bound to another user.") """
-
         # Is the coupon redeemed already beyond what's allowed?
         redeemed = ClaimedCoupon.objects.filter(coupon=coupon.id, user=user.id).count()
         if coupon.repeat > 0:   #change the repeat of coupon    
@@ -136,9 +132,7 @@ class ClaimedCouponSerializer(serializers.ModelSerializer):
                 # Also, yes, > should never happen because the equals check will be hit first, but just in case
                 # you somehow get beyond that... ;)
                 raise serializers.ValidationError("Coupon has been used to its limit.")
-
         return data
-
     class Meta:
         model = ClaimedCoupon
         fields = ('redeemed', 'coupon', 'user', 'id')

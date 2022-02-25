@@ -15,6 +15,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
 from .filters import CouponFilter
 from rest_framework.generics import (ListAPIView, RetrieveAPIView, CreateAPIView,UpdateAPIView, DestroyAPIView)
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 
 def count(request):
     user_count=User.objects.all().count()
@@ -87,6 +89,18 @@ class orderlist(viewsets.ModelViewSet):
         serializer = ordersSerializer(item)
         return Response(serializer.data)
 
+##################################################################################
+class OrderDetailView(RetrieveAPIView):
+    serializer_class = ordersSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            return order
+        except ObjectDoesNotExist:
+            raise Http404("You do not have an active order")
+#########################################################################################
 class orderdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset=Order.objects.all()
     serializer_class=ordersSerializer
