@@ -90,20 +90,25 @@ class orderlist(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 ##################################################################################
-class OrderDetailView(RetrieveAPIView):
+""" class OrderDetailView(RetrieveAPIView):
     serializer_class = ordersSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
         try:
-            order = Order.objects.get(user=self.request.user, ordered=False)
+            order = Order.objects.all()
             return order
         except ObjectDoesNotExist:
-            raise Http404("You do not have an active order")
+            raise Http404("You do not have an active order") """
 #########################################################################################
 class orderdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset=Order.objects.all()
     serializer_class=ordersSerializer
+
+class orderCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = ordersSerializer
+    queryset = Order.objects.all()
 
 ############################################################################################
 class AddressListView(ListAPIView):
@@ -150,15 +155,28 @@ class Listblog(viewsets.ModelViewSet):
 class Listfaq(viewsets.ModelViewSet):
     queryset = FAQ.objects.all()
     serializer_class = faqSerializer
+class faqCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = faqSerializer
+    queryset = FAQ.objects.all()
+
 class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = ratingSerializer
+class ratingCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = ratingSerializer
+    queryset = Rating.objects.all()
 class listcustomermessage(viewsets.ModelViewSet):
     queryset=customer_message.objects.all()
     serializer_class=customermessageSerializer
+""" class customermsgCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = customermessageSerializer
+    queryset = Address.objects.all() """
 
 class customermsgCreateView(CreateAPIView):
-    #permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, )
     serializer_class = customermessageSerializer
     queryset = customer_message.objects.all()
 

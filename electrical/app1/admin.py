@@ -42,10 +42,13 @@ def count(request):
     return render(request,"admin/index.html",context)
 ###########################################################################################################################################
 class AddressAdmin(ExportActionMixin,admin.ModelAdmin):
+    #env\Lib\site-packages\jazzmin\static\jazzmin\js\action_button.js
+    js = ('jazzmin/js/action_button.js',)
     list_display = ('id','user','door_number','street','city','country','pincode')
     list_filter = ('city','user','state','pincode')
     list_per_page = 10
     search_fields = ('user', 'city', 'state','pincode')
+    #autocomplete_fields = ['user']
     save_on_top = True
     class Meta:
         verbose_name_plural = "Customer Address"
@@ -156,8 +159,8 @@ class CategoryAdmin(ExportActionMixin,admin.ModelAdmin):
     pass
 admin.site.register(User,userAdmin) """
 ###################################################################################################################################### 
-class ProductImageAdmin(ExportActionMixin,admin.StackedInline):
-    model = ProductImage
+""" class ProductImageAdmin(ExportActionMixin,admin.StackedInline):
+    model = ProductImage """
 #admin.site.register(Product,ProductImageAdmin)
 class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
     try:
@@ -262,9 +265,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                             #for i in fields[5]:
                                 #print(i) 
                             imagess=image.objects.get(pk=(fields[5]))
-                            #print(imagess)
-                            #for i in imagess:
-                            #a=[0,1,2,3,4,5,6,7,8]
+                            
                             #for i in len(fields[5]):
                             #print(i)  
                             created[0].image.add(imagess)
@@ -355,7 +356,7 @@ class CoupenAdmin(admin.ModelAdmin):
     action_btn.short_description="Action"
 ##############################################################################################################################
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ['id','user','product','Message','Rating','Status','action_btn']
+    list_display = ['id','user','product','Reviews','Rating','Status','action_btn']
     search_fields = ['user']
     list_editable = ('Status','Rating' )
     def action_btn(self,obj):
@@ -378,7 +379,7 @@ class BlogAdmin(SummernoteModelAdmin):
             return format_html('<img src="{}" width="{}" height="{}" />'.format(obj.image.url,"100","100"))
         imagee.short_description='image'
         def video_url(self, obj):
-            return format_html('<a class="fa fa-play" href="%s"></a>' % (obj.url))
+            return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description='video'
         list_display=['id','title','description','imagee','video_url','author','uploaded_date','action_btn']

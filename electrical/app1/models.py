@@ -187,12 +187,12 @@ class Product(models.Model):
         template = '{0.title}'
         return template.format(self)
 ##################################################################################################################################
-class ProductImage(models.Model):
+""" class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     images = models.FileField(upload_to = 'product')
  
     def __str__(self):
-        return self.product.title
+        return self.product.title """
 
 ##################################################################################################################################
 class Attributes(models.Model):
@@ -278,7 +278,7 @@ class Rating(models.Model):
     # Product = models.ForeignKey(to, on_delete)
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     product = models.ForeignKey(Product, verbose_name="Product", on_delete=models.CASCADE,null=True)
-    Message =RichTextField(null=True)
+    Reviews =RichTextField(null=True)
     Rating = models.IntegerField(validators=[
         MinValueValidator(1),MaxValueValidator(5)
     ],null=True,blank=True)
