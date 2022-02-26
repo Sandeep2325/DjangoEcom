@@ -1,4 +1,5 @@
 from asyncio.windows_events import NULL
+from pyexpat.errors import messages
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -6,6 +7,7 @@ from PIL import Image
 from django.contrib.postgres.fields import ArrayField
 from math import ceil
 from ckeditor.fields import RichTextField
+from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 from django.contrib.auth.models import User 
@@ -236,8 +238,10 @@ class Order(models.Model):
         elif self.product.discounted_price is not None:
             self.price=self.product.discounted_price*self.quantity
             return super(Order, self).save(*args, **kwargs)
-            
-    
+        else:
+            return messages.warning('Something went wrong!')    
+    def __str__(self):
+        return self.user.username
     class Meta:
         verbose_name_plural = "Order"
 #############################################################################################################################

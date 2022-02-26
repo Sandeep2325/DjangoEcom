@@ -23,6 +23,8 @@ from app1 import pdfviews
 from app1 import views
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenVerifyView
+from django.conf.urls import handler404
+#handler404 = 'app1.views.error_404_view'
 router = routers.DefaultRouter()
 urlpatterns = [
     #path('jet/', include('jet.urls', 'jet')),
@@ -38,3 +40,4 @@ urlpatterns = [
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#handler404 = 'app1.views.error_404_view'

@@ -28,6 +28,7 @@ import pdfkit
 import ast
 from django_summernote.admin import SummernoteModelAdmin
 from django_summernote.utils import get_attachment_model
+from embed_video.admin import AdminVideoMixin,AdminVideoWidget
 #################################################################################################################################### 
 def count(request):
     user = User.objects.all().count()
@@ -194,11 +195,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
         action_btn.short_description="Action"
         #discount_.short_description=''
         #prepopulated_fields = {"slug": ("title", )}
-        """ def delete(self, obj):
-            view_name = "admin:{}_{}_delete".format(obj._meta.app_label, obj._meta.model_name)
-            link = reverse(view_name,args=[Product.pk])
-            html = '<input type="button" class="btn btn-danger", onclick="location.href=\'{}\'" value="Delete" />'.format(link)
-            return format_html(html) """
+        
         def delete_offers(self,request,queryset):
             """ from django.db import connection
             cursor = connection.cursor()
@@ -356,7 +353,7 @@ class CoupenAdmin(admin.ModelAdmin):
     action_btn.short_description="Action"
 ##############################################################################################################################
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ['id','user','product','Reviews','Rating','Status','action_btn']
+    list_display = ['id','user','product','Reviews','Rating','action_btn','Status',]
     search_fields = ['user']
     list_editable = ('Status','Rating' )
     def action_btn(self,obj):
@@ -366,20 +363,21 @@ class RatingAdmin(admin.ModelAdmin):
             return format_html(html)
     action_btn.short_description="Action"
 ##############################################################################################################################
-class BlogAdmin(SummernoteModelAdmin):
+class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
     try:
         """ def dummy(self,obj):
             
-            html="<object style='height: 100px; width: 100%'><param name='movie' value='%s'>"
+            html="<object style='height: 100px; width: 100%'><param name='movie' value='https://youtu.be/HYOvEIimVzI'>"
             html+="<param name='allowFullScreen' value='true'><param name='allowScriptAccess' value='always'>"
-            html+="<embed src='%s' type='application/x-shockwave-flash' allowfullscreen='true' allowScriptAccess='always' width='640' height='390'></object>"%(obj.url)
-            return format_html(html)        
-        dummy.allow_tags=True """
+            html+="<embed src='https://youtu.be/HYOvEIimVzI' type='application/x-shockwave-flash' allowfullscreen='true' allowScriptAccess='always' width='640' height='390'></object>"
+            return format_html(html)         
+        dummy.allow_tags=True"""
         def imagee(self,obj):
             return format_html('<img src="{}" width="{}" height="{}" />'.format(obj.image.url,"100","100"))
         imagee.short_description='image'
         def video_url(self, obj):
             return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
+            #return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description='video'
         list_display=['id','title','description','imagee','video_url','author','uploaded_date','action_btn']
@@ -414,6 +412,8 @@ class BannerAdmin(admin.ModelAdmin):
     action_btn.short_description="Action"
 ###############################################################################################################################
 class claimedcouponAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request, obj=None):
+        return True #to disable add function in admin make it false
     list_display=['id','user','coupon','redeemed']
     search_fields=['user','coupon','redeemed']
 ####################################################################################################################

@@ -6,11 +6,12 @@ from app1.views import *
 
 #from app1.views import Productdetail, Productlist, attributedetail, attributelist, detailcategory, listcategory, orderdetail, orderlist
 urlpatterns=[
+    #path('user/',UserViewSet.as_view({'get':'list'}),name="user"),
     path('coupon/',CouponViewSet.as_view({'get':'list'}),name='coupon'),
     path('redeemed/',ClaimedCouponViewSet.as_view({'get':'list'}),name='redeemed'),
     path('categories/',views.listcategory.as_view({'get': 'list'}),name="category"),
     path('categories/<int:pk>/',detailcategory.as_view(),name="single_category"),
-    path('product',Productlist.as_view({'get':'list'}),name="product"),
+    path('product/',Productlist.as_view({'get':'list'}),name="product"),
     path('product/<int:pk>/',Productdetail.as_view(),name="single_product"), 
     path('attributes/',attributelist.as_view({'get':'list'}),name="attributes"),
     path('attributes/<int:pk>/',attributedetail.as_view(),name="single_attribute"),

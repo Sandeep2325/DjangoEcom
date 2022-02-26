@@ -17,7 +17,11 @@ from .filters import CouponFilter
 from rest_framework.generics import (ListAPIView, RetrieveAPIView, CreateAPIView,UpdateAPIView, DestroyAPIView)
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
+#from app1 import views
 
+""" def error_404_view(request, exception):
+    data = {"name": "ThePythonDjango.com"}
+    return render(request,'myapp/error_404.html', data) """
 def count(request):
     user_count=User.objects.all().count()
     product_count=Product.objects.all().count()
@@ -28,11 +32,12 @@ def count(request):
         'order_count':order_count,
     }
     return render(request,'admin/index.html',data)
+
+
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class=categorySerializer
 
-    
 class detailcategory(generics.RetrieveUpdateDestroyAPIView):
     queryset=Category.objects.all()
     #serializer_class=categorySerializer
@@ -63,7 +68,6 @@ class Productdetail(generics.RetrieveUpdateDestroyAPIView):
 
 class attributelist(viewsets.ModelViewSet):
     queryset = Attributes.objects.all()
-
     def list(self, request):
         serializer = attributesSerializer(self.queryset, many=True)
         return Response(serializer.data)
@@ -409,3 +413,4 @@ class ClaimedCouponViewSet(viewsets.ModelViewSet):
 
     def update(self, request, pk=None, **kwargs):
         return Response(status=status.HTTP_404_NOT_FOUND)
+
