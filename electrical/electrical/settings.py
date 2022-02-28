@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'app1',
     'corsheaders',
     'rest_framework',
+    
     'django_filters',
     #'rest_framework.authtoken',
     'rest_auth',
@@ -83,7 +84,7 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 ROOT_URLCONF = 'electrical.urls'
-#AUTH_USER_MODEL = 'app1.User'
+AUTH_USER_MODEL = 'app1.User'
 
 TEMPLATES = [
     {
@@ -138,7 +139,7 @@ WSGI_APPLICATION = 'electrical.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'electrical3',
+        'NAME': 'electrical4',
         'USER': 'root',
         'PASSWORD': 'Sandeep@8105',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
@@ -148,7 +149,7 @@ DATABASES = {
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'electrical',
+       'NAME': 'electrical2',
        'USER': 'postgres',
        'PASSWORD': 'sandeep',
        'HOST': 'localhost',
@@ -174,19 +175,23 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 """ REST_FRAMEWORK = {
-     'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-     'DEFAULT_PERMISSION_CLASSES': (
+    ],
+     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAdminUser',
-   ),
-   'DEFAULT_PERMISSION_CLASSES': ( 'rest_framework.permissions.IsAdminUser', ),
-}
- """
+     ],
+   'DEFAULT_PERMISSION_CLASSES': [ 'rest_framework.permissions.IsAdminUser', ],
+} """
+
 """ REST_FRAMEWORK = {
    'DEFAULT_PERMISSION_CLASSES': (
        'rest_framework.permissions.IsAuthenticated',

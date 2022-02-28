@@ -31,6 +31,7 @@ urlpatterns = [
     #path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    #path('auth/', include('rest_auth.urls')),
     #path('',views.count),
     #path('baton/', include('baton.urls')),
     path('summernote/', include('django_summernote.urls')),

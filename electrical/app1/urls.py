@@ -4,9 +4,12 @@ from rest_framework_simplejwt import views as jwt_views
 from . import views
 from app1.views import *
 
+#from .views import LoginAPI
+
 #from app1.views import Productdetail, Productlist, attributedetail, attributelist, detailcategory, listcategory, orderdetail, orderlist
 urlpatterns=[
     #path('user/',UserViewSet.as_view({'get':'list'}),name="user"),
+    path('register/', RegisterApi.as_view()),
     path('coupon/',CouponViewSet.as_view({'get':'list'}),name='coupon'),
     path('redeemed/',ClaimedCouponViewSet.as_view({'get':'list'}),name='redeemed'),
     path('categories/',views.listcategory.as_view({'get': 'list'}),name="category"),

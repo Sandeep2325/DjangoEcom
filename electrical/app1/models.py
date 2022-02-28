@@ -1,4 +1,5 @@
 from asyncio.windows_events import NULL
+from pickle import FALSE
 from pyexpat.errors import messages
 from django.db import models
 from django.contrib.auth.models import User
@@ -19,6 +20,17 @@ from django.conf import settings
 from datetime import date
 from  embed_video.fields  import  EmbedVideoField
 #from youtubeurl_field.modelfields import YoutubeUrlField
+##################################################################################################################################
+
+class User(AbstractUser):
+  username = models.CharField(max_length = 50, blank = False, null = True, unique = True)
+  email = models.EmailField(_('email address'), unique = True)
+  #native_name = models.CharField(max_length = 5)
+  phone_no = models.CharField(max_length = 10,null=True,blank=False)
+  USERNAME_FIELD = 'email'
+  REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+  def __str__(self):
+      return "{}".format(self.email)
 #######################################################################################################################################
 """ class AccountManager(BaseUserManager):
     def create_superuser(self,email,first_name,password,**other_fields):
@@ -52,6 +64,7 @@ from  embed_video.fields  import  EmbedVideoField
    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
    def __str__(self):
        return "{}".format(self.email) """
+
 #######################################################################################################################################
 class Address(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE,null=True)
@@ -85,7 +98,6 @@ class sales(models.Model):
         if self.enddate>=now():
             self.is_active=False
             return super(Order, self).save(*args, **kwargs) """ 
-
 ####################################################################################################################################
 class Category(models.Model):
     def validate_image(fieldfile_obj):
@@ -188,6 +200,8 @@ class Product(models.Model):
     def __str__(self):
         template = '{0.title}'
         return template.format(self)
+    """ class Meta:
+        verbose_name_plural = VerboseName(lambda: u"Used Coupons (%d)" % Product.objects.all().count()) """
 ##################################################################################################################################
 """ class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -283,7 +297,7 @@ class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     product = models.ForeignKey(Product, verbose_name="Product", on_delete=models.CASCADE,null=True)
     Reviews =RichTextField(null=True)
-    Rating = models.IntegerField(validators=[
+    Rating = models.DecimalField(default=0.0, max_digits=5, decimal_places=1,validators=[
         MinValueValidator(1),MaxValueValidator(5)
     ],null=True,blank=True)
     Status = models.CharField(

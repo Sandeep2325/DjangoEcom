@@ -14,26 +14,40 @@ from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
 from .filters import CouponFilter
-from rest_framework.generics import (ListAPIView, RetrieveAPIView, CreateAPIView,UpdateAPIView, DestroyAPIView)
+from rest_framework.generics import (ListAPIView, RetrieveAPIView, CreateAPIView,UpdateAPIView, DestroyAPIView,GenericAPIView)
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
+#from knox.models import AuthToken
+from rest_framework import permissions
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+#from knox.views import LoginView as KnoxLoginView
+from django.contrib.auth import login
+from app1.models import User
+from rest_framework import permissions
 #from app1 import views
 
-""" def error_404_view(request, exception):
-    data = {"name": "ThePythonDjango.com"}
-    return render(request,'myapp/error_404.html', data) """
-def count(request):
-    user_count=User.objects.all().count()
-    product_count=Product.objects.all().count()
-    order_count=Order.objects.all().count()
-    data={
-        'user_count':user_count,
-        'product_count':product_count,
-        'order_count':order_count,
-    }
-    return render(request,'admin/index.html',data)
+class RegisterApi(generics.GenericAPIView):
+    serializer_class = RegisterSerializer
+    def post(self, request, *args,  **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        """ return Response({
+            "user": UserSerializer(user,    context=self.get_serializer_context()).data,
+            "message": "User Created Successfully.  Now perform Login to get your token",
+        }) """
+""" class LoginAPI(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
 
-
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return super(LoginAPI, self).post(request, format=Non )"""
+##############################################################################################################################################
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class=categorySerializer

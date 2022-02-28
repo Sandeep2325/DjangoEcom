@@ -1,8 +1,29 @@
-from dataclasses import fields
+from dataclasses import field, fields
+import email
+from django.forms import CharField
 from rest_framework import serializers
+#from rest_auth.registration.serializers import RegisterSerializer
 from . models import *
 from math import ceil
 from django.utils.timezone import now
+from django.db import transaction
+from app1.models import User
+#from django.contrib.auth.models import User
+#from .models import User
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields=('username','first_name','last_name','email','password','phone_no')
+    def create(self, validated_data):
+        user = User.objects.create_user(username=validated_data['username'],password = validated_data['password'],email=validated_data['email'],first_name=validated_data['first_name'],last_name=validated_data['last_name'],phone_no=validated_data['phone_no'])
+        user.save()
+        return user
+# User serializer
+""" class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__' """
+ ##################################################################################       
 class CustomerAddressSerializers(serializers.ModelSerializer):
     class  Meta:
         fields = '__all__'

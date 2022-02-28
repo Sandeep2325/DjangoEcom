@@ -70,7 +70,7 @@ class imageAdmin(admin.ModelAdmin):
                 if request.method == "POST":
                     csv_file = request.FILES["csv_upload"]   
                     if not csv_file.name.endswith('.csv'):
-                        messages.warning(request, 'The wrong file type was uploaded')
+                        messages.warning(request, 'Please upload csv file')
                         return HttpResponseRedirect(request.path_info) 
                     file_data = csv_file.read().decode("utf-8")
                     csv_data = file_data.split("\r\n")
@@ -231,7 +231,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                 if request.method == "POST":
                     csv_file = request.FILES["csv_upload"]
                     if not csv_file.name.endswith('.csv'):
-                        messages.warning(request, 'The wrong file type was uploaded')
+                        messages.warning(request, 'Please upload csv file')
                         return HttpResponseRedirect(request.path_info)
                     file_data = csv_file.read().decode("utf-8")
                     csv_data = file_data.split("\n")
@@ -376,7 +376,7 @@ class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
             return format_html('<img src="{}" width="{}" height="{}" />'.format(obj.image.url,"100","100"))
         imagee.short_description='image'
         def video_url(self, obj):
-            return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
+            return format_html('<a class="fa fa-play fa-1x" href="%s"></a>' % (obj.url))
             #return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description='video'
@@ -435,3 +435,31 @@ admin.site.register(FAQ,FAQAdmin)
 admin.site.register(customer_message,customer_messageAdmin)
 admin.site.register(Banner,BannerAdmin)
 admin.site.unregister(get_attachment_model())
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserChangeForm
+from .models import User
+
+
+class UserAdmin(BaseUserAdmin):
+  form = UserChangeForm
+  fieldsets = (
+      (None, {'fields': ('email', 'password', )}),
+      (_('Personal info'), {'fields': ('first_name', 'last_name')}),
+      (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
+                                     'groups', 'user_permissions')}),
+      (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+        (_('user_info'), {'fields': ('phone_no',)}),
+  )
+  add_fieldsets = (
+      (None, {
+          'classes': ('wide', ),
+          'fields': ('email', 'password1', 'password2'),
+      }),
+  )
+  list_display = ['email', 'first_name', 'last_name', 'is_staff',"phone_no"]
+  search_fields = ('email', 'first_name', 'last_name')
+  ordering = ('email', )
+admin.site.register(User, UserAdmin)
