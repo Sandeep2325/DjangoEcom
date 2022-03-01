@@ -46,10 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'embed_video',
     'app1',
+    'chartjs',
     'corsheaders',
     'rest_framework',
     
     'django_filters',
+    
     #'rest_framework.authtoken',
     'rest_auth',
     #'social.apps.django_app.default',
@@ -85,7 +87,7 @@ CORS_ORIGIN_WHITELIST = [
 
 ROOT_URLCONF = 'electrical.urls'
 AUTH_USER_MODEL = 'app1.User'
-
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 100000
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -129,6 +131,7 @@ AUTHENTICATION_BACKEND = [
     'social_core.backends.facebook.FacebookOAuth2',
     
 ]
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 WSGI_APPLICATION = 'electrical.wsgi.application'
 
@@ -149,7 +152,7 @@ DATABASES = {
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'electrical2',
+       'NAME': 'electrical6',
        'USER': 'postgres',
        'PASSWORD': 'sandeep',
        'HOST': 'localhost',

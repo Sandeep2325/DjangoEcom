@@ -10,8 +10,7 @@ from app1.views import *
 urlpatterns=[
     #path('user/',UserViewSet.as_view({'get':'list'}),name="user"),
     path('register/', RegisterApi.as_view()),
-    path('coupon/',CouponViewSet.as_view({'get':'list'}),name='coupon'),
-    path('redeemed/',ClaimedCouponViewSet.as_view({'get':'list'}),name='redeemed'),
+    
     path('categories/',views.listcategory.as_view({'get': 'list'}),name="category"),
     path('categories/<int:pk>/',detailcategory.as_view(),name="single_category"),
     path('product/',Productlist.as_view({'get':'list'}),name="product"),
@@ -38,5 +37,7 @@ urlpatterns=[
     path('customer-message/',listcustomermessage.as_view({'get':'list'}),name="customer-message"),
     #path('addresses/create/', AddressCreateView.as_view(), name='address-create'),
     path('customer/create/',customermsgCreateView.as_view(), name='customer-message-create'),
+    path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
+   
 
  ]

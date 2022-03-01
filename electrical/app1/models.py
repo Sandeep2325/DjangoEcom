@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from PIL import Image
-from django.contrib.postgres.fields import ArrayField
+#from django.contrib.postgres.fields import ArrayField
 from math import ceil
 from ckeditor.fields import RichTextField
 from django.http import Http404
@@ -16,8 +16,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser,BaseUserManager
 #from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
+#from django.conf import settings
 from datetime import date
+#from phonenumber_field.modelfields import PhoneNumberField
 from  embed_video.fields  import  EmbedVideoField
 #from youtubeurl_field.modelfields import YoutubeUrlField
 ##################################################################################################################################
@@ -68,12 +69,14 @@ class User(AbstractUser):
 #######################################################################################################################################
 class Address(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE,null=True)
-    door_number=models.BigIntegerField(null=True, blank=True)
-    street=models.CharField(max_length=200, null=True, blank=True)
-    city=models.CharField(max_length=200, null=True, blank=True)
-    state=models.CharField(max_length=200, null=True, blank=True)
-    country=models.CharField(max_length=200, null=True, blank=True)
-    pincode=models.IntegerField(null=True, blank=True)
+    door_number=models.BigIntegerField(null=True,)
+    street=models.CharField(max_length=200, null=True,)
+    city=models.CharField(max_length=200, null=True,)
+    state=models.CharField(max_length=200, null=True,)
+    country=models.CharField(max_length=200, null=True,)
+    pincode=models.IntegerField(null=True,)
+    phone_no=models.BigIntegerField(null=True,verbose_name="Phone")
+    alternate_phone_no=models.BigIntegerField(null=True,verbose_name="Alternate Phone",blank=True)
 
     def __str__(self):
         template = '{0.door_number} {0.street} {0.city} {0.state} {0.country} '
@@ -221,13 +224,27 @@ class Attributes(models.Model):
     class Meta:
         verbose_name_plural = "Attributes"
 #################################################################################################################################
+class Coupon(models.Model):
+    coupon=models.CharField(verbose_name="Coupon",max_length=200,null=True)
+    startdate=models.DateField(verbose_name="Start Date",null=True)
+    enddate=models.DateField(verbose_name="End Date",null=True)
+    coupon_discount=models.DecimalField(max_digits=5, decimal_places=2,null=True,verbose_name='Discount(%)',validators=[
+        MinValueValidator(1),MaxValueValidator(100)
+    ])
+    is_active = models.BooleanField(verbose_name="Is Active?",default=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
+    def __str__(self):
+        return self.coupon
+    class Meta:
+        verbose_name_plural = "Coupons"
+#################################################################################################################################
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Accepted', 'Accepted'),
     ('Packed', 'Packed'),
     ('On The Way', 'On The Way'),
     ('Delivered', 'Delivered'),
-    ('Cancelled', 'Cancelled')
+    ('Cancelled', 'Cancelled'),
 )
 class Order(models.Model):
     user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
@@ -236,6 +253,7 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField(verbose_name="Quantity")
     price = models.DecimalField(max_digits=8, decimal_places=2,null=True,blank=True,verbose_name="Price(₹)")
     #discount_applied_price=models.DecimalField(max_digits=8, decimal_places=2,null=True,blank=True)
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, blank=True, null=True)
     attributes=models.ForeignKey(Attributes,verbose_name=" Product Attributes",on_delete=models.SET_NULL,null=True,blank=True)
     ordered_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
@@ -253,13 +271,28 @@ class Order(models.Model):
             self.price=self.product.discounted_price*self.quantity
             return super(Order, self).save(*args, **kwargs)
         else:
-            return messages.warning('Something went wrong!')    
+            return messages.warning('Something went wrong!')
+    
     def __str__(self):
         return self.user.username
     class Meta:
         verbose_name_plural = "Order"
 #############################################################################################################################
-class Coupon(models.Model):
+""" class Coupon(models.Model):
+    coupon=models.CharField(verbose_name="Coupon",max_length=200,null=True)
+    startdate=models.DateField(verbose_name="Start Date",null=True)
+    enddate=models.DateField(verbose_name="End Date",null=True)
+    coupon_discount=models.DecimalField(max_digits=5, decimal_places=2,null=True,verbose_name='Discount(%)',validators=[
+        MinValueValidator(1),MaxValueValidator(100)
+    ])
+    is_active = models.BooleanField(verbose_name="Is Active?",default=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
+    def __str__(self):
+        return self.coupon
+    class Meta:
+        verbose_name_plural = "Coupons" """
+#############################################################################################################################
+""" class Coupon(models.Model):
     COUPON_TYPES = (
     ('percent', 'percent'),
     ('value', 'value'),
@@ -272,20 +305,20 @@ class Coupon(models.Model):
     expires = models.DateTimeField(blank=True, null=True)
     value = models.DecimalField(default=0.0, max_digits=5, decimal_places=2)
     # bound = models.BooleanField(default=False)
-    #user = models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE)
+    #user = models.ManyToManyField(User, blank=True)
     #product = models.ForeignKey(Product, verbose_name="Product", on_delete=models.CASCADE,null=True,blank=True)
     repeat = models.IntegerField(default=0)
 
     def __str__(self):
-        return str(self.code)
+        return str(self.code) """
 
-class ClaimedCoupon(models.Model):
+""" class ClaimedCoupon(models.Model):
     redeemed = models.DateTimeField(auto_now_add=True)
     coupon = models.ForeignKey('Coupon',on_delete=models.CASCADE)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.user)
+        return str(self.user) """
 ###################################################################################################################
 #Rating Models 
 STATUS_CHOICES = (
@@ -325,14 +358,19 @@ class Blog(models.Model):
             #################auto resizing function############################################################################
     def save(self):
         super().save()  # saving image first
-        img = Image.open(self.image.path) # Open image using self
-        if img.height > 700 or img.width > 700:
-            new_img = (500, 500)
-            img.thumbnail(new_img)
-            img.save(self.image.path)
+        try:
+            img = Image.open(self.image.path) # Open image using self
+            if img.height > 700 or img.width > 700:
+                new_img = (500, 500)
+                img.thumbnail(new_img)
+                img.save(self.image.path)
+        except:
+            pass
     def __unicode__(self):
         return self.url
-####################################################################################################################
+    def __str__(self):
+        return self.title
+##############################################################################################################################
 
 #FAQ MODEL 
 class FAQ(models.Model):
@@ -343,10 +381,10 @@ class FAQ(models.Model):
 ####################################################################################################################
 #Contact Model
 class customer_message(models.Model):
-    Name=models.CharField(max_length=50, null=True, blank=True)
-    Email=models.CharField(max_length=50, null=True, blank=True)
+    Name=models.CharField(max_length=50, null=True,)
+    Email=models.EmailField(max_length=50, null=True,)
     Phone=models.BigIntegerField(null=True, blank=True)
-    Message=models.TextField(max_length=200, null=True, blank=True)
+    Message=models.TextField(max_length=200, null=True,)
 
     def __str__(self):
         return str(self.Name,)
@@ -362,8 +400,14 @@ class Banner(models.Model):
 
     def save(self):
         super().save()  # saving image first
-        img = Image.open(self.image.path) # Open image using self
-        if img.height > 700 or img.width > 700:
-            new_img = (500, 500)
-            img.thumbnail(new_img)
-            img.save(self.image.path)
+        try:
+            img = Image.open(self.image.path) # Open image using self
+        
+            if img.height > 700 or img.width > 700:
+                new_img = (500, 500)
+                img.thumbnail(new_img)
+                img.save(self.image.path)
+        except:
+            pass
+    def __str__(self):
+        return str(self.title,)
