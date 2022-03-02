@@ -30,6 +30,12 @@ from import_export.admin import ExportActionMixin
 from django_summernote.admin import SummernoteModelAdmin
 from django_summernote.utils import get_attachment_model
 from embed_video.admin import AdminVideoMixin,AdminVideoWidget
+import pandas as pd
+#from .views import serve_pdf_preview 
+import pdfkit
+import tempfile
+import zipfile
+import csv
 
 #################################################################################################################################### 
 def count(request):
@@ -47,14 +53,17 @@ def count(request):
 #     index_template='templates/admin/index.html'
 ###########################################################################################################################################
 class AddressAdmin(ExportActionMixin,admin.ModelAdmin):
+   #
     #env\Lib\site-packages\jazzmin\static\jazzmin\js\action_button.js
     js = ('jazzmin/js/action_button.js',)
     list_display = ('id','user','door_number','street','city','country','pincode','phone_no','alternate_phone_no')
     list_filter = ('city','user','state','pincode')
     list_per_page = 10
     search_fields = ('user', 'city', 'state','pincode')
+    #actions=['downloadCV']
     #autocomplete_fields = ['user']
     save_on_top = True
+    
     class Meta:
         verbose_name_plural = "Customer Address"
 #####################################################################################################
@@ -64,7 +73,16 @@ class imageAdmin(admin.ModelAdmin):
             return format_html('<img src="{}"width="{}" height="{}"/>'.format(obj.image.url,"100","100"))
         image_tag.short_description = 'Image'
         image_tag.allow_tags = True
-        list_display=['id','image_tag']
+        list_display=['id','image_tag','action_btn']
+        def action_btn(self,obj):
+            html="<div class='field-action_btn d-flex m-8'> "
+            try:
+                html+="<a class='text-success fa fa-eye ml-2' href='{}'></a><br></br>".format(obj.image.url,"100","100")
+            except:
+                html+="<a class='text-success fa fa-eye ml-2' href='https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg'width='100' height='100'></a><br></br>".format(obj.image.url)
+            html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/image/"+str(obj.id)+"/delete/'></a></div>"
+            return format_html(html)
+        action_btn.short_description="Action"
         def get_urls(self):
             urls = super().get_urls()
             new_urls = [path('upload-csv/', self.upload_csv),]
@@ -72,7 +90,9 @@ class imageAdmin(admin.ModelAdmin):
         def upload_csv(self, request):
             try:
                 if request.method == "POST":
-                    csv_file = request.FILES["csv_upload"]   
+                    csv_file = request.FILES["csv_upload"]
+                    #csvv=pd.read_csv(csv_file)
+                         
                     if not csv_file.name.endswith('.csv'):
                         messages.warning(request, 'Please upload csv file')
                         return HttpResponseRedirect(request.path_info) 
@@ -123,7 +143,10 @@ class CategoryAdmin(ExportActionMixin,admin.ModelAdmin):
         save_on_top = True
         def action_btn(self,obj):
             html="<div class='field-action_btn d-flex '> <a class='fa fa-edit ml-2' href='/admin/app1/category/"+str(obj.id)+"/change/'></a><br></br>"
-            html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/category/"+str(obj.id)+"/change/'></a><br></br>"
+            try:
+                html+="<a class='text-success fa fa-eye ml-2' href='{}'></a><br></br>".format(obj.category_image.url,"100","100")
+            except:
+                html+="<a class='text-success fa fa-eye ml-2' href='https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg'width='100' height='100'></a><br></br>"
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/category/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
         action_btn.short_description="Action"
@@ -177,22 +200,21 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
     try:
         #inlines = [ProductImageAdmin]
         def imagee(self,obj):
-            a=Product.objects.all()
-            #print(a)
-            for product in a:
-                ids=product.image   
-                p=Product.objects.get(pk=ids)
-                k=p.image.first()
-                print(ids)
-                return format_html('<img src="{}" width="{}" height="{}"/>'.format(k.image.url,"100","100"))
+            #a=obj.image.first()
+            #print(obj.image.first().image.url)
+            try:
+                return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.image.first().image.url,"50","50"))
+            except:
+                return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
+        imagee.short_description = 'Product Image'
         def image_tag2(self, obj):
             try:
-                return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.product_image.url,"100","100"))
+                return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.product_image.url,"50","50"))
             except:
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>') 
-        image_tag2.short_description = 'Image2'
+        image_tag2.short_description = 'Thumbnail image'
         image_tag2.allow_tags = True  
-        list_display = ['id','title','category','image_tag2','price','discounted_price','is_active','updated_at','action_btn']#,'is_active','is_featured'
+        list_display = ['id','title','category','image_tag2','imagee','price','discounted_price','is_active','updated_at','action_btn']#,'is_active','is_featured'
         list_editable = ('category','is_active',)
         list_filter = ('category','is_active','updated_at')
         list_per_page = 20
@@ -202,7 +224,10 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
         actions=['sales_discount','delete_offers']
         def action_btn(self,obj):
             html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/product/"+str(obj.id)+"/change/'></a><br></br>"
-            html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/product/"+str(obj.id)+"/change/'></a><br></br>"
+            try:
+                html+="<a class='text-success fa fa-eye ml-2' href='{}'></a><br></br>".format(obj.image.first().image.url,"100","100")
+            except:
+                html+="<a class='text-success fa fa-eye ml-2' href='https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg'width='100' height='100'></a><br></br>"
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/product/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
         action_btn.short_description="Action"
@@ -247,7 +272,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                         messages.warning(request, 'Please upload csv file')
                         return HttpResponseRedirect(request.path_info)
                     file_data = csv_file.read().decode("utf-8")
-                    import csv
+                    #import csv
                     #records = csv.reader(csv_file)
                     csv_data = file_data.split("\n")
                     #csv_data = records.split("\n")
@@ -366,10 +391,10 @@ class salesAdmin(admin.ModelAdmin):
     action_btn.short_description="Action"
 ##################################################################################################################################
 class CoupenAdmin(admin.ModelAdmin):
-    list_display = ['id','coupon','startdate','enddate','coupon_discount','is_active','created_at','action_btn']
-    list_filter = ['is_active','startdate','enddate']
+    list_display = ['id','coupon','coupon_discount','created_at','action_btn']
+    #list_filter = ['is_active','startdate','enddate']
     search_fields = ['created_at']
-    list_editable = ('is_active', )
+    #list_editable = ('is_active', )
     def action_btn(self,obj):
             html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/coupon/"+str(obj.id)+"/change/'></a><br></br>"
             html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/coupon/"+str(obj.id)+"/change/'></a><br></br>"
@@ -377,7 +402,6 @@ class CoupenAdmin(admin.ModelAdmin):
             return format_html(html)
     action_btn.short_description="Action"
 
-    
 ##############################################################################################################################
 class RatingAdmin(admin.ModelAdmin):
     list_display = ['id','user','product','Reviews','Rating','action_btn','Status',]
@@ -399,20 +423,29 @@ class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
             html+="<embed src='https://youtu.be/HYOvEIimVzI' type='application/x-shockwave-flash' allowfullscreen='true' allowScriptAccess='always' width='640' height='390'></object>"
             return format_html(html)         
         dummy.allow_tags=True"""
+        def imagee(self,obj):
+            #a=obj.image.first()
+            #print(obj.image.first().image.url)
+            try:
+                return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.image.first().image.url,"100","100"))
+            except:
+                return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
+        imagee.short_description = 'Image'
+        imagee.allow_tags = True
         def image_tag(self, obj):
             try:
-                return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.image.url,"100","100"))
+                return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.images.url,"100","100"))
             except:
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
                 #message=messages.warning('Something went wrong! check your file again \n 1.Upload correct file \n 2.Check you data once')
-        image_tag.short_description = 'Image'
+        image_tag.short_description = 'Thumbnail Image'
         image_tag.allow_tags = True
         def video_url(self, obj):
             return format_html('<a class="fa fa-play fa-1x" href="%s"></a>' % (obj.url))
             #return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description='video'
-        list_display=['id','title','description','image_tag','video_url','author','uploaded_date','action_btn']
+        list_display=['id','title','description','image_tag','imagee','video_url','author','uploaded_date','action_btn']
         search_fields=['title']
         summernote_fields = ('description', )
         def action_btn(self,obj):

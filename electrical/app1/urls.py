@@ -8,6 +8,7 @@ from app1.views import *
 
 #from app1.views import Productdetail, Productlist, attributedetail, attributelist, detailcategory, listcategory, orderdetail, orderlist
 urlpatterns=[
+     
     #path('user/',UserViewSet.as_view({'get':'list'}),name="user"),
     path('register/', RegisterApi.as_view()),
     

@@ -21,9 +21,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets,filters, status
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import (ListAPIView, RetrieveAPIView, CreateAPIView,UpdateAPIView, DestroyAPIView,GenericAPIView)
-
-
-
+from django.http import HttpResponse
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST

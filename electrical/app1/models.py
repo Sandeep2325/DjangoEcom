@@ -89,7 +89,7 @@ class sales(models.Model):
     startdate=models.DateField(verbose_name="Start Date",null=True)
     enddate=models.DateField(verbose_name="End Date",null=True)
     sales_discount=models.DecimalField(max_digits=5, decimal_places=2,null=True,verbose_name='Discount(%)',validators=[
-        MinValueValidator(1),MaxValueValidator(100)
+        MinValueValidator(1),MaxValueValidator(99)
     ])
     is_active = models.BooleanField(verbose_name="Is Active?",default=False)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
@@ -226,12 +226,10 @@ class Attributes(models.Model):
 #################################################################################################################################
 class Coupon(models.Model):
     coupon=models.CharField(verbose_name="Coupon",max_length=200,null=True)
-    startdate=models.DateField(verbose_name="Start Date",null=True)
-    enddate=models.DateField(verbose_name="End Date",null=True)
-    coupon_discount=models.DecimalField(max_digits=5, decimal_places=2,null=True,verbose_name='Discount(%)',validators=[
-        MinValueValidator(1),MaxValueValidator(100)
-    ])
-    is_active = models.BooleanField(verbose_name="Is Active?",default=False)
+    #startdate=models.DateField(verbose_name="Start Date",null=True)
+    #enddate=models.DateField(verbose_name="End Date",null=True)
+    coupon_discount=models.IntegerField(null=True)
+    #is_active = models.BooleanField(verbose_name="Is Active?",default=False)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
     def __str__(self):
         return self.coupon
@@ -254,6 +252,7 @@ class Order(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2,null=True,blank=True,verbose_name="Price(₹)")
     #discount_applied_price=models.DecimalField(max_digits=8, decimal_places=2,null=True,blank=True)
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, blank=True, null=True)
+    #coupon=models.CharField(max_length=50,null=True)
     attributes=models.ForeignKey(Attributes,verbose_name=" Product Attributes",on_delete=models.SET_NULL,null=True,blank=True)
     ordered_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
@@ -265,14 +264,23 @@ class Order(models.Model):
     def save(self,*args,**kwargs):
         if self.product.discounted_price is None:
             self.price=self.product.price*self.quantity
+            if self.coupon:
+                self.price=self.price-self.coupon.coupon_discount
+                return super(Order, self).save(*args, **kwargs)
             return super(Order, self).save(*args, **kwargs)
 
         elif self.product.discounted_price is not None:
             self.price=self.product.discounted_price*self.quantity
+            if self.coupon:
+                self.price=self.price-self.coupon.coupon_discount
+                return super(Order, self).save(*args, **kwargs)
             return super(Order, self).save(*args, **kwargs)
         else:
             return messages.warning('Something went wrong!')
-    
+    """ def save(self,*args,**kwargs):
+        if self.coupon:
+            self.price=self.price-300
+            return super(Order, self).save(*args, **kwargs) """
     def __str__(self):
         return self.user.username
     class Meta:
@@ -351,7 +359,8 @@ class Blog(models.Model):
     author = models.CharField(max_length=100,null=True)
     description = models.TextField()
     url= EmbedVideoField(max_length = 200,null=True,blank=True)
-    image = models.FileField(upload_to="Blog", blank=True, null=True, max_length=500)  
+    images=models.ImageField(upload_to="blog",null=True)
+    image =models.ManyToManyField(image,blank=True)   
     # category=models.ForeignKey(BlogCategory, on_delete=models.CASCADE)
     uploaded_date=models.DateField(auto_now_add=True)
 
@@ -378,6 +387,8 @@ class FAQ(models.Model):
     Answer = RichTextField(max_length=300,null=True)
     class Meta:
         verbose_name_plural = "FAQs"
+    def __str__(self):
+        return str(self.Question,)
 ####################################################################################################################
 #Contact Model
 class customer_message(models.Model):
