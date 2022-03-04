@@ -7,8 +7,12 @@
 # from django.views.generic import View
 # from io import BytesIO
 # from django.contrib.admin import AdminSite
+import mailbox
+from django.contrib.auth.models import Group
 from asyncio.windows_events import NULL
+from email.headerregistry import Group
 from logging import exception
+from tokenize import group
 from django.contrib import admin
 from django.contrib import messages
 from django.db import IntegrityError
@@ -36,21 +40,9 @@ import pdfkit
 import tempfile
 import zipfile
 import csv
+from django.contrib.auth.admin import UserAdmin
 
-#################################################################################################################################### 
-def count(request):
-    user = User.objects.all().count()
-    product=Product.objects.all().count()
-    order=Order.objects.all().count()
-    print(user,product,order)
-    context={
-        'user_count':user,
-        'product_count':product,
-        'order_count':order,
-    }
-    return render(request,"admin/index.html",context)
-# class myadminsite(AdminSite):
-#     index_template='templates/admin/index.html'
+
 ###########################################################################################################################################
 class AddressAdmin(ExportActionMixin,admin.ModelAdmin):
    #
@@ -131,15 +123,15 @@ class CategoryAdmin(ExportActionMixin,admin.ModelAdmin):
             except:
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
                 #message=messages.warning('Something went wrong! check your file again \n 1.Upload correct file \n 2.Check you data once')
-        image_tag.short_description = 'Image'
+        image_tag.short_description = 'Brand Thumbnail'
         image_tag.allow_tags = True
         
-        list_display = ['id','title','image_tag','is_active','updated_at','action_btn']
+        list_display = ['id','brands','image_tag','is_active','updated_at','action_btn']
         #list_editable = ('slug', )
         list_editable=('is_active',)
-        list_filter = ('title','is_active','updated_at')
+        list_filter = ('brands','is_active','updated_at')
         list_per_page = 10
-        search_fields = ('title', 'description','is_active','updated_at')
+        search_fields = ('brands', 'description','is_active','updated_at')
         save_on_top = True
         def action_btn(self,obj):
             html="<div class='field-action_btn d-flex '> <a class='fa fa-edit ml-2' href='/admin/app1/category/"+str(obj.id)+"/change/'></a><br></br>"
@@ -168,7 +160,7 @@ class CategoryAdmin(ExportActionMixin,admin.ModelAdmin):
                         fields = x.split(",")
                         try:
                             created = Category.objects.create(
-                            title=fields[0],
+                            brands=fields[0],
                             description=fields[1],
                             category_image="category/"+fields[2],)
                             created.save()
@@ -212,7 +204,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                 return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.product_image.url,"50","50"))
             except:
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>') 
-        image_tag2.short_description = 'Thumbnail image'
+        image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True  
         list_display = ['id','title','category','image_tag2','imagee','price','discounted_price','is_active','updated_at','action_btn']#,'is_active','is_featured'
         list_editable = ('category','is_active',)
@@ -277,7 +269,14 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                     csv_data = file_data.split("\n")
                     #csv_data = records.split("\n")
                     for x in csv_data:
+                        # n=str(x)
+                        # l=n.split("[")
+                        # k=l[1].split(']"')
+                        # imagess=(k[0])
+                        # print(n)
+                        # print(imagess)
                         fields = x.split(",")
+                        print(fields)
                         try:
                             print(fields[7])
                             created = Product.objects.update_or_create(
@@ -301,13 +300,15 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                                 )
                             #print(created)
                             #for i in fields[5]:
-                                #print(i) 
+                                #print(i)
+                            #field=','.join(fields[5])
+                            #print(field)
                             imagess=image.objects.get(pk=(fields[5]))
-
-                            #for i in len(fields[5]):
-                            #print(i)  
-                            created[0].image.add(imagess)
-                            created[0].save()
+                            # print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",len(imagess))
+                            # for i in len(imagess):
+                            # #print(i)  
+                            #     created[i].image.add(imagess)
+                            #     created[i].save()
                             #print(created)
                         except IndexError:
                             pass
@@ -326,12 +327,12 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                             message=messages.warning(request,e)
                             #message=messages.warning(request,"Check the category ID")
                             return render(request, "admin/csv_upload.html", data)
-                        except:
+                        """ except:
                             form = CsvImportForm()
                             data = {"form": form}
-                            message=messages.warning(request,"category query doesnt exist")
+                            message=messages.warning(request,"category or image query doesnt exist")
                             #message=messages.warning(request,"Check the category ID")
-                            return render(request, "admin/csv_upload.html", data)
+                            return render(request, "admin/csv_upload.html", data) """
                     url = reverse('admin:index')
                     return HttpResponseRedirect(url)
                 #image_tag.short_description = 'Image'
@@ -405,7 +406,7 @@ class CoupenAdmin(admin.ModelAdmin):
 ##############################################################################################################################
 class RatingAdmin(admin.ModelAdmin):
     list_display = ['id','user','product','Reviews','Rating','action_btn','Status',]
-    search_fields = ['user']
+    search_fields = ['user']     
     list_editable = ('Status','Rating' )
     def action_btn(self,obj):
             #html="<input class='text-danger fa fa-check' type='submit' value='Reject' name='form-0-Status'> <input class='text-success fa fa-ban' type='submit' value='Approve' name='form-0-Status'> <input type='hidden' name='id' value=form-0-Status>"
@@ -488,8 +489,50 @@ class BannerAdmin(admin.ModelAdmin):
     list_display=['id','user','coupon','redeemed']
     search_fields=['user','coupon','redeemed'] """
 ####################################################################################################################
+from django.core.mail import send_mail
+import math, random
 class customer_messageAdmin(admin.ModelAdmin):
     list_display=['id','Name','Phone','Email','Message']
+    actions=["send_message"]
+    # def generateOTP():
+    #     digits = "A12B34C5627859D"
+    #     OTP = ""
+    #     for i in range(5) :
+    #         OTP += digits[math.floor(random.random() * 10)]
+    #     return OTP
+    
+    
+    # def action_btn(self,obj):
+    #     email=obj.Email
+    #     otp="thank you your message was recieved"
+    #     a=send_mail('Hi',otp,'gowdasandeep8105@gmail.com',[email],fail_silently=False,)
+    #     return format_html("<a class='text-success fa fa-envelope' href=''><a>")
+       
+        #return format_html(html)
+    #.short_description="Replay"
+    def send_message(self,request,queryset):
+        try:
+            for i in queryset:
+                if i.Email and i.Name:
+                    email=i.Email
+                    #global otp
+                    #otp=self.generateOTP()
+                    message="{} thank you your message was recieved".format(i.Name)
+                    print(message)
+                    print(email)
+                    #messages.success(request,"Successfully sent")
+                    try:
+                        #message=messages.success(request,"Successfully sent")
+                        return send_mail('Hi',message,'gowdasandeep8105@gmail.com',[email],fail_silently=False,),messages.success(request,"Successfully sent")
+                    except:
+                        return messages.warning(request,"something went wrong check again") 
+        except:
+            return messages.warning(request,"something went wrong")
+            #email1=email
+        #print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
+class mailadmin(admin.ModelAdmin):
+    list_display=['subject','message','send_it']
+    list_editable=['send_it']
 ###################################################################################################################
 admin.site.register(Order,OrderAdmin)
 admin.site.register(Category,CategoryAdmin)
@@ -505,7 +548,11 @@ admin.site.register(Blog,BlogAdmin)
 admin.site.register(FAQ,FAQAdmin)
 admin.site.register(customer_message,customer_messageAdmin)
 admin.site.register(Banner,BannerAdmin)
+#admin.site.register(Mail)
+admin.site.register(MailText,mailadmin)
 admin.site.unregister(get_attachment_model())
+
+#admin.site.unregister(Group)
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth import get_user_model
@@ -534,3 +581,4 @@ class UserAdmin(BaseUserAdmin):
   search_fields = ('email', 'first_name', 'last_name')
   ordering = ('email', )
 admin.site.register(User, UserAdmin)
+#admin.site.unregister(Group)

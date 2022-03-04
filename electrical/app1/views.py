@@ -25,6 +25,8 @@ from django.http import HttpResponse
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from django.shortcuts import render
+from app1.forms import *
 #from app1 import views
 
 class RegisterApi(generics.GenericAPIView):
@@ -48,6 +50,14 @@ class RegisterApi(generics.GenericAPIView):
         user = serializer.validated_data['user']
         login(request, user)
         return super(LoginAPI, self).post(request, format=Non )"""
+def countt(request):
+    usercount=User.objects.all().count()
+    productcount=Product.objects.all().count()
+    ordercount=Order.objects.all().count()
+    context={'usercount':usercount,
+             'productcount':productcount,
+             'ordercount':ordercount}
+    return render(request,"templates/admin/index.html",context)
 ##############################################################################################################################################
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -154,7 +164,6 @@ class AddressUpdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
-
 
 class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )

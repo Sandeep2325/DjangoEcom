@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     #'jet.dashboard',
     #'jet',
     #'baton',
+    #'wpadmin',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -87,7 +88,7 @@ CORS_ORIGIN_WHITELIST = [
 
 ROOT_URLCONF = 'electrical.urls'
 AUTH_USER_MODEL = 'app1.User'
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 100000
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -216,14 +217,13 @@ COMPRESS_PRECOMPILERS = (('text/x-scss', 'django_libsass.SassCompiler'),)
 STATICFILES_FINDERS = ('django.contrib.staticfiles.finders.FileSystemFinder','django.contrib.staticfiles.finders.AppDirectoriesFinder',)# other finders..'compressor.finders.CompressorFinder',)
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -235,6 +235,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'image')
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+#EMAIL_USE_SSL=FALSE
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "gowdasandeep8105@gmail.com"
+EMAIL_HOST_PASSWORD = 'Sandeep@1234'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'

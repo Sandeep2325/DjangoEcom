@@ -25,3 +25,18 @@ class CustomActionForm(forms.Form):
 #     def __init__(self, *args, **kwargs):
 #         super(MultiImageUploadForm, self).__init__(*args, **kwargs)
 #         self.fields['created_at'].initial = datetime.datetime.now()
+class MailForm(forms.Form):
+    subject = forms.CharField(max_length=255)
+    message = forms.CharField(widget=forms.Textarea)
+    attachment = forms.FileField()
+        
+    def clean_subject(self):
+        if self.cleaned_data["subject"]=="" or self.cleaned_data["subject"]==None:
+            raise forms.ValidationError("My text goes here")    
+        return self.cleaned_data["subject"]
+
+    def clean_message(self):
+        if self.cleaned_data["message"]=="" or self.cleaned_data["message"]==None:
+            raise forms.ValidationError("My text goes here")    
+        return self.cleaned_data["message"]
+        

@@ -19,7 +19,8 @@ from django.contrib.auth.models import AbstractUser,BaseUserManager
 #from django.conf import settings
 from datetime import date
 #from phonenumber_field.modelfields import PhoneNumberField
-from  embed_video.fields  import  EmbedVideoField
+from embed_video.fields  import  EmbedVideoField
+#from django.contrib.auth.admin import UserAdmin
 #from youtubeurl_field.modelfields import YoutubeUrlField
 ##################################################################################################################################
 
@@ -31,8 +32,9 @@ class User(AbstractUser):
   USERNAME_FIELD = 'email'
   REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
   def __str__(self):
-      return "{}".format(self.email)
+      return "{}".format(str(self.email))
 #######################################################################################################################################
+
 """ class AccountManager(BaseUserManager):
     def create_superuser(self,email,first_name,password,**other_fields):
         other_fields.setdefault('is_staff',True)
@@ -110,10 +112,10 @@ class Category(models.Model):
         if filesize > size:
             raise ValidationError("Max file size is 900*900 or should be less than 2MB")
     #def get_family_tree(self):
-    title = models.CharField(max_length=50, verbose_name="Category Title")
+    brands = models.CharField(max_length=50, verbose_name="Brands")
     #slug = models.SlugField(max_length=55, verbose_name="Category Slug")
     description = models.TextField(blank=True, verbose_name="Category Description")
-    category_image =models.ImageField(upload_to='category',verbose_name="Category Image",null=True, blank=True,max_length=500)#,validators=[validate_image], null=True,help_text='Maximum file size allowed 900*900 or 2 MB'
+    category_image =models.ImageField(upload_to='category',verbose_name="Brand Thumbnail",null=True, blank=True,max_length=500)#,validators=[validate_image], null=True,help_text='Maximum file size allowed 900*900 or 2 MB'
     is_active = models.BooleanField(verbose_name="Is Active?",default=True)
     #is_featured = models.BooleanField(verbose_name="Is Featured?",default=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
@@ -133,7 +135,7 @@ class Category(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return self.title
+        return self.brands
 
     class Meta:
         verbose_name_plural = " Category"
@@ -168,7 +170,7 @@ class Product(models.Model):
     short_description = RichTextField(verbose_name="Short Description")
     detail_description = models.TextField(blank=True, null=True, verbose_name="Detail Description")
     image=models.ManyToManyField(image,blank=True)
-    product_image = models.ImageField(upload_to='product', verbose_name="Product Image", blank=True, null=True,max_length=500)
+    product_image = models.ImageField(upload_to='product', verbose_name="Product Thumbnail", blank=True, null=True,max_length=500)
     #product_image1 = models.ImageField(upload_to='product', verbose_name="Product Image 1", blank=True, null=True,max_length=500)
     #product_image2 = models.ImageField(upload_to='product', verbose_name="Product Image 2", blank=True, null=True,max_length=500)#,validators=[validate_image],help_text='Maximum file size allowed 900*900 or 2 MB'
     """ images = ArrayField(
@@ -179,7 +181,7 @@ class Product(models.Model):
     )"""
     price = models.DecimalField(max_digits=8, decimal_places=2,verbose_name='Price(₹)')
     discounted_price=models.DecimalField(max_digits=8, decimal_places=2,verbose_name="Offer Price(₹)",null=True ,blank=True)
-    category = models.ForeignKey(Category, verbose_name="Product Categoy", on_delete=models.SET_NULL,null=True)
+    category = models.ForeignKey(Category, verbose_name="Product Brands", on_delete=models.SET_NULL,null=True)
     is_active = models.BooleanField(verbose_name="Is Active?",default=True)
     #is_featured = models.BooleanField(verbose_name="Is Featured?",default=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
@@ -201,7 +203,7 @@ class Product(models.Model):
         verbose_name_plural = '  Products'
         ordering = ('-created_at',)
     def __str__(self):
-        template = '{0.title}'
+        template = '{0.title}/{0.category.brands}'
         return template.format(self)
     """ class Meta:
         verbose_name_plural = VerboseName(lambda: u"Used Coupons (%d)" % Product.objects.all().count()) """
@@ -282,7 +284,7 @@ class Order(models.Model):
             self.price=self.price-300
             return super(Order, self).save(*args, **kwargs) """
     def __str__(self):
-        return self.user.username
+        return str(self.user.username)
     class Meta:
         verbose_name_plural = "Order"
 #############################################################################################################################
@@ -337,14 +339,16 @@ class Rating(models.Model):
     # Product = models.ForeignKey(to, on_delete)
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     product = models.ForeignKey(Product, verbose_name="Product", on_delete=models.CASCADE,null=True)
-    Reviews =RichTextField(null=True)
+    Reviews =RichTextField(null=True,blank=True)
     Rating = models.DecimalField(default=0.0, max_digits=5, decimal_places=1,validators=[
         MinValueValidator(1),MaxValueValidator(5)
-    ],null=True,blank=True)
+    ],null=True)
     Status = models.CharField(
         choices=STATUS_CHOICES,
         max_length=8,
-        )     
+        )
+    def __str__(self):
+        return self.product.title     
 #####################################################################################################################        
 #BLOG MODEL
 class Blog(models.Model):
@@ -422,3 +426,70 @@ class Banner(models.Model):
             pass
     def __str__(self):
         return str(self.title,)
+#########################################################################################################################
+from datetime import datetime
+from django.core.mail import send_mail
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+# class Mail(models.Model):
+#     email=models.EmailField(max_length=255,unique=True,verbose_name="Email",null=True)
+#     timestamp=models.DateTimeField(default=datetime.now,verbose_name="time",null=True),
+#     delete_link=models.SlugField(unique=True,max_length=255,null=True,blank=True)
+#     def __unicode__(self):
+#         return self.email
+
+#     class Meta:
+#         verbose_name = "Email User"
+#         verbose_name_plural = "Email Users"
+        
+class MailText(models.Model):
+        subject = models.CharField(max_length=255,null=True,blank=True)
+        message = models.CharField(max_length=255,null=True)
+        #attachment = models.FileField(blank=True)
+        #=models.CharField(max_length=255,null=True)
+        users=models.ManyToManyField(User)
+        #users = models.ForeignKey(User,blank=True,on_delete=models.CASCADE,null=True)
+        send_it = models.BooleanField(default=False) #check it if you want to send your email
+        
+        #@receiver(post_save, sender=MailText, dispatch_uid="update_stock_count")
+        def save(self,*args,**kwargs):
+            super(MailText, self).save(*args, **kwargs)
+            
+            if self.send_it==True:
+                user_list= []
+                print(self.users.all())
+                for u in self.users.all():
+                    print(u.email)
+                    user_list.append(u.email)
+                #print(user_list)
+                send_mail(str(self.subject), 
+                          str(self.message),
+                          'gowdasandeep8105@gmail.com',
+                          user_list, 
+                          fail_silently=False)
+            
+            #super(MailText, self).save(*args, **kwargs)
+
+        class Meta:
+            verbose_name = "Emails to send"
+            verbose_name_plural = "Emails to send"
+        def __str__(self):
+            return str(self.subject)
+# @receiver(post_save, sender=MailText, dispatch_uid="update_stock_count")
+# def save(instance,*args,**kwargs):
+#         #     super(MailText, self).save(*args, **kwargs)
+            
+#     if instance.send_it==True:
+#         user_list= []
+#         #instance.users.save()
+#         print(instance.users.all())
+#         for u in instance.users.all():
+#             print(u.email)
+#             user_list.append(u.email)
+#             #print(user_list)
+#         send_mail(str(instance.subject), 
+#                 str(instance.message),
+#                 'gowdasandeep8105@gmail.com',
+#                 user_list, 
+#                 fail_silently=False)

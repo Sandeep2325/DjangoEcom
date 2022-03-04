@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 #from xml.etree.ElementInclude import include
+#from django.urls import url
 from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings #add this
@@ -24,9 +25,11 @@ from app1 import views
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenVerifyView
 from django.conf.urls import handler404
+import regex
 #handler404 = 'app1.views.error_404_view'
 router = routers.DefaultRouter()
 urlpatterns = [
+   
     #path('jet/', include('jet.urls', 'jet')),
     #path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
     path('admin/', admin.site.urls),
