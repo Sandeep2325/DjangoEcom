@@ -7,6 +7,12 @@
 # from django.views.generic import View
 # from io import BytesIO
 # from django.contrib.admin import AdminSite
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserChangeForm
+from .models import User
 import mailbox
 from django.contrib.auth.models import Group
 from asyncio.windows_events import NULL
@@ -41,7 +47,9 @@ import tempfile
 import zipfile
 import csv
 from django.contrib.auth.admin import UserAdmin
-
+from django.db.models import Avg
+from django.core.mail import send_mail
+import math, random
 
 ###########################################################################################################################################
 class AddressAdmin(ExportActionMixin,admin.ModelAdmin):
@@ -113,10 +121,8 @@ class imageAdmin(admin.ModelAdmin):
     except:
         pass
 ##################################################################################################################################
-
 class CategoryAdmin(ExportActionMixin,admin.ModelAdmin):
-    try:
-        
+    try:  
         def image_tag(self, obj):
             try:
                 return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.category_image.url,"100","100"))
@@ -125,7 +131,6 @@ class CategoryAdmin(ExportActionMixin,admin.ModelAdmin):
                 #message=messages.warning('Something went wrong! check your file again \n 1.Upload correct file \n 2.Check you data once')
         image_tag.short_description = 'Brand Thumbnail'
         image_tag.allow_tags = True
-        
         list_display = ['id','brands','image_tag','is_active','updated_at','action_btn']
         #list_editable = ('slug', )
         list_editable=('is_active',)
@@ -206,7 +211,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>') 
         image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True  
-        list_display = ['id','title','category','image_tag2','imagee','price','discounted_price','is_active','updated_at','action_btn']#,'is_active','is_featured'
+        list_display = ['id','title','category','image_tag2','imagee','price','discounted_price','is_active','updated_at','average_review','count_review','action_btn']#,'is_active','is_featured'
         list_editable = ('category','is_active',)
         list_filter = ('category','is_active','updated_at')
         list_per_page = 20
@@ -223,8 +228,18 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/product/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
         action_btn.short_description="Action"
-        #discount_.short_description=''
-        #prepopulated_fields = {"slug": ("title", )}
+        
+        """ def show_average(self, obj):
+            from django.db.models import Avg
+            result = Rating.objects.filter(product=obj).aggregate(Avg("Rating"))
+            try:
+                #obj(rating_average="%.1f" %float(result["Rating__avg"])).save()
+                return "%.1f" %float(result["Rating__avg"])
+            except:
+                #obj(rating_average=5).save()
+                return format_html("<p class=text-danger>No ratings yet!</p>")
+            #return format_html("<b><i>{}</i></b>", result["Rating__avg"])
+        show_average.short_description="Average rating" """
         
         def delete_offers(self,request,queryset):
             """ from django.db import connection
@@ -251,7 +266,13 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                         new_price = ceil(old_price - (old_price * multiplier))
                         product.discounted_price = new_price
                         product.save(update_fields=['discounted_price'])
-                #sales_discount.short_description = 'Apply sales discount'  
+                #sales_discount.short_description = 'Apply sales discount'
+        """ def averagereview(self,request):
+            review = Rating.objects.filter(product=self).aggregate(avarage=Avg('rate'))
+            avg=0
+            if review["avarage"] is not None:
+                avg=float(review["avarage"]) 
+            return avg  """
         def get_urls(self):
             urls = super().get_urls()
             new_urls = [path('upload-csv/', self.upload_csv),]
@@ -269,47 +290,46 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                     csv_data = file_data.split("\n")
                     #csv_data = records.split("\n")
                     for x in csv_data:
-                        # n=str(x)
-                        # l=n.split("[")
-                        # k=l[1].split(']"')
-                        # imagess=(k[0])
-                        # print(n)
-                        # print(imagess)
-                        fields = x.split(",")
-                        print(fields)
+                        
+                        """ n=str(x)
+                        l=n.split("[")
                         try:
-                            print(fields[7])
+                            k=l[1].split(']"')
+                            images_csv=(k[0].split(','))
+                            print(len(images_csv))
+                                #print(images_csv[0])
+                                #print(images_csv[1])
+                            for i in range(len(images_csv)):
+                                iter_image=images_csv[i]
+                                print(iter_image)
+                                imagess=image.objects.get(pk=(int(iter_image)))
+                                print("@@@@@@@@@@@@@@@@@@@@@@@",i)
+                                    #try:
+                                        
+                                created[i].image.add(imagess)
+                                created[i].save
+                                
+                        except IndexError:
+                            pass """
+                      
+                        fields = x.split(",")
+                        #print(fields)
+                        try:
+                            #print(fields[7])
                             created = Product.objects.update_or_create(
                                 title=fields[0],
                                 sku=fields[1],
                                 short_description=fields[2],
                                 detail_description=fields[3],
                                 product_image="product/"+fields[4], 
-                                #image=image.objects.get(pk=(fields[5])),
-                                #is_active=fields[5],
-                                #product_image1="product/"+fields[5],
-                                #product_image2="product/"+fields[6],
-                                #images=image.objects.get(pk=(fields[4])),
-                                #image=fields[5],
                                 price=fields[6],
-                                #is_active=fields[7],
-                                #is_featured=fields[8],
-                                category=Category.objects.get(pk=(fields[7])),
-                                #is_active=fields[5],
-                                #category=fields[6],
+                                category=Category.objects.get(pk=(fields[5])),
                                 )
-                            #print(created)
-                            #for i in fields[5]:
-                                #print(i)
-                            #field=','.join(fields[5])
-                            #print(field)
-                            imagess=image.objects.get(pk=(fields[5]))
-                            # print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",len(imagess))
-                            # for i in len(imagess):
-                            # #print(i)  
-                            #     created[i].image.add(imagess)
-                            #     created[i].save()
-                            #print(created)
+                            imagess=image.objects.get(pk=(int(fields[7])))
+                            created[0].image.add(imagess)
+                            created[0].save      
+                        except IndexError:
+                            pass    
                         except IndexError:
                             pass
                         except (ValidationError,IntegrityError):
@@ -360,9 +380,7 @@ class OrderAdmin(admin.ModelAdmin):
             html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/order/"+str(obj.id)+"/change/'></a><br></br>"
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/order/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
-    action_btn.short_description="Action"
-    """ def couponss(self,obj):
-        if obj.coupon== """
+    action_btn.short_description="Action" 
 #############################################################################################################################
 class AttributesAdmin(admin.ModelAdmin):
     list_display=('id','Product','Color','Size','action_btn')
@@ -402,23 +420,27 @@ class CoupenAdmin(admin.ModelAdmin):
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/coupon/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
     action_btn.short_description="Action"
-
 ##############################################################################################################################
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ['id','user','product','Reviews','Rating','action_btn','Status',]
+    list_display = ['id','user','product','Reviews','Rating','Status','action_btn',]
     search_fields = ['user']     
     list_editable = ('Status','Rating' )
+    def has_add_permission(self, request):
+        return True
+    # def action_btn(self,obj):
+    #         #html="<input class='text-danger fa fa-check' type='submit' value='Reject' name='form-0-Status'> <input class='text-success fa fa-ban' type='submit' value='Approve' name='form-0-Status'> <input type='hidden' name='id' value=form-0-Status>"
+    #         html="<button class='text-success fa fa-check'></button>"
+    #         html+="<button class='text-danger fa fa-ban'></button>"
+    #         return format_html(html)
+    # action_btn.short_description="Action"
     def action_btn(self,obj):
-            #html="<input class='text-danger fa fa-check' type='submit' value='Reject' name='form-0-Status'> <input class='text-success fa fa-ban' type='submit' value='Approve' name='form-0-Status'> <input type='hidden' name='id' value=form-0-Status>"
-            html="<button class='text-success fa fa-check'></button>"
-            html+="<button class='text-danger fa fa-ban'></button>"
-            return format_html(html)
-    action_btn.short_description="Action"
+        html="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/rating/"+str(obj.id)+"/delete/'></a></div>"
+        return format_html(html)
+    action_btn.short_description="Delete"
 ##############################################################################################################################
 class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
     try:
         """ def dummy(self,obj):
-            
             html="<object style='height: 100px; width: 100%'><param name='movie' value='https://youtu.be/HYOvEIimVzI'>"
             html+="<param name='allowFullScreen' value='true'><param name='allowScriptAccess' value='always'>"
             html+="<embed src='https://youtu.be/HYOvEIimVzI' type='application/x-shockwave-flash' allowfullscreen='true' allowScriptAccess='always' width='640' height='390'></object>"
@@ -442,7 +464,7 @@ class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
         image_tag.short_description = 'Thumbnail Image'
         image_tag.allow_tags = True
         def video_url(self, obj):
-            return format_html('<a class="fa fa-play fa-1x" href="%s"></a>' % (obj.url))
+            return format_html('<a class="fa fa-play fa-1x" href="%s">Play video</a>' % (obj.url))
             #return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description='video'
@@ -457,7 +479,6 @@ class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
         action_btn.short_description="Action"
     except:
         pass
-    #summernote_fields = ('content', )
 ##############################################################################################################################
 class FAQAdmin(admin.ModelAdmin):
     list_display=['id','Question','Answer']
@@ -473,7 +494,6 @@ class BannerAdmin(admin.ModelAdmin):
                 #message=messages.warning('Something went wrong! check your file again \n 1.Upload correct file \n 2.Check you data once')
     image_tag.short_description = 'Image'
     image_tag.allow_tags = True
-    
     list_display=['id','title','image_tag','uploaded_date','action_btn']
     search_fields=['title']
     def action_btn(self,obj):
@@ -489,41 +509,24 @@ class BannerAdmin(admin.ModelAdmin):
     list_display=['id','user','coupon','redeemed']
     search_fields=['user','coupon','redeemed'] """
 ####################################################################################################################
-from django.core.mail import send_mail
-import math, random
 class customer_messageAdmin(admin.ModelAdmin):
-    list_display=['id','Name','Phone','Email','Message']
+    list_display=['id','first_name','last_name','Phone','Email','Message']
     actions=["send_message"]
-    # def generateOTP():
-    #     digits = "A12B34C5627859D"
-    #     OTP = ""
-    #     for i in range(5) :
-    #         OTP += digits[math.floor(random.random() * 10)]
-    #     return OTP
     
-    
-    # def action_btn(self,obj):
-    #     email=obj.Email
-    #     otp="thank you your message was recieved"
-    #     a=send_mail('Hi',otp,'gowdasandeep8105@gmail.com',[email],fail_silently=False,)
-    #     return format_html("<a class='text-success fa fa-envelope' href=''><a>")
-       
-        #return format_html(html)
-    #.short_description="Replay"
     def send_message(self,request,queryset):
         try:
             for i in queryset:
-                if i.Email and i.Name:
+                if i.Email and i.first_name:
                     email=i.Email
                     #global otp
                     #otp=self.generateOTP()
-                    message="{} thank you your message was recieved".format(i.Name)
+                    message="Hi {}, thank you,your message was recieved".format(i.first_name)
                     print(message)
                     print(email)
                     #messages.success(request,"Successfully sent")
                     try:
                         #message=messages.success(request,"Successfully sent")
-                        return send_mail('Hi',message,'gowdasandeep8105@gmail.com',[email],fail_silently=False,),messages.success(request,"Successfully sent")
+                        return send_mail('Prakash Electrical',message,'gowdasandeep8105@gmail.com',[email],fail_silently=False,),messages.success(request,"Successfully sent")
                     except:
                         return messages.warning(request,"something went wrong check again") 
         except:
@@ -531,8 +534,15 @@ class customer_messageAdmin(admin.ModelAdmin):
             #email1=email
         #print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
 class mailadmin(admin.ModelAdmin):
-    list_display=['subject','message','send_it']
+    list_display=['subject','message','send_it','action_btn']
     list_editable=['send_it']
+    def action_btn(self,obj):
+            html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/change/'></a><br></br>"
+            html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/change/'></a><br></br>"
+            html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/delete/'></a></div>"
+            return format_html(html)
+    action_btn.short_description="Action"
+
 ###################################################################################################################
 admin.site.register(Order,OrderAdmin)
 admin.site.register(Category,CategoryAdmin)
@@ -551,34 +561,50 @@ admin.site.register(Banner,BannerAdmin)
 #admin.site.register(Mail)
 admin.site.register(MailText,mailadmin)
 admin.site.unregister(get_attachment_model())
+from django.contrib.auth.models import Group
+admin.site.unregister(Group)
 
 #admin.site.unregister(Group)
-from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth import get_user_model
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.forms import UserChangeForm
-from .models import User
 
 
-class UserAdmin(BaseUserAdmin):
-  form = UserChangeForm
-  fieldsets = (
-      (None, {'fields': ('email', 'password', )}),
-      (_('Personal info'), {'fields': ('first_name', 'last_name')}),
+
+# class UserAdmin(BaseUserAdmin):
+#     form = UserChangeForm
+#     fieldsets = (
+#       (None, {'fields': ('email', 'password','username' )}),
+#       (_('Personal info'), {'fields': ('first_name', 'last_name')}),
+#       (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
+#                                      'groups', 'user_permissions')}),
+#       (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+#         (_('user_info'), {'fields': ('phone_no',)}),
+#     )
+#     add_fieldsets = (
+#       (None, {
+#           'classes': ('wide', ),
+#           'fields': ('email', 'password1', 'password2'),
+#       }),
+#   )
+#     list_display = ['username','email', 'first_name', 'last_name', 'is_staff',"phone_no"]
+#     search_fields = ('email', 'first_name', 'last_name')
+#     ordering = ('email', )
+#admin.site.register(User, UserAdmin)
+""" class UserAdmin(BaseUserAdmin):
+    fieldsets = (
+      (None, {'fields': ('email', 'password','username','phone_no' )}),
       (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
-                                     'groups', 'user_permissions')}),
-      (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
-        (_('user_info'), {'fields': ('phone_no',)}),
-  )
-  add_fieldsets = (
-      (None, {
-          'classes': ('wide', ),
-          'fields': ('email', 'password1', 'password2'),
-      }),
-  )
-  list_display = ['email', 'first_name', 'last_name', 'is_staff',"phone_no"]
-  search_fields = ('email', 'first_name', 'last_name')
-  ordering = ('email', )
-admin.site.register(User, UserAdmin)
+                                      'groups', 'user_permissions')}),
+    )
+    
+    list_display = ['username','email', 'first_name', 'last_name', 'is_staff',"phone_no",'action_btn']
+    search_fields = ('email', 'first_name', 'last_name')
+    ordering = ('email', )
+    actions=""
+    
+    def action_btn(self,obj):
+            html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/change/'></a><br></br>"
+            html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/change/'></a><br></br>"
+            html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/delete/'></a></div>"
+            return format_html(html)
+    action_btn.short_description="Action" """
+#admin.site.register(User,UserAdmin)
 #admin.site.unregister(Group)

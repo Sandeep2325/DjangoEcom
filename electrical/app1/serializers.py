@@ -1,5 +1,6 @@
 from dataclasses import field, fields
 import email
+from unittest.util import _MAX_LENGTH
 from django.forms import CharField
 from rest_framework import serializers
 #from rest_auth.registration.serializers import RegisterSerializer
@@ -7,28 +8,27 @@ from . models import *
 from math import ceil
 from django.utils.timezone import now
 from django.db import transaction
-from app1.models import User
+#from app1.models import User
 #from django.contrib.auth.models import User
 #from .models import User
-class RegisterSerializer(serializers.ModelSerializer):
+""" class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields=('username','first_name','last_name','email','password','phone_no')
     def create(self, validated_data):
         user = User.objects.create_user(username=validated_data['username'],password = validated_data['password'],email=validated_data['email'],first_name=validated_data['first_name'],last_name=validated_data['last_name'],phone_no=validated_data['phone_no'])
         user.save()
-        return user
+        return user """
 # User serializer
 """ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__' """
- ##################################################################################       
+##################################################################################       
 class CustomerAddressSerializers(serializers.ModelSerializer):
     class  Meta:
         fields = '__all__'
         model = Address
-
 class categorySerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -36,14 +36,14 @@ class categorySerializer(serializers.ModelSerializer):
 class productSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
-        model=Product
+        model=Product          
 class attributesSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
         model=Attributes
 class ordersSerializer(serializers.ModelSerializer):
     class Meta:
-        fields="__all__"
+        fields=("user","address","product",'quantity','coupon','attributes','status')
         model=Order
 class bannerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,15 +55,37 @@ class blogSerializer(serializers.ModelSerializer):
         model=Blog
 class faqSerializer(serializers.ModelSerializer):
     class Meta:
-        fields="__all__"
+        fields=("Question",)
         model=FAQ
+class ffaqSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields="__all__"
+        model=FAQ    
 class ratingSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
         model=Rating
+    Rating=serializers.DecimalField(max_digits=5, decimal_places=1,)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    # def create(self,**validated_data):
+    #     user=User.objects.create(**validated_data)
+    #     return user
 class customermessageSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
+        model=customer_message
+    first_name=serializers.CharField(max_length=200)
+    last_name=serializers.CharField(max_length=200)
+    Email=serializers.EmailField(max_length=200)
+    Phone=serializers.IntegerField()
+    Message=serializers.CharField(max_length=500)
+    
+    def validate_first_name(self,value):
+        if value is NULL:
+            res= serializers.ValidationError('Enter First name')
+            res.status_code = 200
+            raise res 
+        return value
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon

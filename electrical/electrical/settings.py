@@ -50,19 +50,17 @@ INSTALLED_APPS = [
     'chartjs',
     'corsheaders',
     'rest_framework',
-    
     'django_filters',
-    
-    #'rest_framework.authtoken',
+    'rest_framework.authtoken',
     'rest_auth',
-    #'social.apps.django_app.default',
-    #'social_django',
-    #'app1.apps.VideouploaddisplayConfig',
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
     'ckeditor',
     'django_summernote',
     #'baton.autodiscover',
     #'compressor'
-    'allauth',
+    #'allauth',
     #'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',  
@@ -87,7 +85,7 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 ROOT_URLCONF = 'electrical.urls'
-AUTH_USER_MODEL = 'app1.User'
+#AUTH_USER_MODEL = 'app1.User'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000
 TEMPLATES = [
     {
@@ -132,6 +130,9 @@ AUTHENTICATION_BACKEND = [
     'social_core.backends.facebook.FacebookOAuth2',
     
 ]
+ACCOUNT_AUTHENTICATION_METHOD="email"
+ACCOUNT_EMAIL_REQUIRED=True
+ACCOUNT_USERNAME_REQUIRED=False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 WSGI_APPLICATION = 'electrical.wsgi.application'
@@ -139,18 +140,18 @@ WSGI_APPLICATION = 'electrical.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-""" 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'electrical4',
+        'NAME': 'electrical14',
         'USER': 'root',
         'PASSWORD': 'Sandeep@8105',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
-} """
-DATABASES = {
+}
+""" DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
        'NAME': 'electrical6',
@@ -159,7 +160,7 @@ DATABASES = {
        'HOST': 'localhost',
        'PORT': '5432',
    }
-} 
+}  """
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -177,6 +178,15 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 4,
+}
 
 """ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

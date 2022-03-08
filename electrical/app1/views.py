@@ -27,29 +27,19 @@ from rest_framework.views import APIView
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.shortcuts import render
 from app1.forms import *
+from rest_framework.pagination import PageNumberPagination
 #from app1 import views
 
-class RegisterApi(generics.GenericAPIView):
+""" class RegisterApi(generics.GenericAPIView):
     serializer_class = RegisterSerializer
     def post(self, request, *args,  **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        """ return Response({
-            "user": UserSerializer(user,    context=self.get_serializer_context()).data,
-            "message": "User Created Successfully.  Now perform Login to get your token",
-        }) """
-""" class LoginAPI(KnoxLoginView):
-    permission_classes = (permissions.AllowAny,)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) """
 
-    def post(self, request, format=None):
-        serializer = AuthTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        login(request, user)
-        return super(LoginAPI, self).post(request, format=Non )"""
+     
 def countt(request):
     usercount=User.objects.all().count()
     productcount=Product.objects.all().count()
@@ -75,20 +65,25 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
         serializer = categorySerializer(item)
         return Response(serializer.data)
     
-class Productlist(viewsets.ModelViewSet):
+# class Productlist(viewsets.ModelViewSet):
+#     queryset = Product.objects.all()
+#     serializer_class=productSerializer
+#     pagination_class = PageNumberPagination
+#     def list(self, request):
+#         """ if not request.user.is_authenticated():
+#             return Response({'error': 'Please Authenticate to continue'}, status=405) """
+#         serializer = productSerializer(self.queryset, many=True)
+#         return Response(serializer.data)
+#     def retrieve(self, request, pk=None):
+#         item = get_object_or_404(self.queryset, pk=pk)
+#         serializer = productSerializer(item)
+#         return Response(serializer.data)
+class Productlist(ListAPIView):
     queryset = Product.objects.all()
-    #serializer_class=productSerializer
-    def list(self, request):
-        """ if not request.user.is_authenticated():
-            return Response({'error': 'Please Authenticate to continue'}, status=405) """
-        serializer = productSerializer(self.queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        item = get_object_or_404(self.queryset, pk=pk)
-        serializer = productSerializer(item)
-        return Response(serializer.data)
-
+    # product_detail = Product.objects.get(id=id)
+    # review = Rating.objects.filter(product = product_detail)
+    serializer_class=productSerializer
+    pagination_class = PageNumberPagination
 class Productdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset=Product.objects.all()
     serializer_class=productSerializer
@@ -181,15 +176,13 @@ class Listbanner(viewsets.ModelViewSet):
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
-
 class Listfaq(viewsets.ModelViewSet):
     queryset = FAQ.objects.all()
-    serializer_class = faqSerializer
+    serializer_class = ffaqSerializer
 class faqCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = faqSerializer
     queryset = FAQ.objects.all()
-
 class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = ratingSerializer
@@ -204,7 +197,6 @@ class listcustomermessage(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = customermessageSerializer
     queryset = Address.objects.all() """
-
 class customermsgCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = customermessageSerializer

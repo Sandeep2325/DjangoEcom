@@ -1,8 +1,11 @@
 from asyncio.windows_events import NULL
 from pickle import FALSE
 from pyexpat.errors import messages
+from re import VERBOSE
+#from typing_extensions import Self
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from PIL import Image
 #from django.contrib.postgres.fields import ArrayField
@@ -18,21 +21,23 @@ from django.contrib.auth.models import AbstractUser,BaseUserManager
 #from django.utils.translation import ugettext_lazy as _
 #from django.conf import settings
 from datetime import date
+from django.db.models import Avg 
 #from phonenumber_field.modelfields import PhoneNumberField
 from embed_video.fields  import  EmbedVideoField
+from django.db.models import Avg,Count
 #from django.contrib.auth.admin import UserAdmin
 #from youtubeurl_field.modelfields import YoutubeUrlField
 ##################################################################################################################################
 
-class User(AbstractUser):
+""" class User(AbstractUser):
   username = models.CharField(max_length = 50, blank = False, null = True, unique = True)
   email = models.EmailField(_('email address'), unique = True)
   #native_name = models.CharField(max_length = 5)
-  phone_no = models.CharField(max_length = 10,null=True,blank=False)
+  phone_no = models.CharField(max_length = 10,null=True,unique=True)
   USERNAME_FIELD = 'email'
   REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
   def __str__(self):
-      return "{}".format(str(self.email))
+      return "{}".format(str(self.email)) """
 #######################################################################################################################################
 
 """ class AccountManager(BaseUserManager):
@@ -186,6 +191,8 @@ class Product(models.Model):
     #is_featured = models.BooleanField(verbose_name="Is Featured?",default=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated Date")
+    #rating_average = models.FloatField(default=0)
+    # review_count = models.IntegerField(default=0)
                             #################auto resizing function#########################################
 
     """ def save(self):
@@ -198,15 +205,37 @@ class Product(models.Model):
             img.thumbnail(new_img)
             img.save(self.product_image.path) """
     
-                        ##############################################################################################
+                      ##############################################################################################
+    
+            #return format_html("<p class=text-danger>No ratings yet!</p>")
+    #################################################################################################
+    def average_review(self):
+        review = Rating.objects.filter(product=self).aggregate(average=Avg('Rating'))
+        avg=0
+        if review["average"] is not None:
+            avg=float(review["average"])
+        #return avg
+        if avg!=0:
+            return "%.1f" %float(avg)
+        else:
+            return format_html("<p class=text-danger>No ratings yet!</p>")
+    average_review.short_description="Average Rating"
+    def count_review(self):
+        reviews = Rating.objects.filter(product=self).aggregate(count=Count('id'))
+        cnt=0
+        if reviews["count"] is not None:
+            cnt = int(reviews["count"])
+        return cnt
+    count_review.short_description="Reviews count"
+    ###################################################################################################
     class Meta:
+        #def countt(self):
         verbose_name_plural = '  Products'
         ordering = ('-created_at',)
+    
     def __str__(self):
         template = '{0.title}/{0.category.brands}'
         return template.format(self)
-    """ class Meta:
-        verbose_name_plural = VerboseName(lambda: u"Used Coupons (%d)" % Product.objects.all().count()) """
 ##################################################################################################################################
 """ class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -214,7 +243,6 @@ class Product(models.Model):
  
     def __str__(self):
         return self.product.title """
-
 ##################################################################################################################################
 class Attributes(models.Model):
     Product=models.ForeignKey(Product, on_delete=models.CASCADE,verbose_name="Product")
@@ -332,13 +360,14 @@ class Order(models.Model):
 ###################################################################################################################
 #Rating Models 
 STATUS_CHOICES = (
-    ('Reject', 'Reject'),
-    ('Approve', 'Approved'),
+    ('Pending','Pending'),
+    ('Rejected', 'Rejected'),
+    ('Approved', 'Approved'),
 )
 class Rating(models.Model):
     # Product = models.ForeignKey(to, on_delete)
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
-    product = models.ForeignKey(Product, verbose_name="Product", on_delete=models.CASCADE,null=True)
+    product = models.ForeignKey(Product, verbose_name="Product",related_name='ratings', on_delete=models.CASCADE,null=True)
     Reviews =RichTextField(null=True,blank=True)
     Rating = models.DecimalField(default=0.0, max_digits=5, decimal_places=1,validators=[
         MinValueValidator(1),MaxValueValidator(5)
@@ -346,9 +375,15 @@ class Rating(models.Model):
     Status = models.CharField(
         choices=STATUS_CHOICES,
         max_length=8,
+        default="Pending"
         )
+    
+
     def __str__(self):
-        return self.product.title     
+        try:
+            return self.product.title
+        except:
+            return str(None)  
 #####################################################################################################################        
 #BLOG MODEL
 class Blog(models.Model):
@@ -384,10 +419,9 @@ class Blog(models.Model):
     def __str__(self):
         return self.title
 ##############################################################################################################################
-
 #FAQ MODEL 
 class FAQ(models.Model):
-    Question = models.CharField(max_length=100,null=True)
+    Question = models.CharField(max_length=100,null=True,)
     Answer = RichTextField(max_length=300,null=True)
     class Meta:
         verbose_name_plural = "FAQs"
@@ -396,13 +430,15 @@ class FAQ(models.Model):
 ####################################################################################################################
 #Contact Model
 class customer_message(models.Model):
-    Name=models.CharField(max_length=50, null=True,)
+    first_name=models.CharField(max_length=50, null=True,verbose_name="First Name",blank=True)
+    last_name=models.CharField(max_length=50, null=True,verbose_name="Last Name",blank=True)
+    #Name=models.CharField(max_length=50, null=True,)
     Email=models.EmailField(max_length=50, null=True,)
-    Phone=models.BigIntegerField(null=True, blank=True)
+    Phone=models.BigIntegerField(null=True,)
     Message=models.TextField(max_length=200, null=True,)
 
     def __str__(self):
-        return str(self.Name,)
+        return str(self.first_name,)
     class Meta:
         verbose_name_plural = "Customer messages"
 ####################################################################################################################
@@ -432,30 +468,18 @@ from django.core.mail import send_mail
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-# class Mail(models.Model):
-#     email=models.EmailField(max_length=255,unique=True,verbose_name="Email",null=True)
-#     timestamp=models.DateTimeField(default=datetime.now,verbose_name="time",null=True),
-#     delete_link=models.SlugField(unique=True,max_length=255,null=True,blank=True)
-#     def __unicode__(self):
-#         return self.email
-
-#     class Meta:
-#         verbose_name = "Email User"
-#         verbose_name_plural = "Email Users"
-        
+from django.utils.html import strip_tags
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe        
 class MailText(models.Model):
         subject = models.CharField(max_length=255,null=True,blank=True)
-        message = models.CharField(max_length=255,null=True)
-        #attachment = models.FileField(blank=True)
-        #=models.CharField(max_length=255,null=True)
+        message=models.TextField(null=True)
         users=models.ManyToManyField(User)
         #users = models.ForeignKey(User,blank=True,on_delete=models.CASCADE,null=True)
         send_it = models.BooleanField(default=False) #check it if you want to send your email
-        
-        #@receiver(post_save, sender=MailText, dispatch_uid="update_stock_count")
         def save(self,*args,**kwargs):
             super(MailText, self).save(*args, **kwargs)
-            
+            #for lp in range(5): 
             if self.send_it==True:
                 user_list= []
                 print(self.users.all())
@@ -464,16 +488,17 @@ class MailText(models.Model):
                     user_list.append(u.email)
                 #print(user_list)
                 send_mail(str(self.subject), 
-                          str(self.message),
+                          strip_tags(str(self.message)),
                           'gowdasandeep8105@gmail.com',
                           user_list, 
                           fail_silently=False)
+                #messages.success("Message sent successfully")
             
             #super(MailText, self).save(*args, **kwargs)
 
         class Meta:
-            verbose_name = "Emails to send"
-            verbose_name_plural = "Emails to send"
+            verbose_name = "Email marketing"
+            verbose_name_plural = "Email marketing"
         def __str__(self):
             return str(self.subject)
 # @receiver(post_save, sender=MailText, dispatch_uid="update_stock_count")

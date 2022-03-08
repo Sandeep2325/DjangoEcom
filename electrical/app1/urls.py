@@ -10,11 +10,11 @@ from app1.views import *
 urlpatterns=[
      
     #path('user/',UserViewSet.as_view({'get':'list'}),name="user"),
-    path('register/', RegisterApi.as_view()),
+    #path('register/', RegisterApi.as_view()),
     
     path('categories/',views.listcategory.as_view({'get': 'list'}),name="category"),
     path('categories/<int:pk>/',detailcategory.as_view(),name="single_category"),
-    path('product/',Productlist.as_view({'get':'list'}),name="product"),
+    path('product/',Productlist.as_view(),name="product"),
     path('product/<int:pk>/',Productdetail.as_view(),name="single_product"), 
     path('attributes/',attributelist.as_view({'get':'list'}),name="attributes"),
     path('attributes/<int:pk>/',attributedetail.as_view(),name="single_attribute"),
@@ -36,8 +36,7 @@ urlpatterns=[
     path('rating/',Listrating.as_view({'get':'list'}),name="rating"),
     path('rating/create/', ratingCreateView.as_view(), name='rating-create'),
     path('customer-message/',listcustomermessage.as_view({'get':'list'}),name="customer-message"),
-    #path('addresses/create/', AddressCreateView.as_view(), name='address-create'),
-    path('customer/create/',customermsgCreateView.as_view(), name='customer-message-create'),
+    path('customer-message/create/',customermsgCreateView.as_view(), name='customer-message-create'),
     path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
    
 
