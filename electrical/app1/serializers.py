@@ -34,9 +34,36 @@ class categorySerializer(serializers.ModelSerializer):
         fields="__all__"
         model=Category
 class productSerializer(serializers.ModelSerializer):
+    #category_name = serializers.RelatedField(source='category.name', read_only=True)
+    #category = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    class Meta:
+        fields=("id","title","sku","short_description","detail_description","image","product_image","price","discounted_price","category","is_active","created_at","updated_at","average_rating","count_review")
+        model=Product
+    def averagee_rating(self,instance):
+        review = Rating.objects.filter(product=instance).aggregate(average=Avg('Rating'))
+        avg=0
+        
+        if review["average"] is not None:
+            avg=float(review["average"])
+        #return avg
+        if avg!=0:
+            return "%.1f" %float(avg)
+        else:
+            return format_html("<p class=text-danger>No ratings yet!</p>")
+    def count_rating(self,instance):
+        reviews = Rating.objects.filter(product=instance).aggregate(count=Count('id'))
+        cnt=0
+        if reviews["count"] is not None:
+            cnt = int(reviews["count"])
+        return cnt
+    # def reviewss(self,instance):
+    #     reviews=Rating.objects.filter(product=instance).get("Rating")
+    #     return reviews     
+class productdetailserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
-        model=Product          
+        model=Product
+                 
 class attributesSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"

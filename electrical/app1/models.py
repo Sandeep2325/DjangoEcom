@@ -3,6 +3,7 @@ from pickle import FALSE
 from pyexpat.errors import messages
 from re import VERBOSE
 from tabnanny import verbose
+from tkinter import CASCADE
 #from typing_extensions import Self
 from django.db import models
 from django.contrib.auth.models import User
@@ -199,11 +200,13 @@ class Product(models.Model):
             new_img = (500, 500)
             img.thumbnail(new_img)
             img.save(self.product_image.path) """
-    
+    #gigs = (Gig.objects.filter(status=True).annotate(avg_review=Avg('rates__rating')))
     #################################################################################################
-    def average_review(self):
+    @property
+    def average_rating(self):
         review = Rating.objects.filter(product=self).aggregate(average=Avg('Rating'))
         avg=0
+        
         if review["average"] is not None:
             avg=float(review["average"])
         #return avg
@@ -211,14 +214,19 @@ class Product(models.Model):
             return "%.1f" %float(avg)
         else:
             return format_html("<p class=text-danger>No ratings yet!</p>")
-    average_review.short_description="Average Rating"
+    #average_review.short_description="Average Rating"
+    @property
     def count_review(self):
         reviews = Rating.objects.filter(product=self).aggregate(count=Count('id'))
         cnt=0
         if reviews["count"] is not None:
             cnt = int(reviews["count"])
         return cnt
-    count_review.short_description="Reviews count"
+    # @property
+    # def reviews(self):
+    #     reviews=Rating.objects.filter(product=self).get("Rating")
+    #     return reviews 
+    #count_review.short_description="Reviews count"
     ###################################################################################################
     class Meta:
         #def countt(self):
@@ -462,7 +470,6 @@ from datetime import datetime
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
 from django.utils.html import strip_tags
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe        
@@ -493,6 +500,9 @@ class MailText(models.Model):
             verbose_name_plural = "Email marketing"
         def __str__(self):
             return str(self.subject)
+# class averagerating(models.Model):
+#     products=models.ForeignKey(Product,on_delete=models.CASCADE)
+#     ratings=models.ForeignKey()
 # @receiver(post_save, sender=MailText, dispatch_uid="update_stock_count")
 # def save(instance,*args,**kwargs):
 #         #     super(MailText, self).save(*args, **kwargs)

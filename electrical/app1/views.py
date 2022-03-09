@@ -11,6 +11,7 @@
 # from django.utils.decorators import method_decorator
 # from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.mixins import ListModelMixin
 from django.http import Http404
 from rest_framework.viewsets import ViewSet
 from rest_framework import generics
@@ -78,16 +79,17 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
 #         item = get_object_or_404(self.queryset, pk=pk)
 #         serializer = productSerializer(item)
 #         return Response(serializer.data)
-class Productlist(ListAPIView):
+class Productlist(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     # product_detail = Product.objects.get(id=id)
     # review = Rating.objects.filter(product = product_detail)
     serializer_class=productSerializer
     pagination_class = PageNumberPagination
-class Productdetail(generics.RetrieveUpdateDestroyAPIView):
+    
+     
+class Productdetail(generics.RetrieveAPIView):
     queryset=Product.objects.all()
     serializer_class=productSerializer
-
 class attributelist(viewsets.ModelViewSet):
     queryset = Attributes.objects.all()
     def list(self, request):

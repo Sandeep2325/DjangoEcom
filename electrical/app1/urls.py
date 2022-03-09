@@ -8,7 +8,7 @@ urlpatterns=[
      
     path('categories/',views.listcategory.as_view({'get': 'list'}),name="category"),
     path('categories/<int:pk>/',detailcategory.as_view(),name="single_category"),
-    path('product/',Productlist.as_view(),name="product"),
+    path('product/',Productlist.as_view({'get': 'list'}),name="product"),
     path('product/<int:pk>/',Productdetail.as_view(),name="single_product"), 
     path('attributes/',attributelist.as_view({'get':'list'}),name="attributes"),
     path('attributes/<int:pk>/',attributedetail.as_view(),name="single_attribute"),
