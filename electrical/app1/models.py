@@ -222,10 +222,12 @@ class Product(models.Model):
         if reviews["count"] is not None:
             cnt = int(reviews["count"])
         return cnt
-    # @property
-    # def reviews(self):
-    #     reviews=Rating.objects.filter(product=self).get("Rating")
-    #     return reviews 
+    @property
+    def reviews(self):
+        reviews=Rating.objects.filter(product=self).values_list("Reviews")
+        for review in reviews:
+            return review
+        #return (reviews) 
     #count_review.short_description="Reviews count"
     ###################################################################################################
     class Meta:
