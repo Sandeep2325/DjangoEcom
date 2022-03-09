@@ -2,6 +2,7 @@ from asyncio.windows_events import NULL
 from pickle import FALSE
 from pyexpat.errors import messages
 from re import VERBOSE
+from tabnanny import verbose
 #from typing_extensions import Self
 from django.db import models
 from django.contrib.auth.models import User
@@ -134,7 +135,7 @@ class Category(models.Model):
             new_img = (500, 500)
             img.thumbnail(new_img)
             img.save(self.category_image.path) """
-     ##############################################################################################
+     ###################################################################################################################
     class Meta:
         verbose_name_plural = 'Categories'
         ordering = ('-created_at',)
@@ -178,12 +179,6 @@ class Product(models.Model):
     product_image = models.ImageField(upload_to='product', verbose_name="Product Thumbnail", blank=True, null=True,max_length=500)
     #product_image1 = models.ImageField(upload_to='product', verbose_name="Product Image 1", blank=True, null=True,max_length=500)
     #product_image2 = models.ImageField(upload_to='product', verbose_name="Product Image 2", blank=True, null=True,max_length=500)#,validators=[validate_image],help_text='Maximum file size allowed 900*900 or 2 MB'
-    """ images = ArrayField(
-        models.ImageField(upload_to='product', blank=True, null=True),
-        size=8,
-        null=True,
-        blank=True 
-    )"""
     price = models.DecimalField(max_digits=8, decimal_places=2,verbose_name='Price(₹)')
     discounted_price=models.DecimalField(max_digits=8, decimal_places=2,verbose_name="Offer Price(₹)",null=True ,blank=True)
     category = models.ForeignKey(Category, verbose_name="Product Brands", on_delete=models.SET_NULL,null=True)
@@ -205,9 +200,6 @@ class Product(models.Model):
             img.thumbnail(new_img)
             img.save(self.product_image.path) """
     
-                      ##############################################################################################
-    
-            #return format_html("<p class=text-danger>No ratings yet!</p>")
     #################################################################################################
     def average_review(self):
         review = Rating.objects.filter(product=self).aggregate(average=Avg('Rating'))
@@ -255,10 +247,10 @@ class Attributes(models.Model):
         verbose_name_plural = "Attributes"
 #################################################################################################################################
 class Coupon(models.Model):
-    coupon=models.CharField(verbose_name="Coupon",max_length=200,null=True)
+    coupon=models.CharField(verbose_name="Coupon_code",max_length=200,null=True, unique=True)
     #startdate=models.DateField(verbose_name="Start Date",null=True)
     #enddate=models.DateField(verbose_name="End Date",null=True)
-    coupon_discount=models.IntegerField(null=True)
+    coupon_discount=models.IntegerField(null=True,verbose_name="Discount(₹)")
     #is_active = models.BooleanField(verbose_name="Is Active?",default=False)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
     def __str__(self):
@@ -292,21 +284,24 @@ class Order(models.Model):
         default="Pending"
         )
     def save(self,*args,**kwargs):
-        if self.product.discounted_price is None:
-            self.price=self.product.price*self.quantity
-            if self.coupon:
-                self.price=self.price-self.coupon.coupon_discount
+        try:
+            if self.product.discounted_price is None:
+                self.price=self.product.price*self.quantity
+                if self.coupon:
+                    self.price=self.price-self.coupon.coupon_discount
+                    return super(Order, self).save(*args, **kwargs)
                 return super(Order, self).save(*args, **kwargs)
-            return super(Order, self).save(*args, **kwargs)
 
-        elif self.product.discounted_price is not None:
-            self.price=self.product.discounted_price*self.quantity
-            if self.coupon:
-                self.price=self.price-self.coupon.coupon_discount
+            elif self.product.discounted_price is not None:
+                self.price=self.product.discounted_price*self.quantity
+                if self.coupon:
+                    self.price=self.price-self.coupon.coupon_discount
+                    return super(Order, self).save(*args, **kwargs)
                 return super(Order, self).save(*args, **kwargs)
-            return super(Order, self).save(*args, **kwargs)
-        else:
-            return messages.warning('Something went wrong!')
+            else:
+                return messages.warning('Something went wrong!')
+        except:
+            pass
     """ def save(self,*args,**kwargs):
         if self.coupon:
             self.price=self.price-300
@@ -492,10 +487,7 @@ class MailText(models.Model):
                           'gowdasandeep8105@gmail.com',
                           user_list, 
                           fail_silently=False)
-                #messages.success("Message sent successfully")
-            
-            #super(MailText, self).save(*args, **kwargs)
-
+               
         class Meta:
             verbose_name = "Email marketing"
             verbose_name_plural = "Email marketing"

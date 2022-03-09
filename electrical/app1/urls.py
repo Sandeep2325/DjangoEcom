@@ -4,14 +4,8 @@ from rest_framework_simplejwt import views as jwt_views
 from . import views
 from app1.views import *
 
-#from .views import LoginAPI
-
-#from app1.views import Productdetail, Productlist, attributedetail, attributelist, detailcategory, listcategory, orderdetail, orderlist
 urlpatterns=[
      
-    #path('user/',UserViewSet.as_view({'get':'list'}),name="user"),
-    #path('register/', RegisterApi.as_view()),
-    
     path('categories/',views.listcategory.as_view({'get': 'list'}),name="category"),
     path('categories/<int:pk>/',detailcategory.as_view(),name="single_category"),
     path('product/',Productlist.as_view(),name="product"),
@@ -21,8 +15,6 @@ urlpatterns=[
     path('order/',orderlist.as_view({'get':'list'}),name="order"),
     path('order/<int:pk>/',orderdetail.as_view(),name="single_order"),
     path('order/create/', orderCreateView.as_view(), name='order-create'),
-    #path('order-summary/',OrderDetailView.as_view(), name='order-summary'), 
-    #path('address',ListCustomerAddress.as_view({'get':'list'}),name="address"),
     path('addresses/',AddressListView.as_view(), name='address-list'),
     path('addresses/create/', AddressCreateView.as_view(), name='address-create'),
     path('addresses/<pk>/update/',
@@ -35,9 +27,8 @@ urlpatterns=[
     path('faq/create/', faqCreateView.as_view(), name='faq-create'),
     path('rating/',Listrating.as_view({'get':'list'}),name="rating"),
     path('rating/create/', ratingCreateView.as_view(), name='rating-create'),
+    path('rating/<pk>/update/', ratingupdateView.as_view(), name='rating-update'),
     path('customer-message/',listcustomermessage.as_view({'get':'list'}),name="customer-message"),
     path('customer-message/create/',customermsgCreateView.as_view(), name='customer-message-create'),
     path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
-   
-
  ]

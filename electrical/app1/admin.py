@@ -266,13 +266,9 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                         new_price = ceil(old_price - (old_price * multiplier))
                         product.discounted_price = new_price
                         product.save(update_fields=['discounted_price'])
-                #sales_discount.short_description = 'Apply sales discount'
-        """ def averagereview(self,request):
-            review = Rating.objects.filter(product=self).aggregate(avarage=Avg('rate'))
-            avg=0
-            if review["avarage"] is not None:
-                avg=float(review["avarage"]) 
-            return avg  """
+                else:
+                    return messages.warning(request,'No active Discounts')
+        
         def get_urls(self):
             urls = super().get_urls()
             new_urls = [path('upload-csv/', self.upload_csv),]
@@ -290,33 +286,33 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                     csv_data = file_data.split("\n")
                     #csv_data = records.split("\n")
                     for x in csv_data:
-                        
-                        """ n=str(x)
-                        l=n.split("[")
-                        try:
-                            k=l[1].split(']"')
-                            images_csv=(k[0].split(','))
-                            print(len(images_csv))
-                                #print(images_csv[0])
-                                #print(images_csv[1])
-                            for i in range(len(images_csv)):
-                                iter_image=images_csv[i]
-                                print(iter_image)
-                                imagess=image.objects.get(pk=(int(iter_image)))
-                                print("@@@@@@@@@@@@@@@@@@@@@@@",i)
-                                    #try:
+                        print(x, type(x))
+                        # n=str(x)
+                        # l=n.split("[")
+                        # try:
+                        #     k=l[1].split(']"')
+                        #     images_csv=(k[0].split(','))
+                        #     print(len(images_csv))
+                        #         #print(images_csv[0])
+                        #         #print(images_csv[1])
+                        #     for i in range(len(images_csv)):
+                        #         iter_image=images_csv[i]
+                        #         print(iter_image)
+                        #         imagess=image.objects.get(pk=(int(iter_image)))
+                        #         print("@@@@@@@@@@@@@@@@@@@@@@@",i)
+                        #             #try:
                                         
-                                created[i].image.add(imagess)
-                                created[i].save
+                        #         created[0].image.add(imagess)
+                        #         created[0].save
                                 
-                        except IndexError:
-                            pass """
+                        # except IndexError:
+                        #     pass
                       
                         fields = x.split(",")
                         #print(fields)
                         try:
                             #print(fields[7])
-                            created = Product.objects.update_or_create(
+                            created,k = Product.objects.update_or_create(
                                 title=fields[0],
                                 sku=fields[1],
                                 short_description=fields[2],
@@ -325,13 +321,42 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                                 price=fields[6],
                                 category=Category.objects.get(pk=(fields[5])),
                                 )
-                            imagess=image.objects.get(pk=(int(fields[7])))
-                            created[0].image.add(imagess)
-                            created[0].save      
+                            
+                            n=str(x)
+                            print("length of nnnnnnnnnn",len(x))
+                            print("nnn=",n)
+                            l=n.split('"')
+                            print("l===",l)
+                            print("length of l============",len(l))
+                            if len(l)>1:
+                                k=l[1].split('"')
+                                
+                                print("k==",k)
+                                images_csv=(k[0].split('"'))
+                                splited_image=(images_csv[0].split(','))
+                                print("splited_image",splited_image)
+                            
+                                print("length==",len(splited_image))
+                                for i in range(len(splited_image)):
+                                    iter_image=splited_image[i]
+                                    print("IM",iter_image)
+                                    imagess=image.objects.get(pk=(int(iter_image)))
+                                    print("@@@@@@@@@@@@@@@@@@@@@@@",i)
+                                    #try:
+                                    print(type(i))        
+                                    created.image.add(imagess)
+                                    created.save()
+                                   
+                            else:
+                                #print("//////////////////////",int(splited_image))
+                                imagess=image.objects.get(pk=(fields[7]))
+                                created.image.add(imagess)
+                                created.save()
+                                   
                         except IndexError:
                             pass    
-                        except IndexError:
-                            pass
+                        # except IndexError:
+                        #     pass
                         except (ValidationError,IntegrityError):
                             form = CsvImportForm()
                             data = {"form": form}
@@ -359,7 +384,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                 form = CsvImportForm()
                 data = {"form": form}
                 return render(request, "admin/csv_upload.html", data)
-            except (TypeError,IntegrityError) as e:
+            except (IntegrityError) as e:
                 #raise Http404
                 messages.error(request,e)
                 #return HttpResponse("Something went wrong")
@@ -464,7 +489,7 @@ class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
         image_tag.short_description = 'Thumbnail Image'
         image_tag.allow_tags = True
         def video_url(self, obj):
-            return format_html('<a class="fa fa-play fa-1x" href="%s">Play video</a>' % (obj.url))
+            return format_html('<a class="fa fa-play fa-1x" href="%s"><span class="ml-2">Play video</span></a>' % (obj.url))
             #return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description='video'
@@ -502,12 +527,7 @@ class BannerAdmin(admin.ModelAdmin):
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/banner/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
     action_btn.short_description="Action"
-###############################################################################################################################
-""" class claimedcouponAdmin(admin.ModelAdmin):
-    def has_add_permission(self, request, obj=None):
-        return True #to disable add function in admin make it false
-    list_display=['id','user','coupon','redeemed']
-    search_fields=['user','coupon','redeemed'] """
+
 ####################################################################################################################
 class customer_messageAdmin(admin.ModelAdmin):
     list_display=['id','first_name','last_name','Phone','Email','Message']

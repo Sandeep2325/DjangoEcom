@@ -190,6 +190,20 @@ class ratingCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
     queryset = Rating.objects.all()
+class ratingupdateView(UpdateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = ratingSerializer
+    queryset = Rating.objects.all()
+    
+    # def update(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     instance.name = request.data.get("Rating")
+    #     instance.save()
+    #     serializer = self.get_serializer(instance)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_update(serializer)
+    #     return Response(serializer.data)
+    
 class listcustomermessage(viewsets.ModelViewSet):
     queryset=customer_message.objects.all()
     serializer_class=customermessageSerializer
