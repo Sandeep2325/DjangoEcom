@@ -4,6 +4,7 @@ from pyexpat.errors import messages
 from re import VERBOSE
 from tabnanny import verbose
 from tkinter import CASCADE
+from django.db.models import Q
 #from typing_extensions import Self
 from django.db import models
 from django.contrib.auth.models import User
@@ -27,6 +28,7 @@ from django.db.models import Avg
 #from phonenumber_field.modelfields import PhoneNumberField
 from embed_video.fields  import  EmbedVideoField
 from django.db.models import Avg,Count
+from numpy import product
 #from django.contrib.auth.admin import UserAdmin
 #from youtubeurl_field.modelfields import YoutubeUrlField
 ##################################################################################################################################
@@ -202,33 +204,42 @@ class Product(models.Model):
             img.save(self.product_image.path) """
     #gigs = (Gig.objects.filter(status=True).annotate(avg_review=Avg('rates__rating')))
     #################################################################################################
+    
     @property
     def average_rating(self):
-        review = Rating.objects.filter(product=self).aggregate(average=Avg('Rating'))
-        avg=0
-        
-        if review["average"] is not None:
-            avg=float(review["average"])
-        #return avg
-        if avg!=0:
-            return "%.1f" %float(avg)
+        if Rating.objects.filter(Q(Status="Approved") & Q(product=self)):
+            
+            review = Rating.objects.filter(Q(Status="Approved") & Q(product=self)).aggregate(average=Avg('Rating'))
+            avg=0
+            if review["average"] is not None:
+                avg=float(review["average"])
+            #return avg
+            if avg!=0:
+                return "%.1f" %float(avg)
+            else:
+                return format_html("<p class=text-danger>No ratings yet!</p>")
         else:
             return format_html("<p class=text-danger>No ratings yet!</p>")
-    #average_review.short_description="Average Rating"
+    # average_review.short_description="Average Rating"
     @property
     def count_review(self):
-        reviews = Rating.objects.filter(product=self).aggregate(count=Count('id'))
-        cnt=0
-        if reviews["count"] is not None:
-            cnt = int(reviews["count"])
-        return cnt
+        if Rating.objects.filter(Q(Status="Approved") & Q(product=self)):
+            reviews = Rating.objects.filter(Q(Status="Approved") & Q(product=self)).aggregate(count=Count('id'))
+            cnt=0
+            if reviews["count"] is not None:
+                cnt = int(reviews["count"])
+            return cnt
+        else:
+            return format_html("<p class=text-danger>No ratings yet!</p>")
     @property
     def reviews(self):
-        reviews=Rating.objects.filter(product=self).values_list("Reviews")
-        for review in reviews:
-            return review
-        #return (reviews) 
-    #count_review.short_description="Reviews count"
+        if Rating.objects.filter(Q(Status="Approved") & Q(product=self)):
+            reviews=Rating.objects.filter(Q(Status="Approved") & Q(product=self)).values_list("Reviews")
+            for review in reviews:
+                return review
+        else:
+            return format_html("<p class=text-danger>No ratings yet!</p>")
+        
     ###################################################################################################
     class Meta:
         #def countt(self):
@@ -256,10 +267,11 @@ class Attributes(models.Model):
     class Meta:
         verbose_name_plural = "Attributes"
 #################################################################################################################################
+from django.db.models.signals import pre_save
 class Coupon(models.Model):
     coupon=models.CharField(verbose_name="Coupon_code",max_length=200,null=True, unique=True)
-    #startdate=models.DateField(verbose_name="Start Date",null=True)
-    #enddate=models.DateField(verbose_name="End Date",null=True)
+    startdate=models.DateField(verbose_name="Start Date",null=True)
+    enddate=models.DateField(verbose_name="End Date",null=True)
     coupon_discount=models.IntegerField(null=True,verbose_name="Discount(₹)")
     #is_active = models.BooleanField(verbose_name="Is Active?",default=False)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
@@ -267,6 +279,16 @@ class Coupon(models.Model):
         return self.coupon
     class Meta:
         verbose_name_plural = "Coupons"
+        
+# def check_date(request,sender,instance,*args, **kwargs):
+#     if instance.startdate > instance.enddate:
+#         #raise ValueError('Start date must be less than end date')
+#         try:
+#             raise ValidationError("Start date must be less than end date")
+#         except ValidationError:
+#             messages.warning(request,"Hello")
+   
+# pre_save.connect(check_date, sender=Coupon)
 #################################################################################################################################
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
@@ -286,8 +308,10 @@ class Order(models.Model):
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, blank=True, null=True)
     #coupon=models.CharField(max_length=50,null=True)
     attributes=models.ForeignKey(Attributes,verbose_name=" Product Attributes",on_delete=models.SET_NULL,null=True,blank=True)
-    ordered_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
+    #ordered_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date")
+    #created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
+    ordered_date = models.DateTimeField(auto_now_add=True, verbose_name="ordered Date",null=True)
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated Date",null=True)
     status = models.CharField(
         choices=STATUS_CHOICES,
         max_length=50,
@@ -380,9 +404,10 @@ class Rating(models.Model):
     Status = models.CharField(
         choices=STATUS_CHOICES,
         max_length=8,
-        default="Pending"
+        default="Pending",null=True
         )
-    
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date",null=True)
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated Date",null=True)
 
     def __str__(self):
         try:
@@ -428,6 +453,9 @@ class Blog(models.Model):
 class FAQ(models.Model):
     Question = models.CharField(max_length=100,null=True,)
     Answer = RichTextField(max_length=300,null=True)
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date",null=True)
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated Date",null=True)
+    #created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
     class Meta:
         verbose_name_plural = "FAQs"
     def __str__(self):
@@ -441,7 +469,8 @@ class customer_message(models.Model):
     Email=models.EmailField(max_length=50, null=True,)
     Phone=models.BigIntegerField(null=True,)
     Message=models.TextField(max_length=200, null=True,)
-
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date",null=True)
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated Date",null=True)
     def __str__(self):
         return str(self.first_name,)
     class Meta:
@@ -476,13 +505,16 @@ from django.utils.html import strip_tags
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe        
 class MailText(models.Model):
+        
+        users=models.ManyToManyField(User)
         subject = models.CharField(max_length=255,null=True,blank=True)
         message=models.TextField(null=True)
-        users=models.ManyToManyField(User)
         #users = models.ForeignKey(User,blank=True,on_delete=models.CASCADE,null=True)
         send_it = models.BooleanField(default=False) #check it if you want to send your email
+        created_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date",null=True)
+        updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated Date",null=True)
         def save(self,*args,**kwargs):
-            super(MailText, self).save(*args, **kwargs)
+            savee=super(MailText, self).save(*args, **kwargs)
             #for lp in range(5): 
             if self.send_it==True:
                 user_list= []
@@ -496,29 +528,29 @@ class MailText(models.Model):
                           'gowdasandeep8105@gmail.com',
                           user_list, 
                           fail_silently=False)
+                #super(MailText, self).save(*args, **kwargs)
+            
                
         class Meta:
             verbose_name = "Email marketing"
             verbose_name_plural = "Email marketing"
         def __str__(self):
             return str(self.subject)
-# class averagerating(models.Model):
-#     products=models.ForeignKey(Product,on_delete=models.CASCADE)
-#     ratings=models.ForeignKey()
-# @receiver(post_save, sender=MailText, dispatch_uid="update_stock_count")
-# def save(instance,*args,**kwargs):
-#         #     super(MailText, self).save(*args, **kwargs)
-            
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
+# def send_mail(sender, instance, *args, **kwargs):
+    
 #     if instance.send_it==True:
-#         user_list= []
-#         #instance.users.save()
-#         print(instance.users.all())
-#         for u in instance.users.all():
-#             print(u.email)
-#             user_list.append(u.email)
-#             #print(user_list)
-#         send_mail(str(instance.subject), 
-#                 str(instance.message),
-#                 'gowdasandeep8105@gmail.com',
-#                 user_list, 
-#                 fail_silently=False)
+#                 user_list= []
+#                 print(instance.users.all())
+#                 for u in instance.users.all():
+#                     print(u.email)
+#                     user_list.append(u.email)
+#                 #print(user_list)
+#                 send_mail(str(instance.subject), 
+#                           strip_tags(str(instance.message)),
+#                           'gowdasandeep8105@gmail.com',
+#                           user_list, 
+#                           fail_silently=False)
+
+# #pre_save.connect(send_mail, sender=MailText)

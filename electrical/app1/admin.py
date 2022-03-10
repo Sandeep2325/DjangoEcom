@@ -286,27 +286,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
                     #csv_data = records.split("\n")
                     for x in csv_data:
                         print(x, type(x))
-                        # n=str(x)
-                        # l=n.split("[")
-                        # try:
-                        #     k=l[1].split(']"')
-                        #     images_csv=(k[0].split(','))
-                        #     print(len(images_csv))
-                        #         #print(images_csv[0])
-                        #         #print(images_csv[1])
-                        #     for i in range(len(images_csv)):
-                        #         iter_image=images_csv[i]
-                        #         print(iter_image)
-                        #         imagess=image.objects.get(pk=(int(iter_image)))
-                        #         print("@@@@@@@@@@@@@@@@@@@@@@@",i)
-                        #             #try:
-                                        
-                        #         created[0].image.add(imagess)
-                        #         created[0].save
-                                
-                        # except IndexError:
-                        #     pass
-                      
+
                         fields = x.split(",")
                         #print(fields)
                         try:
@@ -392,7 +372,7 @@ class ProductAdmin(ExportActionMixin,admin.ModelAdmin):
         #print(e)      
 ##################################################################################################################################
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id','user','address', 'product', 'quantity','price','coupon','attributes', 'status', 'ordered_date','created_at','action_btn')
+    list_display = ('id','user','address', 'product', 'quantity','price','coupon','attributes', 'status', 'ordered_date','updated_at','action_btn')
     list_editable = ('quantity', 'status','user','product')
     list_filter = ('status', 'ordered_date')
     list_per_page = 20
@@ -434,7 +414,7 @@ class salesAdmin(admin.ModelAdmin):
     action_btn.short_description="Action"
 ##################################################################################################################################
 class CoupenAdmin(admin.ModelAdmin):
-    list_display = ['id','coupon','coupon_discount','created_at','action_btn']
+    list_display = ['id','coupon','coupon_discount','startdate','enddate','created_at','action_btn']
     #list_filter = ['is_active','startdate','enddate']
     search_fields = ['created_at']
     #list_editable = ('is_active', )
@@ -446,9 +426,10 @@ class CoupenAdmin(admin.ModelAdmin):
     action_btn.short_description="Action"
 ##############################################################################################################################
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ['id','user','product','Reviews','Rating','Status','action_btn',]
+    list_display = ['id','user','product','Reviews','Rating','Status','created_date','action_btn']
     search_fields = ['user']     
-    list_editable = ('Status','Rating' )
+    #list_editable = ('Status','Rating' )
+    actions=['approved_status','rejected_status']
     def has_add_permission(self, request):
         return True
     # def action_btn(self,obj):
@@ -461,6 +442,54 @@ class RatingAdmin(admin.ModelAdmin):
         html="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/rating/"+str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description="Delete"
+
+    @admin.action(description='Approve')
+    def approved_status(self, request, queryset):
+        #approve=format_html("<p class=text-danger>Approved</p>")
+        queryset.update(Status="Approved")
+        #format_html("<p class=text-danger>approve</p>")
+    @admin.action(description='Reject')
+    def rejected_status(self, request, queryset):
+        queryset.update(Status='Rejected')
+        
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:pk>/approve/',
+                self.admin_site.admin_view(self.approve),
+                name='approve',
+            ),
+            path(
+                '<int:pk>/reject/',
+                self.admin_site.admin_view(self.reject),
+                name='reject',
+            ),
+        ]
+        return custom_urls + urls
+    def account_actions(self, obj):
+        return format_html(
+            '<a class="button" href="{}">Approve</a>&nbsp;'
+            '<a class="button" href="{}">Reject</a>',
+            reverse('admin:approve',args=[obj.pk]),
+            reverse('admin:reject',args=[obj.pk]),
+        )
+    account_actions.short_description = 'Account Actions'
+    account_actions.allow_tags = True
+    from django.http import HttpResponseRedirect
+    def approve(request,queryset,*args, **kwargs):
+        pass
+        #messages.success(request,"Approved")
+        #return HttpResponseRedirect("rating")
+        #return redirect('admin:rating')
+    
+        #return queryset.update(Status='Rejected')
+        #return HttpResponse("approved")
+        #pass
+    def reject(request,obj):
+        #return redirect('admin:rating')
+        #return HttpResponse("Rejected")
+        obj.update(Status="Rejected")
 ##############################################################################################################################
 class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
     try:
@@ -505,7 +534,7 @@ class BlogAdmin(AdminVideoMixin,SummernoteModelAdmin):
         pass
 ##############################################################################################################################
 class FAQAdmin(admin.ModelAdmin):
-    list_display=['id','Question','Answer']
+    list_display=['id','Question','Answer','created_date','updated_at']
     search_fields=['Question']
 ##############################################################################################################################
 #Banner Register 
@@ -529,7 +558,7 @@ class BannerAdmin(admin.ModelAdmin):
 
 ####################################################################################################################
 class customer_messageAdmin(admin.ModelAdmin):
-    list_display=['id','first_name','last_name','Phone','Email','Message']
+    list_display=['id','first_name','last_name','Phone','Email','Message','created_date','updated_at']
     actions=["send_message"]
     
     def send_message(self,request,queryset):
@@ -553,7 +582,7 @@ class customer_messageAdmin(admin.ModelAdmin):
             #email1=email
         #print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
 class mailadmin(admin.ModelAdmin):
-    list_display=['subject','message','send_it','action_btn']
+    list_display=['subject','message','send_it','created_date','updated_at','action_btn']
     list_editable=['send_it']
     def action_btn(self,obj):
             html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/change/'></a><br></br>"
@@ -561,7 +590,6 @@ class mailadmin(admin.ModelAdmin):
             html+="<a class='text-danger fa fa-trash ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
     action_btn.short_description="Action"
-
 ###################################################################################################################
 admin.site.register(Order,OrderAdmin)
 admin.site.register(Category,CategoryAdmin)

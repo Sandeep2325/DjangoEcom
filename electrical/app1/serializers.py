@@ -40,22 +40,26 @@ class productSerializer(serializers.ModelSerializer):
         fields=("id","title","sku","short_description","detail_description","image","product_image","price","discounted_price","category","is_active","created_at","updated_at","average_rating","count_review","reviews")
         model=Product
     def averagee_rating(self,instance):
-        review = Rating.objects.filter(product=instance).aggregate(average=Avg('Rating'))
-        avg=0
-        
-        if review["average"] is not None:
-            avg=float(review["average"])
-        #return avg
-        if avg!=0:
-            return "%.1f" %float(avg)
+        if Rating.objects.filter(Status="Approved"):
+            review = Rating.objects.filter(product=instance).aggregate(average=Avg('Rating'))
+            avg=0
+            
+            if review["average"] is not None:
+                avg=float(review["average"])
+            #return avg
+            if avg!=0:
+                return "%.1f" %float(avg)
+            else:
+                return format_html("<p class=text-danger>No ratings yet!</p>")
         else:
             return format_html("<p class=text-danger>No ratings yet!</p>")
     def count_rating(self,instance):
-        reviews = Rating.objects.filter(product=instance).aggregate(count=Count('id'))
-        cnt=0
-        if reviews["count"] is not None:
-            cnt = int(reviews["count"])
-        return cnt
+        if Rating.objects.filter(Status="Approved"):
+            reviews = Rating.objects.filter(product=instance).aggregate(count=Count('id'))
+            cnt=0
+            if reviews["count"] is not None:
+                cnt = int(reviews["count"])
+            return cnt
     def reviewss(self,instance):
         reviews=Rating.objects.filter(product=instance).values_list("Reviews")
         for review in reviews:
@@ -65,7 +69,7 @@ class productdetailserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
         model=Product
-                 
+                
 class attributesSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -92,13 +96,11 @@ class ffaqSerializer(serializers.ModelSerializer):
         model=FAQ    
 class ratingSerializer(serializers.ModelSerializer):
     class Meta:
-        fields="__all__"
+        fields=("user","product","Reviews","Rating")
         model=Rating
-    Rating=serializers.DecimalField(max_digits=5, decimal_places=1,)
+    Rating=serializers.DecimalField(min_value=1,max_value=5, max_digits=3,decimal_places=1,)
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    # def create(self,**validated_data):
-    #     user=User.objects.create(**validated_data)
-    #     return user
+    
 class customermessageSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"

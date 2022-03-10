@@ -219,15 +219,17 @@ class customermsgCreateView(CreateAPIView):
     queryset = customer_message.objects.all()
 
 class AddCouponView(APIView):
+    permission_classes = (IsAuthenticated, )
     def post(self, request, *args, **kwargs):
         code = request.data.get('code', None)
         if code is None:
             return Response({"message": "Invalid data received"}, status=HTTP_400_BAD_REQUEST)
         order = Order.objects.get(
             user=self.request.user, ordered=False)
+        print("code=============================",code)
         coupon = get_object_or_404(Coupon, code=code)
         order.coupon = coupon
-        order.save()
+        order.save(*args, **kwargs)
         return Response(status=HTTP_200_OK)
 
 
