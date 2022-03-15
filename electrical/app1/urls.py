@@ -3,9 +3,12 @@ from app1.models import Attributes
 from rest_framework_simplejwt import views as jwt_views
 from . import views
 from app1.views import *
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns=[
-     
+    path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', RegisterView.as_view(), name='auth_register'), 
     path('categories/',views.listcategory.as_view({'get': 'list'}),name="category"),
     path('categories/<int:pk>/',detailcategory.as_view(),name="single_category"),
     path('product/',Productlist.as_view({'get': 'list'}),name="product"),

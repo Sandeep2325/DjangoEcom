@@ -26,6 +26,7 @@ from rest_framework import routers
 from rest_framework_simplejwt.views import TokenVerifyView
 from django.conf.urls import handler404
 import regex
+from django.contrib.auth import views as auth_views
 #handler404 = 'app1.views.error_404_view'
 router = routers.DefaultRouter()
 urlpatterns = [
@@ -33,8 +34,13 @@ urlpatterns = [
     #path('jet/', include('jet.urls', 'jet')),
     #path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
     path('admin/', admin.site.urls),
-    path('auth/', include('rest_auth.urls')),
-    path('registration/', include('rest_auth.registration.urls')),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='main/password/password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name="main/password/password_reset_confirm.html"), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='main/password/password_reset_complete.html'), name='password_reset_complete'), 
+    path("password_reset",views.password_reset_request, name="password_reset"),
+    #path('auth/', include('auth.urls')),
+    #path('auth/', include('rest_auth.urls')),
+    #path('registration/', include('rest_auth.registration.urls')),
     path('api/', include(router.urls)),
     #path('auth/', include('rest_auth.urls')),
     #path('',views.count),
@@ -45,5 +51,6 @@ urlpatterns = [
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    #path('', include(router.urls)),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 #handler404 = 'app1.views.error_404_view'

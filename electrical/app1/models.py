@@ -1,4 +1,5 @@
 from asyncio.windows_events import NULL
+from enum import unique
 from pickle import FALSE
 from pyexpat.errors import messages
 from re import VERBOSE
@@ -29,11 +30,12 @@ from django.db.models import Avg
 from embed_video.fields  import  EmbedVideoField
 from django.db.models import Avg,Count
 from numpy import product
+
 #from django.contrib.auth.admin import UserAdmin
 #from youtubeurl_field.modelfields import YoutubeUrlField
 ##################################################################################################################################
 
-""" class User(AbstractUser):
+class User(AbstractUser):
   username = models.CharField(max_length = 50, blank = False, null = True, unique = True)
   email = models.EmailField(_('email address'), unique = True)
   #native_name = models.CharField(max_length = 5)
@@ -41,7 +43,7 @@ from numpy import product
   USERNAME_FIELD = 'email'
   REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
   def __str__(self):
-      return "{}".format(str(self.email)) """
+      return "{}".format(str(self.email))
 #######################################################################################################################################
 
 """ class AccountManager(BaseUserManager):
@@ -239,7 +241,7 @@ class Product(models.Model):
                 return review
         else:
             return format_html("<p class=text-danger>No ratings yet!</p>")
-        
+      
     ###################################################################################################
     class Meta:
         #def countt(self):
@@ -247,7 +249,7 @@ class Product(models.Model):
         ordering = ('-created_at',)
     
     def __str__(self):
-        template = '{0.title}/{0.category.brands}'
+        template = '{0.title}/{0.category}'
         return template.format(self)
 ##################################################################################################################################
 """ class ProductImage(models.Model):
@@ -413,7 +415,17 @@ class Rating(models.Model):
         try:
             return self.product.title
         except:
-            return str(None)  
+            return str(None)
+    @property 
+    def status_(self):
+        if Rating.objects.filter(Q(Status="Approved") & Q(product=self.product) & Q(user=self.user)):
+            return format_html('<p class="text-success fa fa-check" aria-hidden="true"><span class="ml-2">Approved</span></p>')
+        elif Rating.objects.filter(Q(Status="Rejected") & Q(product=self.product) & Q(user=self.user)):
+            return format_html('<p class="text-danger fa fa-ban" aria-hidden="true"><span class="ml-2">Rejected</span></p>')
+        elif Rating.objects.filter(Q(Status="Pending") & Q(product=self.product) & Q(user=self.user)):
+             #.objects.filter(Q(Status="Pending") & Q(product=self.product)):
+            return format_html('<p class="text-primary fa fa-clock" aria-hidden="true"><span class="ml-2">Pending</span></p>')
+                 
 #####################################################################################################################        
 #BLOG MODEL
 class Blog(models.Model):
@@ -430,7 +442,7 @@ class Blog(models.Model):
     url= EmbedVideoField(max_length = 200,null=True,blank=True)
     images=models.ImageField(upload_to="blog",null=True)
     image =models.ManyToManyField(image,blank=True)   
-    # category=models.ForeignKey(BlogCategory, on_delete=models.CASCADE)
+    #category=models.ForeignKey(BlogCategory, on_delete=models.CASCADE)
     uploaded_date=models.DateField(auto_now_add=True)
 
             #################auto resizing function############################################################################
@@ -450,11 +462,18 @@ class Blog(models.Model):
         return self.title
 ##############################################################################################################################
 #FAQ MODEL 
+STATUS_CHOICES = [
+    ('d', 'Draft'),
+    ('p', 'Published'),
+    ('w', 'Withdrawn'),
+]
 class FAQ(models.Model):
+ 
     Question = models.CharField(max_length=100,null=True,)
     Answer = RichTextField(max_length=300,null=True)
     created_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date",null=True)
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated Date",null=True)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES,default="d") 
     #created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
     class Meta:
         verbose_name_plural = "FAQs"

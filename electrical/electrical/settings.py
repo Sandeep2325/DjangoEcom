@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     #'baton',
     #'wpadmin',
     'jazzmin',
+    'admin_actions', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,7 +52,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'django_filters',
-    'rest_framework.authtoken',
+    #'rest_framework.authtoken',
     'rest_auth',
     'allauth',
     'allauth.account',
@@ -85,7 +86,7 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 ROOT_URLCONF = 'electrical.urls'
-#AUTH_USER_MODEL = 'app1.User'
+AUTH_USER_MODEL = 'app1.User'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000
 TEMPLATES = [
     {
@@ -144,7 +145,7 @@ WSGI_APPLICATION = 'electrical.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'electrical14',
+        'NAME': 'electrical02',
         'USER': 'root',
         'PASSWORD': 'Sandeep@8105',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on

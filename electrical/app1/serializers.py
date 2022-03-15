@@ -1,5 +1,7 @@
 from dataclasses import field, fields
 import email
+from enum import unique
+from genericpath import exists
 from unittest.util import _MAX_LENGTH
 from django.forms import CharField
 from rest_framework import serializers
@@ -29,6 +31,10 @@ class CustomerAddressSerializers(serializers.ModelSerializer):
     class  Meta:
         fields = '__all__'
         model = Address
+    def to_representation(self, instance):
+        response=super().to_representation(instance)
+        response["user"]=instance.user.username
+        return response
 class categorySerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -39,9 +45,16 @@ class productSerializer(serializers.ModelSerializer):
     class Meta:
         fields=("id","title","sku","short_description","detail_description","image","product_image","price","discounted_price","category","is_active","created_at","updated_at","average_rating","count_review","reviews")
         model=Product
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['category'] = instance.category.brands
+        #response['image'] = instance.image.last().image.url,instance.image.first().image.url,
+        # response['price'] = instance.item.price
+    
+        return response
     def averagee_rating(self,instance):
-        if Rating.objects.filter(Status="Approved"):
-            review = Rating.objects.filter(product=instance).aggregate(average=Avg('Rating'))
+        if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
+            review = Rating.objects.filter(Q(Status="Approved") & Q(product=instance)).aggregate(average=Avg('Rating'))
             avg=0
             
             if review["average"] is not None:
@@ -54,16 +67,24 @@ class productSerializer(serializers.ModelSerializer):
         else:
             return format_html("<p class=text-danger>No ratings yet!</p>")
     def count_rating(self,instance):
-        if Rating.objects.filter(Status="Approved"):
-            reviews = Rating.objects.filter(product=instance).aggregate(count=Count('id'))
+        if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
+            reviews = Rating.objects.filter(Q(Status="Approved") & Q(product=instance)).aggregate(count=Count('id'))
             cnt=0
             if reviews["count"] is not None:
                 cnt = int(reviews["count"])
             return cnt
     def reviewss(self,instance):
-        reviews=Rating.objects.filter(product=instance).values_list("Reviews")
-        for review in reviews:
-            return review
+        if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
+            reviews=Rating.objects.filter(Q(Status="Approved") & Q(product=instance)).values_list("Reviews")
+            for review in reviews:
+                return review
+        else:
+            #return format_html("<p class=text-danger>No ratings yet!</p>")
+            return "no ratings yet"
+        
+        # reviews=Rating.objects.filter(product=instance).values_list("Reviews")
+        # for review in reviews:
+        #     return review
         # reviews     
 class productdetailserializer(serializers.ModelSerializer):
     class Meta:
@@ -78,6 +99,15 @@ class ordersSerializer(serializers.ModelSerializer):
     class Meta:
         fields=("user","address","product",'quantity','coupon','attributes','status')
         model=Order
+    def to_representation(self, instance):
+        response=super().to_representation(instance)
+        
+        response["user"]=instance.user.username
+        response["address"]=instance.address.city
+        response["product"]=instance.product.title
+        #response["coupon"]=instance.coupon.coupon
+        #response["attributes"]=instance.attributes.Color
+        return response
 class bannerSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -92,7 +122,7 @@ class faqSerializer(serializers.ModelSerializer):
         model=FAQ
 class ffaqSerializer(serializers.ModelSerializer):
     class Meta:
-        fields="__all__"
+        fields=("id",'Question','Answer','created_date','updated_at')
         model=FAQ    
 class ratingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -101,6 +131,17 @@ class ratingSerializer(serializers.ModelSerializer):
     Rating=serializers.DecimalField(min_value=1,max_value=5, max_digits=3,decimal_places=1,)
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     
+    # def validate(self, attrs):
+    #     if attrs['user'] and attrs['product']:
+    #         raise serializers.ValidationError({"user": "this user already rated this product"})
+    #     return attrs    
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user']=instance.user.username
+        response["product"]="product: ",instance.product.title,"category: ",instance.product.category.brands
+        
+        return response
+        
 class customermessageSerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -110,6 +151,18 @@ class customermessageSerializer(serializers.ModelSerializer):
     Email=serializers.EmailField(max_length=200)
     Phone=serializers.IntegerField()
     Message=serializers.CharField(max_length=500)
+    
+    def create(self, validate_data):
+        instance = super(customermessageSerializer, self).create(validate_data)
+        #return send_mail('Prakash Electrical',Message,'gowdasandeep8105@gmail.com',[email],fail_silently=False,),messages.success(request,"Successfully sent")
+        send_mail(
+            'You have message from one of your customer {}'.format(instance.first_name),
+            'Here is the message. DATA: {}'.format(validate_data),
+            'gowdasandeep8105@gmail.com',
+            ['sandeep.nexevo@gmail.com'],
+            fail_silently=False,
+        )
+        return instance
     
     def validate_first_name(self,value):
         if value is NULL:
@@ -129,8 +182,8 @@ class CouponSerializer(serializers.ModelSerializer):
 
 #     def validate(self, data):
 #         """
-#         Verify the input used to create or update the coupon is valid.  Because we don't support PATCH for the binding
-#         field, we don't need to check self.instance for this.
+        # Verify the input used to create or update the coupon is valid.  Because we don't support PATCH for the binding
+        # field, we don't need to check self.instance for this.
 #         """
 
 #         # Verify if the expiration date is set that it's in the future.
@@ -215,3 +268,62 @@ class CouponSerializer(serializers.ModelSerializer):
 #         model = ClaimedCoupon
 #         fields = ('redeemed', 'coupon', 'user', 'id')
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.password_validation import validate_password
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    @classmethod
+    def get_token(cls, user):
+        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
+
+        # Add custom claims
+        token['user'] = user.email
+        return token
+class RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+            required=True,
+            validators=[UniqueValidator(queryset=User.objects.all())]
+            )
+
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+    
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name','phone_no')
+        extra_kwargs = {
+            'first_name': {'required': True},
+            'last_name': {'required': True}
+        }
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        return attrs
+    def validate(self, attrs):
+        if attrs['email'] is unique:
+            raise serializers.ValidationError({"email": "This e-mail is already taken"})
+        return attrs
+    
+    # def validate(self, attrs):
+    #     if attrs['phone_no'] is unique & attrs['phone_no'] is NULL:
+    #         raise serializers.ValidationError({"phone": "This phone mumber is already taken"})
+    #     return attrs
+    
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            phone_no=validated_data['phone_no']
+        )
+
+        
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
