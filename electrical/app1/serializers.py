@@ -31,10 +31,24 @@ class CustomerAddressSerializers(serializers.ModelSerializer):
     class  Meta:
         fields = '__all__'
         model = Address
-    def to_representation(self, instance):
-        response=super().to_representation(instance)
-        response["user"]=instance.user.username
-        return response
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())    
+    #user=serializers.PrimaryKeyRelatedField(max_length=200)
+    door_number=serializers.IntegerField()
+    street=serializers.CharField(max_length=300)
+    city=serializers.CharField(max_length=300)
+    state=serializers.CharField(max_length=300)
+    country=serializers.CharField(max_length=300)
+    pincode=serializers.IntegerField()
+    phone_no=serializers.IntegerField()
+    def validate(self, attrs):
+        if attrs['door_number'] in NULL:
+            raise serializers.ValidationError({"door_number": "field required."})
+
+        return attrs
+    # def to_representation(self, instance):
+    #     response=super().to_representation(instance)
+    #     response["user"]=instance.user.username
+    #     return response
 class categorySerializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"

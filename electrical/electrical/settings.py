@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 #from django.utils.encoding import python_2_unicode_compatible, smart_text
 #from django.config import *
@@ -33,13 +34,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    #'bootstrap_admin',
-    #'jet.dashboard',
-    #'jet',
-    #'baton',
-    #'wpadmin',
+    # 'bootstrap_admin',
+    # 'jet.dashboard',
+    # 'jet',
+    # 'baton',
+    # 'wpadmin',
     'jazzmin',
-    'admin_actions', 
+    'admin_actions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,23 +53,23 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'django_filters',
-    #'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
     'rest_auth',
     'allauth',
     'allauth.account',
     'rest_auth.registration',
     'ckeditor',
     'django_summernote',
-    #'baton.autodiscover',
-    #'compressor'
-    #'allauth',
-    #'allauth.account',
+    # 'baton.autodiscover',
+    # 'compressor'
+    # 'allauth',
+    # 'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',  
+    'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
-    #'allauth.socialaccount.providers.github',
-    #'allauth.socialaccount.providers.twitter',
-    
+    # 'allauth.socialaccount.providers.github',
+    # 'allauth.socialaccount.providers.twitter',
+
 ]
 
 MIDDLEWARE = [
@@ -80,9 +81,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+
 ]
 CORS_ORIGIN_WHITELIST = [
-     'http://127.0.0.1:8000'
+    'http://127.0.0.1:8000'
 ]
 
 ROOT_URLCONF = 'electrical.urls'
@@ -95,7 +97,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                
+
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -108,8 +110,8 @@ TEMPLATES = [
                 # 'django.contrib.messages.context_processors.messages',
                 # 'social.apps.django_app.context_processors.backends',
                 # 'social.apps.django_app.context_processors.login_redirect',
-               
-                
+
+
             ],
         },
     },
@@ -121,7 +123,7 @@ TEMPLATES = [
     'django.contrib.auth.backends.ModelBackend',
 ) """
 AUTHENTICATION_BACKEND = [
-    
+
     'django.contrib.auth.backends.ModelBackend',
 
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -129,22 +131,50 @@ AUTHENTICATION_BACKEND = [
     'django_facebook.auth_backends.FacebookBackend',
 
     'social_core.backends.facebook.FacebookOAuth2',
-    
+
 ]
-ACCOUNT_AUTHENTICATION_METHOD="email"
-ACCOUNT_EMAIL_REQUIRED=True
-ACCOUNT_USERNAME_REQUIRED=False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 WSGI_APPLICATION = 'electrical.wsgi.application'
+ADMIN_ORDERING = [
+    ('app1', [
+        'User',
+        'Category',
+        'Attributes',
+        'Product',
+        'sales',
+        'order',
+        'Address',
+        'Rating',
+        'Coupon',
+        'Banner',
+        'Blog',
+        'FAQ',
+        'customer_message',
+        'MailText',
+        'image'
+        
+    ]),
+]
+# def get_app_list(self, request):
+#     app_dict = self._build_app_dict(request)
+#     for app_name, object_list in ADMIN_ORDERING:
+#         app = app_dict[app_name]
+#         app['models'].sort(key=lambda x: object_list.index(x['object_name']))
+#         yield app
+# from django.contrib import admin
 
+# admin.AdminSite.get_app_list = get_app_list
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'electrical02',
         'USER': 'root',
         'PASSWORD': 'Sandeep@8105',
@@ -225,7 +255,9 @@ REST_FRAMEWORK = {
 COMPRESS_PRECOMPILERS = (('text/x-scss', 'django_libsass.SassCompiler'),)
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
-STATICFILES_FINDERS = ('django.contrib.staticfiles.finders.FileSystemFinder','django.contrib.staticfiles.finders.AppDirectoriesFinder',)# other finders..'compressor.finders.CompressorFinder',)
+# other finders..'compressor.finders.CompressorFinder',)
+STATICFILES_FINDERS = ('django.contrib.staticfiles.finders.FileSystemFinder',
+                       'django.contrib.staticfiles.finders.AppDirectoriesFinder',)
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Kolkata'
@@ -241,7 +273,6 @@ USE_TZ = True
 
 
 MEDIA_URL = '/image/'
-import os
 MEDIA_ROOT = os.path.join(BASE_DIR, 'image')
 
 STATIC_URL = '/static/'
@@ -250,7 +281,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
-#EMAIL_USE_SSL=FALSE
+# EMAIL_USE_SSL=FALSE
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "gowdasandeep8105@gmail.com"
 EMAIL_HOST_PASSWORD = 'Sandeep@1234'

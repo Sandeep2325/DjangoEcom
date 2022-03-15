@@ -10,6 +10,18 @@
 # from .filters import CouponFilter
 # from django.utils.decorators import method_decorator
 # from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render, redirect
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.db.models.query_utils import Q
+from django.template.loader import render_to_string
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordResetForm
+from django.core.mail import send_mail, BadHeaderError
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import AllowAny
+from .serializers import MyTokenObtainPairSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.mixins import ListModelMixin
 from django.http import Http404
@@ -19,9 +31,10 @@ from . serializers import *
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets,filters, status
+from rest_framework import viewsets, filters, status
 from django.shortcuts import get_object_or_404
-from rest_framework.generics import (ListAPIView, RetrieveAPIView, CreateAPIView,UpdateAPIView, DestroyAPIView,GenericAPIView)
+from rest_framework.generics import (
+    ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, GenericAPIView)
 from django.http import HttpResponse
 from rest_framework import permissions
 from rest_framework.views import APIView
@@ -40,23 +53,27 @@ from rest_framework.pagination import PageNumberPagination
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) """
 
-     
+
 def countt(request):
-    usercount=User.objects.all().count()
-    productcount=Product.objects.all().count()
-    ordercount=Order.objects.all().count()
-    context={'usercount':usercount,
-             'productcount':productcount,
-             'ordercount':ordercount}
-    return render(request,"templates/admin/index.html",context)
+    usercount = User.objects.all().count()
+    productcount = Product.objects.all().count()
+    ordercount = Order.objects.all().count()
+    context = {'usercount': usercount,
+               'productcount': productcount,
+               'ordercount': ordercount}
+    return render(request, "templates/admin/index.html", context)
 ##############################################################################################################################################
+
+
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
-    serializer_class=categorySerializer
+    serializer_class = categorySerializer
+
 
 class detailcategory(generics.RetrieveUpdateDestroyAPIView):
-    queryset=Category.objects.all()
-    #serializer_class=categorySerializer
+    queryset = Category.objects.all()
+    # serializer_class=categorySerializer
+
     def list(self, request):
         serializer = categorySerializer(self.queryset, many=True)
         return Response(serializer.data)
@@ -65,7 +82,7 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = categorySerializer(item)
         return Response(serializer.data)
-    
+
 # class Productlist(viewsets.ModelViewSet):
 #     queryset = Product.objects.all()
 #     serializer_class=productSerializer
@@ -79,19 +96,24 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
 #         item = get_object_or_404(self.queryset, pk=pk)
 #         serializer = productSerializer(item)
 #         return Response(serializer.data)
+
+
 class Productlist(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     # product_detail = Product.objects.get(id=id)
     # review = Rating.objects.filter(product = product_detail)
-    serializer_class=productSerializer
+    serializer_class = productSerializer
     pagination_class = PageNumberPagination
-    
-     
+
+
 class Productdetail(generics.RetrieveAPIView):
-    queryset=Product.objects.all()
-    serializer_class=productSerializer
+    queryset = Product.objects.all()
+    serializer_class = productSerializer
+
+
 class attributelist(viewsets.ModelViewSet):
     queryset = Attributes.objects.all()
+
     def list(self, request):
         serializer = attributesSerializer(self.queryset, many=True)
         return Response(serializer.data)
@@ -101,9 +123,11 @@ class attributelist(viewsets.ModelViewSet):
         serializer = attributesSerializer(item)
         return Response(serializer.data)
 
+
 class attributedetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset=Attributes.objects.all()
-    serializer_class=attributesSerializer
+    queryset = Attributes.objects.all()
+    serializer_class = attributesSerializer
+
 
 class orderlist(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -117,6 +141,7 @@ class orderlist(viewsets.ModelViewSet):
         serializer = ordersSerializer(item)
         return Response(serializer.data)
 
+
 ##################################################################################
 """ class OrderDetailView(RetrieveAPIView):
     serializer_class = ordersSerializer
@@ -129,9 +154,12 @@ class orderlist(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             raise Http404("You do not have an active order") """
 #########################################################################################
+
+
 class orderdetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset=Order.objects.all()
-    serializer_class=ordersSerializer
+    queryset = Order.objects.all()
+    serializer_class = ordersSerializer
+
 
 class orderCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
@@ -139,6 +167,8 @@ class orderCreateView(CreateAPIView):
     queryset = Order.objects.all()
 
 ############################################################################################
+
+
 class AddressListView(ListAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = CustomerAddressSerializers
@@ -162,38 +192,52 @@ class AddressUpdateView(UpdateAPIView):
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
 
+
 class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Address.objects.all()
+
 
 #######################################################################################################
 """ class ListCustomerAddress(viewsets.ModelViewSet):
     queryset = Address.objects.all()
     serializer_class = CustomerAddressSerializers """
 
+
 class Listbanner(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
     serializer_class = bannerSerializer
 
+
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
+
+
 class Listfaq(viewsets.ModelViewSet):
-    queryset=FAQ.objects.filter(status="p")
+    queryset = FAQ.objects.filter(status="p")
     serializer_class = ffaqSerializer
+
+
 class faqCreateView(CreateAPIView):
-    #queryset=FAQ.objects.filter(Status="Approved")
+    # queryset=FAQ.objects.filter(Status="Approved")
     permission_classes = (IsAuthenticated, )
     serializer_class = faqSerializer
     queryset = FAQ.objects.all()
+
+
 class Listrating(viewsets.ModelViewSet):
-    queryset=Rating.objects.filter(Status="Approved")
+    queryset = Rating.objects.filter(Status="Approved")
     #queryset = Rating.objects.all()
     serializer_class = ratingSerializer
+
+
 class ratingCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
     queryset = Rating.objects.all()
+
+
 class ratingupdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
@@ -207,34 +251,50 @@ class ratingupdateView(UpdateAPIView):
     #     serializer.is_valid(raise_exception=True)
     #     self.perform_update(serializer)
     #     return Response(serializer.data)
-    
+
+
 class listcustomermessage(viewsets.ModelViewSet):
-    queryset=customer_message.objects.all()
-    serializer_class=customermessageSerializer
+    queryset = customer_message.objects.all()
+    serializer_class = customermessageSerializer
+
+
 """ class customermsgCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = customermessageSerializer
     queryset = Address.objects.all() """
+
+
 class customermsgCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = customermessageSerializer
     queryset = customer_message.objects.all()
 
+
 class AddCouponView(APIView):
     permission_classes = (IsAuthenticated, )
+
     def post(self, request, *args, **kwargs):
         code = request.data.get('code', None)
         if code is None:
             return Response({"message": "Invalid data received"}, status=HTTP_400_BAD_REQUEST)
         order = Order.objects.get(
             user=self.request.user, ordered=False)
-        print("code=============================",code)
+        print("code=============================", code)
         coupon = get_object_or_404(Coupon, code=code)
         order.coupon = coupon
         order.save(*args, **kwargs)
         return Response(status=HTTP_200_OK)
-
-
+from rest_framework.decorators import action
+class CouponViewSet(viewsets.ModelViewSet):
+        queryset = Coupon.objects.all()
+        serializer_class = CouponSerializer
+    
+        @action(detail=True, methods=['get'])
+        def redeem(self, request, pk=None):
+            obj = self.get_object()
+            # obj.coupon==queryset
+            return Response()
+        
 # def group_required(api_command):
 #     """
 #     This is implemented such that it's default open.
@@ -292,7 +352,7 @@ class AddCouponView(APIView):
 
 #     return qs_some
 # class CouponViewSet(viewsets.ModelViewSet):
-   
+
 
 #     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
 #     filter_class = CouponFilter
@@ -413,7 +473,7 @@ class AddCouponView(APIView):
 
 #         # Maybe should do coupon.redeem(user).
 #         # if data['expires'] < now():
-        
+
 #         data = {
 #             'coupon': pk,
 #             'user':   self.request.user.id,
@@ -452,7 +512,7 @@ class AddCouponView(APIView):
 #         redeemed = get_object_or_404(ClaimedCoupon.objects.all(), pk=pk)
 #         redeemed.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
 #     def partial_update(self, request, pk=None, **kwargs):
 #         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -462,52 +522,43 @@ class AddCouponView(APIView):
 #     def update(self, request, pk=None, **kwargs):
 #         return Response(status=status.HTTP_404_NOT_FOUND)
 
-from .serializers import MyTokenObtainPairSerializer
-from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
+
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
-    
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
-from django.shortcuts import render, redirect
-from django.core.mail import send_mail, BadHeaderError
-from django.http import HttpResponse
-from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.models import User
-from django.template.loader import render_to_string
-from django.db.models.query_utils import Q
-from django.utils.http import urlsafe_base64_encode
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_bytes    
-    
+
+
 def password_reset_request(request):
-	if request.method == "POST":
-		password_reset_form = PasswordResetForm(request.POST)
-		if password_reset_form.is_valid():
-			data = password_reset_form.cleaned_data['email']
-			associated_users = User.objects.filter(Q(email=data))
-			if associated_users.exists():
-				for user in associated_users:
-					subject = "Password Reset Requested"
-					email_template_name = "main/password/password_reset_email.txt"
-					c = {
-					"email":user.email,
-					'domain':'127.0.0.1:8000',
-					'site_name': 'Website',
-					"uid": urlsafe_base64_encode(force_bytes(user.pk)),
-					"user": user,
-					'token': default_token_generator.make_token(user),
-					'protocol': 'http',
-					}
-					email = render_to_string(email_template_name, c)
-					try:
-						send_mail(subject, email, 'admin@example.com' , [user.email], fail_silently=False)
-					except BadHeaderError:
-						return HttpResponse('Invalid header found.')
-					return redirect ("/password_reset/done/")
-	password_reset_form = PasswordResetForm()
-	return render(request=request, template_name="registration/password_reset.html", context={"password_reset_form":password_reset_form})
+    if request.method == "POST":
+        password_reset_form = PasswordResetForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_users = User.objects.filter(Q(email=data))
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "main/password/password_reset_email.txt"
+                    c = {
+                        "email": user.email,
+                        'domain': '127.0.0.1:8000',
+                        'site_name': 'Website',
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "user": user,
+                        'token': default_token_generator.make_token(user),
+                        'protocol': 'http',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        send_mail(subject, email, 'admin@example.com',
+                                  [user.email], fail_silently=False)
+                    except BadHeaderError:
+                        return HttpResponse('Invalid header found.')
+                    return redirect("/password_reset/done/")
+    password_reset_form = PasswordResetForm()
+    return render(request=request, template_name="registration/password_reset.html", context={"password_reset_form": password_reset_form})

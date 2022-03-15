@@ -1,11 +1,14 @@
 {% extends 'admin/base_site.html' %}
 {% load static %}
-
+{% comment %} {% load i18n admin_reorder %} {% endcomment %}
 {% block branding %}
     <a href="{% url 'admin:index' %}" class="django-admin-logo">
         <!-- Django Administration -->
         <img height="60" src="{% static "bootstrap_admin/img/logo-140x60.png" %}" alt="{{ site_header|default:_('Django administration') }}">
     </a>
+    {% comment %} {% admin_reorder %}
+<h1 id="site-name">{% trans 'Django administration' %}</h1> {% endcomment %}
 
 {% endblock branding %}
+{% block nav-global %}{% endblock %}
 
