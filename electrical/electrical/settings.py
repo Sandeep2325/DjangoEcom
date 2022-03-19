@@ -34,11 +34,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    # 'bootstrap_admin',
-    # 'jet.dashboard',
-    # 'jet',
-    # 'baton',
-    # 'wpadmin',
     'jazzmin',
     'admin_actions',
     'django.contrib.admin',
@@ -56,14 +51,10 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     'rest_auth',
     'allauth',
-    'allauth.account',
+    #'allauth.account',
     'rest_auth.registration',
     'ckeditor',
     'django_summernote',
-    # 'baton.autodiscover',
-    # 'compressor'
-    # 'allauth',
-    # 'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
@@ -133,7 +124,7 @@ AUTHENTICATION_BACKEND = [
     'social_core.backends.facebook.FacebookOAuth2',
 
 ]
-ACCOUNT_AUTHENTICATION_METHOD = "email"
+#ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -159,16 +150,6 @@ ADMIN_ORDERING = [
         
     ]),
 ]
-# def get_app_list(self, request):
-#     app_dict = self._build_app_dict(request)
-#     for app_name, object_list in ADMIN_ORDERING:
-#         app = app_dict[app_name]
-#         app['models'].sort(key=lambda x: object_list.index(x['object_name']))
-#         yield app
-# from django.contrib import admin
-
-# admin.AdminSite.get_app_list = get_app_list
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 

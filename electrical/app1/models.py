@@ -1,3 +1,4 @@
+from ctypes import BigEndianStructure
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.html import strip_tags
@@ -9,7 +10,7 @@ from django.db.models.signals import pre_save
 from asyncio.windows_events import NULL
 from enum import unique
 from pickle import FALSE
-from pyexpat.errors import messages
+#from pyexpat.errors import messages
 from re import VERBOSE
 from tabnanny import verbose
 from tkinter import CASCADE
@@ -48,15 +49,28 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=50, blank=False, null=True, unique=True)
     email = models.EmailField(_('email address'), unique=True)
+    first_name=models.CharField(max_length=50,blank=False,null=True)
+    last_name=models.CharField(max_length=50,blank=False,null=True)
     #native_name = models.CharField(max_length = 5)
     phone_no = models.CharField(max_length=10, null=True, unique=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name','phone_no']
 
     def __str__(self):
-        return "{}".format(str(self.email))
+        return "{}".format(str(self.username))
 #######################################################################################################################################
-
+class my_account(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    first_name=models.CharField(max_length=50,null=True,verbose_name="First Name")
+    last_name=models.CharField(max_length=50,null=True,verbose_name="last Name")
+    phone_number=models.BigIntegerField(null=True,verbose_name="Phone number")
+    email=models.EmailField(max_length=255,null=True,verbose_name="Email")
+    address=models.TextField(null=True,verbose_name="Address")
+    city=models.CharField(max_length=100,null=True,verbose_name="City")
+    state=models.CharField(max_length=50,null=True,verbose_name="State")
+    postal_address=models.TextField(null=True,verbose_name="Postal address")
+    def __str__(self):
+        return self.first_name    
 
 """ class AccountManager(BaseUserManager):
     def create_superuser(self,email,first_name,password,**other_fields):
@@ -180,8 +194,15 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = " Category"
 #########################################################################################################################################
+class Brand(models.Model):
+    brand_name = models.CharField(max_length=150)
+    logo = models.ImageField(upload_to='brand', blank=True, null=True)
+    details = models.TextField(blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
 
-
+    def __str__(self):
+        return self.brand_name
+#################################################################################
 class image(models.Model):
     image = models.ImageField(upload_to="images")
     """ def __str__(self):
@@ -200,7 +221,6 @@ class image(models.Model):
             img.save(self.image.path) """
     #product=models.ForeignKey (Product, on_delete=models.CASCADE,verbose_name="Product")
 #################################################################################################################################
-
 
 class Product(models.Model):
     def validate_image(fieldfile_obj):
@@ -227,7 +247,10 @@ class Product(models.Model):
     discounted_price = models.DecimalField(
         max_digits=8, decimal_places=2, verbose_name="Offer Price(₹)", null=True, blank=True)
     category = models.ForeignKey(
-        Category, verbose_name="Product Brands", on_delete=models.SET_NULL, null=True)
+        Category, verbose_name="Product category", on_delete=models.SET_NULL, null=True)
+    # attributess = models.ForeignKey(
+    #     'Attributes', verbose_name="Product attribute", on_delete=models.SET_NULL, null=True)
+    brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
     #is_featured = models.BooleanField(verbose_name="Is Featured?",default=True)
     created_at = models.DateTimeField(
@@ -297,8 +320,9 @@ class Product(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        template = '{0.title}/{0.category}'
+        template = '{0.title}/{0.category}/{0.brand}'
         return template.format(self)
+
 
 ##################################################################################################################################
 """ class ProductImage(models.Model):
@@ -308,8 +332,6 @@ class Product(models.Model):
     def __str__(self):
         return self.product.title """
 ##################################################################################################################################
-
-
 class Attributes(models.Model):
     Product = models.ForeignKey(
         Product, on_delete=models.CASCADE, verbose_name="Product")
@@ -324,8 +346,91 @@ class Attributes(models.Model):
         verbose_name_plural = "Attributes"
 
 #################################################################################################################################
+# class Cart(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     total = models.PositiveIntegerField()
+#     complit = models.BooleanField(default=False)
+#     date = models.DateTimeField(auto_now_add=True)
 
+#     def __str__(self):
+#         return self.user.email
 
+# class CartProduct(models.Model):
+#     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+#     product = models.ManyToManyField(Product)
+#     quantity = models.PositiveIntegerField()
+#     total = models.PositiveIntegerField()
+
+#     @property
+#     #category.values('module_name')
+#     def totalprice(self):
+#         total=self.quantity*self.product.values["price"]
+#         return total    
+
+class Cart(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,verbose_name="User")
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True,verbose_name="Product")
+    attributes = models.ForeignKey(
+        Attributes, verbose_name=" Product Attributes", on_delete=models.SET_NULL, null=True, blank=True)
+    quantity = models.PositiveIntegerField(verbose_name="Quantity",null=True)
+    date = models.DateTimeField(auto_now_add=True,verbose_name="Date",null=True)
+    updated_at = models.DateTimeField(
+        auto_now=True, verbose_name="Updated Date", null=True)
+    # price = models.DecimalField(
+    #     max_digits=8, decimal_places=2, null=True, blank=True, verbose_name="Price(₹)")
+    @property
+    def price(self):
+        return self.product.price
+    @property
+    def discounted_price(self):
+        return self.product.discounted_price
+    @property
+    def Total_amount(self):
+        if self.product.discounted_price is None:
+            # print("222222222222222222222222222",self.product.price)
+            try:
+                total_amount=self.quantity*self.product.price
+            except:
+                total_amount=1*self.product.price
+            return total_amount
+        else:
+            total_amount=self.quantity*self.product.discounted_price
+            return total_amount
+    def __str__(self):
+        return str(self.product)
+###########################################################################        
+class checkout(models.Model):
+    cart=models.ManyToManyField(Cart)
+    Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
+    
+    def products(self):
+        return ",".join([str(p) for p in self.cart.all()])
+    # def users(self):
+    #     return self.cart.user
+    # def get_products(self):
+    #     return "\n".join([p.product for p in self.cart.all()])
+    
+    def __str__(self):
+        return str(self.cart.first())
+##################################################################################
+STATUS_CHOICES = (
+    ('Pending', 'Pending'),
+    ('Accepted', 'Accepted'),
+    ('Packed', 'Packed'),
+    ('On The Way', 'On The Way'),
+    ('Delivered', 'Delivered'),
+    ('Cancelled', 'Cancelled'),
+)
+class Orders(models.Model):
+    checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product")
+    ordered_date = models.DateTimeField(
+        auto_now_add=True, verbose_name="ordered Date", null=True)
+    status = models.CharField(
+        choices=STATUS_CHOICES,
+        max_length=50,
+        default="Pending"
+    ) 
+#####################################################################################################################################
 class Coupon(models.Model):
     coupon = models.CharField(
         verbose_name="Coupon_code", max_length=200, null=True, unique=True)
@@ -351,7 +456,6 @@ class Coupon(models.Model):
 #         except ValidationError:
 #             messages.warning(request,"Hello")
 
-
 # pre_save.connect(check_date, sender=Coupon)
 #################################################################################################################################
 STATUS_CHOICES = (
@@ -362,7 +466,6 @@ STATUS_CHOICES = (
     ('Delivered', 'Delivered'),
     ('Cancelled', 'Cancelled'),
 )
-
 
 class Order(models.Model):
     user = models.ForeignKey(User, verbose_name="User",
@@ -411,17 +514,12 @@ class Order(models.Model):
                 return messages.warning('Something went wrong!')
         except:
             pass
-    """ def save(self,*args,**kwargs):
-        if self.coupon:
-            self.price=self.price-300
-            return super(Order, self).save(*args, **kwargs) """
 
     def __str__(self):
         return str(self.user.username)
 
     class Meta:
         verbose_name_plural = "Order"
-
 
 #############################################################################################################################
 """ class Coupon(models.Model):
@@ -465,14 +563,12 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.user) """
-###################################################################################################################
-# Rating Models
+###########################################################Rating Models########################################################
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Rejected', 'Rejected'),
     ('Approved', 'Approved'),
 )
-
 
 class Rating(models.Model):
     # Product = models.ForeignKey(to, on_delete)
@@ -501,17 +597,17 @@ class Rating(models.Model):
 
     @property
     def status_(self):
-        if Rating.objects.filter(Q(Status="Approved") & Q(product=self.product) & Q(user=self.user)):
+        # if Rating.objects.filter(Status=None):
+        #     messages.warning
+        if Rating.objects.filter(Q(Status="Approved") & Q(product=self.product) & Q(Reviews=self.Reviews) & Q(user=self.user) & Q(Rating=self.Rating)):
             return format_html('<p class="text-success fa fa-check" aria-hidden="true"><span class="ml-2">Approved</span></p>')
-        elif Rating.objects.filter(Q(Status="Rejected") & Q(product=self.product) & Q(user=self.user)):
+        elif Rating.objects.filter(Q(Status="Rejected") & Q(product=self.product) & Q(Reviews=self.Reviews) & Q(user=self.user) & Q(Rating=self.Rating)):
             return format_html('<p class="text-danger fa fa-ban" aria-hidden="true"><span class="ml-2">Rejected</span></p>')
-        elif Rating.objects.filter(Q(Status="Pending") & Q(product=self.product) & Q(user=self.user)):
-            # .objects.filter(Q(Status="Pending") & Q(product=self.product)):
+        elif Rating.objects.filter(Q(Status="Pending") & Q(product=self.product) & Q(Reviews=self.Reviews) & Q(user=self.user) & Q(Rating=self.Rating)):
             return format_html('<p class="text-primary fa fa-clock" aria-hidden="true"><span class="ml-2">Pending</span></p>')
 
 #####################################################################################################################
 # BLOG MODEL
-
 
 class Blog(models.Model):
     # def validate_image(fieldfile_obj):
@@ -548,7 +644,6 @@ class Blog(models.Model):
     def __str__(self):
         return self.title
 
-
 ##############################################################################################################################
 # FAQ MODEL
 STATUS_CHOICES = [
@@ -556,10 +651,7 @@ STATUS_CHOICES = [
     ('p', 'Published'),
     ('w', 'Withdrawn'),
 ]
-
-
 class FAQ(models.Model):
-
     Question = models.CharField(max_length=100, null=True,)
     Answer = RichTextField(max_length=300, null=True)
     created_date = models.DateTimeField(
@@ -577,8 +669,6 @@ class FAQ(models.Model):
         return str(self.Question,)
 ####################################################################################################################
 # Contact Model
-
-
 class customer_message(models.Model):
     first_name = models.CharField(
         max_length=50, null=True, verbose_name="First Name", blank=True)
@@ -601,7 +691,6 @@ class customer_message(models.Model):
 ####################################################################################################################
 # Banner Model
 
-
 class Banner(models.Model):
 
     title = models.CharField(max_length=50)
@@ -623,12 +712,12 @@ class Banner(models.Model):
     def __str__(self):
         return str(self.title,)
 
-
 #########################################################################################################################
-
-
+STATUS_CHOICES = [
+    ('d', 'Draft'),
+    ('s', 'sent'),
+]
 class MailText(models.Model):
-
     users = models.ManyToManyField(User)
     subject = models.CharField(max_length=255, null=True, blank=True)
     message = models.TextField(null=True)
@@ -639,11 +728,14 @@ class MailText(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date", null=True)
-
-    def save(self, *args, **kwargs):
+    # status = models.CharField(
+    #     max_length=1, choices=STATUS_CHOICES, default="d")
+    
+    def save(self,*args, **kwargs):
         savee = super(MailText, self).save(*args, **kwargs)
         # for lp in range(5):
-        if self.send_it == True:
+        if self.send_it == True:\
+            
             user_list = []
             print(self.users.all())
             for u in self.users.all():
@@ -655,29 +747,12 @@ class MailText(models.Model):
                       'gowdasandeep8105@gmail.com',
                       user_list,
                       fail_silently=False)
-            #super(MailText, self).save(*args, **kwargs)
-
+            super(MailText, self).save(*args, **kwargs)
+            
     class Meta:
         verbose_name = "Email marketing"
         verbose_name_plural = "Email marketing"
 
     def __str__(self):
         return str(self.subject)
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
-# def send_mail(sender, instance, *args, **kwargs):
 
-#     if instance.send_it==True:
-#                 user_list= []
-#                 print(instance.users.all())
-#                 for u in instance.users.all():
-#                     print(u.email)
-#                     user_list.append(u.email)
-#                 #print(user_list)
-#                 send_mail(str(instance.subject),
-#                           strip_tags(str(instance.message)),
-#                           'gowdasandeep8105@gmail.com',
-#                           user_list,
-#                           fail_silently=False)
-
-# #pre_save.connect(send_mail, sender=MailText)

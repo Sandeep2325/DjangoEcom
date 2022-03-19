@@ -1,10 +1,17 @@
+from django.contrib.auth.password_validation import validate_password
+from rest_framework.validators import UniqueValidator
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from dataclasses import field, fields
 import email
 from enum import unique
 from genericpath import exists
+#from types import NoneType
 from unittest.util import _MAX_LENGTH
 from django.forms import CharField
+from pyparsing import And
 from rest_framework import serializers
+
+from app1.admin import ordersadmin
 #from rest_auth.registration.serializers import RegisterSerializer
 from . models import *
 from math import ceil
@@ -26,164 +33,302 @@ from django.db import transaction
     class Meta:
         model = User
         fields = '__all__' """
-##################################################################################       
+##################################################################################
+class myaccountserializers(serializers.ModelSerializer):
+    class Meta:
+        fields="__all__"
+        model=my_account
+    #user =  self.context['request'].user
+    #first_name=serializers.CharField(max_length=300)
+    # last_name=serializers.CharField(max_length=300)
+    # phone_number=serializers.IntegerField()
+    # email=serializers.EmailField(max_length=255)
+    # address=serializers.CharField(max_length=300)
+    # city=serializers.CharField(max_length=300)
+    # state=serializers.CharField(max_length=300)
+    # postal_address=serializers.CharField(max_length=300)  
+    
+    def validate_first_name(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please enter the first name")
+        return value
+    def validate_last_name(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please enter the last name")
+        return value
+    
+    def validate_phone_number(self, value):
+        if len(str(value)) !=10 :
+            raise serializers.ValidationError("invalid phone number")
+        return value
+    def validate_email(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please enter the email address")
+        return value
+    def validate_address(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please enter the address")
+        return value
+    def validate_city(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please enter the city")
+        return value
+    def validate_state(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please enter the state")
+        return value
+    def validate_postal_address(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please enter the postal address")
+        return value
+    
 class CustomerAddressSerializers(serializers.ModelSerializer):
-    class  Meta:
+    class Meta:
         fields = '__all__'
         model = Address
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())    
-    #user=serializers.PrimaryKeyRelatedField(max_length=200)
-    door_number=serializers.IntegerField()
-    street=serializers.CharField(max_length=300)
-    city=serializers.CharField(max_length=300)
-    state=serializers.CharField(max_length=300)
-    country=serializers.CharField(max_length=300)
-    pincode=serializers.IntegerField()
-    phone_no=serializers.IntegerField()
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    # user=serializers.PrimaryKeyRelatedField(max_length=200)
+    door_number = serializers.IntegerField()
+    street = serializers.CharField(max_length=300)
+    city = serializers.CharField(max_length=300)
+    state = serializers.CharField(max_length=300)
+    country = serializers.CharField(max_length=300)
+    pincode = serializers.IntegerField()
+    phone_no = serializers.IntegerField()
+
     def validate(self, attrs):
         if attrs['door_number'] in NULL:
-            raise serializers.ValidationError({"door_number": "field required."})
+            raise serializers.ValidationError(
+                {"door_number": "field required."})
 
         return attrs
     # def to_representation(self, instance):
     #     response=super().to_representation(instance)
     #     response["user"]=instance.user.username
     #     return response
+
+
 class categorySerializer(serializers.ModelSerializer):
     class Meta:
-        fields="__all__"
-        model=Category
+        fields = "__all__"
+        model = Category
+
+    # def get_photo_url(self, Category):
+    #     request = self.context.get('request')
+    #     photo_url = Category.category_image.url
+    #     return request.build_absolute_uri(photo_url)
 class productSerializer(serializers.ModelSerializer):
     #category_name = serializers.RelatedField(source='category.name', read_only=True)
     #category = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     class Meta:
-        fields=("id","title","sku","short_description","detail_description","image","product_image","price","discounted_price","category","is_active","created_at","updated_at","average_rating","count_review","reviews")
-        model=Product
+        fields = ("id", "title", "discounted_price", "category","brand","sku", "short_description", "detail_description", "image", "product_image", "price",
+                 "is_active", "created_at", "updated_at", "average_rating", "count_review", "reviews")
+        model = Product
+
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['category'] = instance.category.brands
+        response['brand']=instance.brand.brand_name
+        response['image']=",".join([(p.image.url) for p in instance.image.all()])
         #response['image'] = instance.image.last().image.url,instance.image.first().image.url,
         # response['price'] = instance.item.price
-    
+
         return response
-    def averagee_rating(self,instance):
+
+    def averagee_rating(self, instance):
         if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
-            review = Rating.objects.filter(Q(Status="Approved") & Q(product=instance)).aggregate(average=Avg('Rating'))
-            avg=0
-            
+            review = Rating.objects.filter(Q(Status="Approved") & Q(
+                product=instance)).aggregate(average=Avg('Rating'))
+            avg = 0
+
             if review["average"] is not None:
-                avg=float(review["average"])
-            #return avg
-            if avg!=0:
-                return "%.1f" %float(avg)
+                avg = float(review["average"])
+            # return avg
+            if avg != 0:
+                return "%.1f" % float(avg)
             else:
                 return format_html("<p class=text-danger>No ratings yet!</p>")
         else:
             return format_html("<p class=text-danger>No ratings yet!</p>")
-    def count_rating(self,instance):
+
+    def count_rating(self, instance):
         if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
-            reviews = Rating.objects.filter(Q(Status="Approved") & Q(product=instance)).aggregate(count=Count('id'))
-            cnt=0
+            reviews = Rating.objects.filter(Q(Status="Approved") & Q(
+                product=instance)).aggregate(count=Count('id'))
+            cnt = 0
             if reviews["count"] is not None:
                 cnt = int(reviews["count"])
             return cnt
-    def reviewss(self,instance):
+
+    def reviewss(self, instance):
         if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
-            reviews=Rating.objects.filter(Q(Status="Approved") & Q(product=instance)).values_list("Reviews")
+            reviews = Rating.objects.filter(Q(Status="Approved") & Q(
+                product=instance)).values_list("Reviews")
             for review in reviews:
                 return review
         else:
-            #return format_html("<p class=text-danger>No ratings yet!</p>")
+            # return format_html("<p class=text-danger>No ratings yet!</p>")
             return "no ratings yet"
-        
+
         # reviews=Rating.objects.filter(product=instance).values_list("Reviews")
         # for review in reviews:
         #     return review
-        # reviews     
+        # reviews
+
 class productdetailserializer(serializers.ModelSerializer):
     class Meta:
-        fields="__all__"
-        model=Product
-                
+        fields = "__all__"
+        model = Product
+
 class attributesSerializer(serializers.ModelSerializer):
     class Meta:
+        fields = "__all__"
+        model = Attributes
+        
+class cartserializer(serializers.ModelSerializer):
+    class Meta:
+        fields=('id','user','product','attributes','price','discounted_price','quantity','Total_amount','date','updated_at')
+        model=Cart
+        
+    
+    # def price(self,instance):
+    #     return instance.product.price
+    
+    # def discounted_price(self,instance):
+    #     return instance.product.discounted_price
+    
+    # def Total_amount(self,instance):
+    #     if instance.product.discounted_price is None:
+    #         # print("222222222222222222222222222",self.product.price)
+    #         total_amount=instance.quantity*instance.product.price
+    #         return total_amount
+    #     else:
+    #         total_amount=instance.quantity*instance.product.discounted_price
+    #         return total_amount
+    
+class checkoutserializer(serializers.ModelSerializer):
+    class Meta:
         fields="__all__"
-        model=Attributes
+        model=checkout
+class orderserializer(serializers.ModelSerializer):
+    class Meta:
+        fields="__all__"
+        model=Orders
+        
 class ordersSerializer(serializers.ModelSerializer):
     class Meta:
-        fields=("user","address","product",'quantity','coupon','attributes','status')
-        model=Order
-    def to_representation(self, instance):
-        response=super().to_representation(instance)
-        
-        response["user"]=instance.user.username
-        response["address"]=instance.address.city
-        response["product"]=instance.product.title
-        #response["coupon"]=instance.coupon.coupon
-        #response["attributes"]=instance.attributes.Color
-        return response
-class bannerSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields="__all__"
-        model=Banner
-class blogSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields="__all__"
-        model=Blog
-class faqSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields=("Question",)
-        model=FAQ
-class ffaqSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields=("id",'Question','Answer','created_date','updated_at')
-        model=FAQ    
-class ratingSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields=("user","product","Reviews","Rating")
-        model=Rating
-    Rating=serializers.DecimalField(min_value=1,max_value=5, max_digits=3,decimal_places=1,)
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    
-    # def validate(self, attrs):
-    #     if attrs['user'] and attrs['product']:
-    #         raise serializers.ValidationError({"user": "this user already rated this product"})
-    #     return attrs    
+        fields = ('id',"user", "address", "product", 'quantity',
+                  'coupon','price', 'attributes', 'status')
+        model = Order
+
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['user']=instance.user.username
-        response["product"]="product: ",instance.product.title,"category: ",instance.product.category.brands
-        
+
+        response["user"] = instance.user.username
+        response["address"] = instance.address.city
+        response["product"] = instance.product.title
+        # response["coupon"]=instance.coupon.coupon
+        # response["attributes"]=instance.attributes.Color
         return response
-        
+
+
+class bannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = Banner
+
+
+class blogSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = Blog
+
+
+class faqSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("Question",)
+        model = FAQ
+
+
+class ffaqSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("id", 'Question', 'Answer', 'created_date', 'updated_at')
+        model = FAQ
+
+
+class ratingSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("user", "product", "Reviews", "Rating")
+        model = Rating
+    #Rating=serializers.DecimalField(min_value=1,max_value=5, max_digits=3,decimal_places=1,)
+    #user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    def validate_Rating(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please rate this product")
+        return value
+    # def validate_Reviews(self, value):
+    #     if value =="":
+    #         raise serializers.ValidationError("Please rate this product")
+    #     return value
+
+    def validate_product(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please select the product")
+        return value
+
+    def validate_user(self, value):
+        if value == None:
+            raise serializers.ValidationError("user is required")
+        return value
+    # def validate(self, value):
+    #     if value['Rating'] == None or value["Rating"]>5:
+    #         raise serializers.ValidationError({"Rating": "please rate this product and maximum rating point is 5 star"})
+    #     return value
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user'] = instance.user.username
+        #response["product"] = "product: ", instance.product.title, "category: ", instance.product.category.brands
+
+        return response
+
+
 class customermessageSerializer(serializers.ModelSerializer):
     class Meta:
-        fields="__all__"
-        model=customer_message
-    first_name=serializers.CharField(max_length=200)
-    last_name=serializers.CharField(max_length=200)
-    Email=serializers.EmailField(max_length=200)
-    Phone=serializers.IntegerField()
-    Message=serializers.CharField(max_length=500)
-    
-    def create(self, validate_data):
-        instance = super(customermessageSerializer, self).create(validate_data)
-        #return send_mail('Prakash Electrical',Message,'gowdasandeep8105@gmail.com',[email],fail_silently=False,),messages.success(request,"Successfully sent")
-        send_mail(
-            'You have message from one of your customer {}'.format(instance.first_name),
-            'Here is the message. DATA: {}'.format(validate_data),
-            'gowdasandeep8105@gmail.com',
-            ['sandeep.nexevo@gmail.com'],
-            fail_silently=False,
-        )
-        return instance
-    
-    def validate_first_name(self,value):
-        if value is NULL:
-            res= serializers.ValidationError('Enter First name')
-            res.status_code = 200
-            raise res 
+        fields = "__all__"
+        model = customer_message
+
+    def validate_first_name(self, value):
+        if value == "":
+            raise serializers.ValidationError("Please provide first name")
         return value
+
+    def validate_last_name(self, value):
+        if value == "":
+            raise serializers.ValidationError("Please provide last name")
+        return value
+
+    def validate_Email(self, value):
+        # pass
+        if value == None:
+            raise serializers.ValidationError("Please provide your email name")
+        return value
+
+    def validate_Phone(self, value):
+        # pass
+        if value == None:
+            raise serializers.ValidationError(
+                "Please provide your mobile number")
+        return value
+
+    def validate_Message(self, value):
+        if value == None:
+            raise serializers.ValidationError(
+                "Please provide message/ask any questions ")
+        return value
+
+
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
@@ -271,7 +416,7 @@ class CouponSerializer(serializers.ModelSerializer):
 #             raise serializers.ValidationError("Coupon bound to another user.") """
 #         # Is the coupon redeemed already beyond what's allowed?
 #         redeemed = ClaimedCoupon.objects.filter(coupon=coupon.id, user=user.id).count()
-#         if coupon.repeat > 0:   #change the repeat of coupon    
+#         if coupon.repeat > 0:   #change the repeat of coupon
 #             if redeemed >= coupon.repeat:
 #                 # Already too many times (note: we don't update the claimed coupons, so this is a fine test).
 #                 # Also, yes, > should never happen because the equals check will be hit first, but just in case
@@ -282,10 +427,6 @@ class CouponSerializer(serializers.ModelSerializer):
 #         model = ClaimedCoupon
 #         fields = ('redeemed', 'coupon', 'user', 'id')
 
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework.validators import UniqueValidator
-from django.contrib.auth.password_validation import validate_password
-
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     @classmethod
@@ -295,38 +436,56 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token['user'] = user.email
         return token
+
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-            required=True,
-            validators=[UniqueValidator(queryset=User.objects.all())]
-            )
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
 
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
-    
     class Meta:
         model = User
-        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name','phone_no')
-        extra_kwargs = {
-            'first_name': {'required': True},
-            'last_name': {'required': True}
-        }
-
+        fields = ('username', 'password', 'password2', 'email',
+                  'first_name', 'last_name', 'phone_no')
+        # extra_kwargs = {
+        #     'first_name': {'required': True},
+        #     'last_name': {'required': True},
+        #     'phone_no':{'required':True},
+        # }
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
-
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."})
         return attrs
-    def validate(self, attrs):
-        if attrs['email'] is unique:
-            raise serializers.ValidationError({"email": "This e-mail is already taken"})
-        return attrs
-    
+    # def validate(self, attrs):
+    #     if attrs['email'] is unique:
+    #         raise serializers.ValidationError(
+    #             {"email": "This e-mail is already taken"})
+    #     return attrs
+    def validate_email(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please provide email")
+        return value
+    def validate_first_name(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please provide first name")
+        return value
+    def validate_last_name(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please provide last name")
+        return value
+    def validate_phone_no(self, value):
+        if value == None:
+            raise serializers.ValidationError("Please provide phone number")
+        return value 
     # def validate(self, attrs):
     #     if attrs['phone_no'] is unique & attrs['phone_no'] is NULL:
     #         raise serializers.ValidationError({"phone": "This phone mumber is already taken"})
     #     return attrs
-    
+
     def create(self, validated_data):
         user = User.objects.create(
             username=validated_data['username'],
@@ -336,7 +495,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             phone_no=validated_data['phone_no']
         )
 
-        
         user.set_password(validated_data['password'])
         user.save()
 

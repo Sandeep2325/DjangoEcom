@@ -10,6 +10,7 @@
 # from .filters import CouponFilter
 # from django.utils.decorators import method_decorator
 # from django.contrib.auth.decorators import user_passes_test
+from rest_framework.decorators import action
 from django.shortcuts import render, redirect
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
@@ -53,7 +54,6 @@ from rest_framework.pagination import PageNumberPagination
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) """
 
-
 def countt(request):
     usercount = User.objects.all().count()
     productcount = Product.objects.all().count()
@@ -63,12 +63,16 @@ def countt(request):
                'ordercount': ordercount}
     return render(request, "templates/admin/index.html", context)
 ##############################################################################################################################################
-
-
+class listmyaccount(viewsets.ModelViewSet):
+    queryset = my_account.objects.all()
+    serializer_class = myaccountserializers
+class myaccountCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = myaccountserializers
+    queryset = my_account.objects.all()
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = categorySerializer
-
 
 class detailcategory(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
@@ -124,7 +128,7 @@ class attributelist(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class attributedetail(generics.RetrieveUpdateDestroyAPIView):
+class attributedetail(generics.RetrieveAPIView):
     queryset = Attributes.objects.all()
     serializer_class = attributesSerializer
 
@@ -140,8 +144,9 @@ class orderlist(viewsets.ModelViewSet):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = ordersSerializer(item)
         return Response(serializer.data)
-
-
+class orderDeleteView(DestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+    queryset = Order.objects.all()
 ##################################################################################
 """ class OrderDetailView(RetrieveAPIView):
     serializer_class = ordersSerializer
@@ -257,13 +262,6 @@ class listcustomermessage(viewsets.ModelViewSet):
     queryset = customer_message.objects.all()
     serializer_class = customermessageSerializer
 
-
-""" class customermsgCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
-    serializer_class = customermessageSerializer
-    queryset = Address.objects.all() """
-
-
 class customermsgCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = customermessageSerializer
@@ -284,243 +282,17 @@ class AddCouponView(APIView):
         order.coupon = coupon
         order.save(*args, **kwargs)
         return Response(status=HTTP_200_OK)
-from rest_framework.decorators import action
+
+
 class CouponViewSet(viewsets.ModelViewSet):
-        queryset = Coupon.objects.all()
-        serializer_class = CouponSerializer
-    
-        @action(detail=True, methods=['get'])
-        def redeem(self, request, pk=None):
-            obj = self.get_object()
-            # obj.coupon==queryset
-            return Response()
-        
-# def group_required(api_command):
-#     """
-#     This is implemented such that it's default open.
-#     """
+    queryset = Coupon.objects.all()
+    serializer_class = CouponSerializer
 
-#     def in_groups(u):
-#         if u.is_authenticated():
-#             # supervisor can do anything
-#             if u.is_superuser:
-#                 return True
-
-#             # coupons have permissions set (I think I may set them by default to remove this check)
-#             if settings.COUPON_PERMISSIONS and api_command in settings.COUPON_PERMISSIONS:
-#                 group_names = settings.COUPON_PERMISSIONS[api_command]
-
-#                 # but no group specified, so anyone can.
-#                 if len(group_names) == 0:
-#                     return True
-
-#                 # group specified, so only those in the group can.
-#                 if bool(u.groups.filter(name__in=group_names)):
-#                     return True
-#         return False
-#     return user_passes_test(in_groups)
-
-
-# def get_redeemed_queryset(user, coupon_id=None):
-#     """
-#     Return a consistent list of the redeemed list.  across the two endpoints.
-#     """
-
-#     api_command = 'REDEEMED'
-
-#     # If the a coupon isn't specified, get them all.
-#     if coupon_id is None:
-#         qs_all = ClaimedCoupon.objects.all()
-#         qs_some = ClaimedCoupon.objects.filter(user=user.id)
-#     else:
-#         qs_all = ClaimedCoupon.objects.filter(coupon=coupon_id)
-#         qs_some = ClaimedCoupon.objects.filter(coupon=coupon_id, user=user.id)
-
-#     if user.is_superuser:
-#         return qs_all
-
-#     if settings.COUPON_PERMISSIONS and api_command in settings.COUPON_PERMISSIONS:
-#         group_names = settings.COUPON_PERMISSIONS[api_command]
-
-#         # So the setting is left empty, so default behavior.
-#         if len(group_names) == 0:
-#             return qs_some
-
-#         # group specified, so only those in the group can.
-#         if bool(user.groups.filter(name__in=group_names)):
-#             return qs_all
-
-#     return qs_some
-# class CouponViewSet(viewsets.ModelViewSet):
-
-
-#     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-#     filter_class = CouponFilter
-#     search_fields = ('code',)
-#     serializer_class = CouponSerializer
-
-#     def get_queryset(self):
-#         """
-#         Return a subset of coupons or all coupons depending on who is asking.
-#         """
-
-#         api_command = 'LIST'
-#         qs_all = Coupon.objects.all()
-#         #qs_some = Coupon.objects.filter(user=self.request.user.id)
-
-#         if self.request.user.is_superuser:
-#             return qs_all
-
-#         # This is different from the normal check because it's default closed.
-#         if settings.COUPON_PERMISSIONS and api_command in settings.COUPON_PERMISSIONS:
-#             group_names = settings.COUPON_PERMISSIONS[api_command]
-
-#             # So the setting is left empty, so default behavior.
-#             """ if len(group_names) == 0:
-#                 return qs_some """
-
-#             # group specified, so only those in the group can.
-#             if bool(self.request.user.groups.filter(name__in=group_names)):
-#                 return qs_all
-
-#         return qs_all
-
-#     @method_decorator(group_required('CREATE'))
-#     def create(self, request, **kwargs):
-#         """
-#         Create a coupon
-#         """
-
-#         serializer = CouponSerializer(data=request.data, context={'request': request})
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     @method_decorator(group_required('DELETE'))
-#     def destroy(self, request, pk=None, **kwargs):
-#         """
-#         Delete the coupon.
-#         """
-
-#         coupon = get_object_or_404(Coupon.objects.all(), pk=pk)
-#         coupon.delete()
-
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-
-#     def partial_update(self, request, pk=None, **kwargs):
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-
-#     def retrieve(self, request, pk=None, **kwargs):
-#         """
-#         Anybody can retrieve any coupon.
-#         """
-
-#         value_is_int = False
-
-#         try:
-#             pk = int(pk)
-#             value_is_int = True
-#         except ValueError:
-#             pass
-
-#         if value_is_int:
-#             coupon = get_object_or_404(Coupon.objects.all(), pk=pk)
-#         else:
-#             coupon = get_object_or_404(Coupon.objects.all(), code_l=pk.lower())
-
-#         serializer = CouponSerializer(coupon, context={'request': request})
-
-#         return Response(serializer.data)
-
-#     @method_decorator(group_required('UPDATE'))
-#     def update(self, request, pk=None, **kwargs):
-#         """
-#         This forces it to return a 202 upon success instead of 200.
-#         """
-
-#         coupon = get_object_or_404(Coupon.objects.all(), pk=pk)
-
-#         serializer = CouponSerializer(coupon, data=request.data, context={'request': request})
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     #@detail_route(methods=['get'])
-#     def redeemed(self, request, pk=None, **kwargs):
-#         """
-#         Convenience endpoint for getting list of claimed instances for a coupon.
-#         """
-
-#         coupon = get_object_or_404(Coupon.objects.all(), pk=pk)
-#         qs = get_redeemed_queryset(self.request.user, coupon.id)
-
-#         serializer = ClaimedCouponSerializer(qs, many=True, context={'request': request})
-
-#         return Response(serializer.data)
-
-#     #@detail_route(methods=['put'])
-#     def redeem(self, request, pk=None, **kwargs):
-#         """
-#         Convenience endpoint for redeeming.
-#         """
-
-#         queryset = Coupon.objects.all()
-#         coupon = get_object_or_404(queryset, pk=pk)
-
-#         # Maybe should do coupon.redeem(user).
-#         # if data['expires'] < now():
-
-#         data = {
-#             'coupon': pk,
-#             'user':   self.request.user.id,
-#         }
-
-#         serializer = ClaimedCouponSerializer(data=data, context={'request': request})
-#         if serializer.is_valid():
-#             serializer.save()
-
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class ClaimedCouponViewSet(viewsets.ModelViewSet):
-#     """
-#     API endpoint that lets you retrieve claimed coupon details.
-#     """
-
-#     filter_backends = (DjangoFilterBackend,)
-#     filter_fields = ('user',)
-#     serializer_class = ClaimedCouponSerializer
-
-#     def get_queryset(self):
-#         return get_redeemed_queryset(self.request.user)
-
-#     def create(self, request, **kwargs):
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-
-#     @method_decorator(group_required('DELETE'))
-#     def destroy(self, request, pk=None, **kwargs):
-#         """
-#         Basically un-redeem a coupon.
-#         """
-
-#         redeemed = get_object_or_404(ClaimedCoupon.objects.all(), pk=pk)
-#         redeemed.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-
-#     def partial_update(self, request, pk=None, **kwargs):
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-
-#     def retrieve(self, request, pk=None, **kwargs):
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-
-#     def update(self, request, pk=None, **kwargs):
-#         return Response(status=status.HTTP_404_NOT_FOUND)
+    @action(detail=True, methods=['get'])
+    def redeem(self, request, pk=None):
+        obj = self.get_object()
+        # obj.coupon==queryset
+        return Response()
 
 
 class MyObtainTokenPairView(TokenObtainPairView):
@@ -532,6 +304,76 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+   ######## 
+   
+class cartlist(viewsets.ModelViewSet):
+    queryset = Cart.objects.all()
+
+    def list(self, request):
+        serializer = cartserializer(self.queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        item = get_object_or_404(self.queryset, pk=pk)
+        serializer = cartserializer(item)
+        return Response(serializer.data)
+class cartCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = cartserializer
+    queryset = Cart.objects.all()  
+    # for i in queryset:
+    #     print(i.product)     
+class cartDeleteView(DestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+    queryset = Cart.objects.all()
+class cartdetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = cartserializer
+class cartupdateView(UpdateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = cartserializer
+    queryset = Orders.objects.all()
+##
+class checkoutlist(viewsets.ModelViewSet):
+    queryset = checkout.objects.all()
+
+    def list(self, request):
+        serializer = checkoutserializer(self.queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        item = get_object_or_404(self.queryset, pk=pk)
+        serializer = checkoutserializer(item)
+        return Response(serializer.data)
+class checkoutCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = checkoutserializer
+    queryset = checkout.objects.all() 
+##
+class orderslist(viewsets.ModelViewSet):
+    queryset = Orders.objects.all()
+
+    def list(self, request):
+        serializer = orderserializer(self.queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        item = get_object_or_404(self.queryset, pk=pk)
+        serializer = orderserializer(item)
+        return Response(serializer.data)
+    
+class ordersDeleteView(DestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+    queryset = Orders.objects.all()
+
+class ordersdetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Orders.objects.all()
+    serializer_class = orderserializer
+
+class ordersCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = orderserializer
+    queryset = Orders.objects.all()
 
 
 def password_reset_request(request):
