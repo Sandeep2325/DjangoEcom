@@ -257,7 +257,7 @@ class Product(models.Model):
     #rating_average = models.FloatField(default=0)
     # review_count = models.IntegerField(default=0)
     #################auto resizing function#########################################
-
+    
     """ def save(self):
         super().save()  # saving image first
 
@@ -266,7 +266,7 @@ class Product(models.Model):
         if img.height >500 or img.width > 500:
             new_img = (500, 500)
             img.thumbnail(new_img)
-            img.save(self.product_image.path) """
+            img.save(self.product_image.path)"""
     #gigs = (Gig.objects.filter(status=True).annotate(avg_review=Avg('rates__rating')))
     #################################################################################################
 
@@ -379,7 +379,7 @@ class Cart(models.Model):
     def price(self):
         return self.product.price
     @property
-    def discounted_price(self):
+    def offer_price(self):
         return self.product.discounted_price
     @property
     def Total_amount(self):
@@ -393,6 +393,13 @@ class Cart(models.Model):
         else:
             total_amount=self.quantity*self.product.discounted_price
             return total_amount
+    @property
+    def amount_saved(self):
+        if self.product.discounted_price is not None:
+          
+            return (self.product.price*self.quantity)-(self.product.discounted_price*self.quantity)
+        else:
+            pass
     def __str__(self):
         return str(self.product)    
 ###########################################################################        
@@ -411,6 +418,7 @@ class checkout(models.Model):
         return str(self.cart.first())
 ##################################################################################
 STATUS_CHOICES = (
+    
     ('Pending', 'Pending'),
     ('Accepted', 'Accepted'),
     ('Packed', 'Packed'),
@@ -426,10 +434,10 @@ class Orders(models.Model):
         choices=STATUS_CHOICES,
         max_length=50,
         default="Pending") 
-#     # def users(self):
-#     #     user=self.checkout_product.cart
-#     #     return ",".join([str(p.user) for p in user.all()])
-#     # def product()
+    # def users(self):
+    #     user=self.checkout_product.cart
+    #     return ",".join([str(p.user) for p in user.all()])
+    # def product()
 # #####################################################################################################################################
 class Coupon(models.Model):
     coupon = models.CharField(
@@ -441,10 +449,8 @@ class Coupon(models.Model):
     #is_active = models.BooleanField(verbose_name="Is Active?",default=False)
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date", null=True)
-
     def __str__(self):
         return self.coupon
-
     class Meta:
         verbose_name_plural = "Coupons"
 
@@ -465,6 +471,7 @@ STATUS_CHOICES = (
     ('Delivered', 'Delivered'),
     ('Cancelled', 'Cancelled'),
 )
+class IndentationError(SyntaxError): ...
 class Order(models.Model):
     user = models.ForeignKey(User, verbose_name="User",
                              on_delete=models.CASCADE)
@@ -492,26 +499,44 @@ class Order(models.Model):
         max_length=50,
         default="Pending"
     )
+    @property
+    def pricee(self,):
+        return self.product.price
+    # pricee.short_description="Price"
+    @property
+    def offer_price(self):
+        return self.product.discounted_price
+    @property
+    def Total_amount(self):
+        if self.product.discounted_price is None:
+            # print("222222222222222222222222222",self.product.price)
+            try:
+                total_amount=self.quantity*self.product.price
+            except:
+                total_amount=1*self.product.price
+            return total_amount
+        else:
+            total_amount=self.quantity*self.product.discounted_price
+            return total_amount
+    # def save(self, *args, **kwargs):
+    #     try:
+    #         if self.product.discounted_price is None:
+    #             self.price = self.product.price*self.quantity
+    #             if self.coupon:
+    #                 self.price = self.price-self.coupon.coupon_discount
+    #                 return super(Order, self).save(*args, **kwargs)
+    #             return super(Order, self).save(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
-        try:
-            if self.product.discounted_price is None:
-                self.price = self.product.price*self.quantity
-                if self.coupon:
-                    self.price = self.price-self.coupon.coupon_discount
-                    return super(Order, self).save(*args, **kwargs)
-                return super(Order, self).save(*args, **kwargs)
-
-            elif self.product.discounted_price is not None:
-                self.price = self.product.discounted_price*self.quantity
-                if self.coupon:
-                    self.price = self.price-self.coupon.coupon_discount
-                    return super(Order, self).save(*args, **kwargs)
-                return super(Order, self).save(*args, **kwargs)
-            else:
-                return messages.warning('Something went wrong!')
-        except:
-            pass
+    #         elif self.product.discounted_price is not None:
+    #             self.price = self.product.discounted_price*self.quantity
+    #             if self.coupon:
+    #                 self.price = self.price-self.coupon.coupon_discount
+    #                 return super(Order, self).save(*args, **kwargs)
+    #             return super(Order, self).save(*args, **kwargs)
+    #         else:
+    #             return messages.warning('Something went wrong!')
+    #     except:
+    #         pass
 
     def __str__(self):
         return str(self.user.username)
@@ -726,14 +751,16 @@ class MailText(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date", null=True)
-    # status = models.CharField(
-    #     max_length=1, choices=STATUS_CHOICES, default="d")
+    status = models.CharField(
+        max_length=1, choices=STATUS_CHOICES, default="d")
     
     def save(self,*args, **kwargs):
+        # self.status="s"
         savee = super(MailText, self).save(*args, **kwargs)
         # for lp in range(5):
-        if self.send_it == True:\
-            
+        if self.send_it == True:
+            # self.status="s"
+            # savee=super(MailText, self).save(*args, **kwargs)   
             user_list = []
             print(self.users.all())
             for u in self.users.all():
@@ -745,7 +772,10 @@ class MailText(models.Model):
                       'gowdasandeep8105@gmail.com',
                       user_list,
                       fail_silently=False)
-            super(MailText, self).save(*args, **kwargs)
+            
+        self.status="s"    
+        return savee
+            # super(MailText, self).save(*args, **kwargs)
             
     class Meta:
         verbose_name = "Email marketing"

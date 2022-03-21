@@ -86,22 +86,29 @@ class CustomerAddressSerializers(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Address
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    # user=serializers.PrimaryKeyRelatedField(max_length=200)
-    door_number = serializers.IntegerField()
-    street = serializers.CharField(max_length=300)
-    city = serializers.CharField(max_length=300)
-    state = serializers.CharField(max_length=300)
-    country = serializers.CharField(max_length=300)
-    pincode = serializers.IntegerField()
-    phone_no = serializers.IntegerField()
+    # user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    # # user=serializers.PrimaryKeyRelatedField(max_length=200)
+    # door_number = serializers.IntegerField()
+    # street = serializers.CharField(max_length=300)
+    # city = serializers.CharField(max_length=300)
+    # state = serializers.CharField(max_length=300)
+    # country = serializers.CharField(max_length=300)
+    # pincode = serializers.IntegerField()
+    # phone_no = serializers.IntegerField()
 
-    def validate(self, attrs):
-        if attrs['door_number'] in NULL:
-            raise serializers.ValidationError(
-                {"door_number": "field required."})
+    
+    def validate_door_number(self, value):
+        if value == None:
+            raise serializers.ValidationError("please enter the door number")
+        return value
+    
+    # def validate(self, attrs):
+    #     if attrs['door_number'] in NULL:
+    #         raise serializers.ValidationError(
+    #             {"door_number": "field required."})
 
-        return attrs
+    #     return attrs
+    
     # def to_representation(self, instance):
     #     response=super().to_representation(instance)
     #     response["user"]=instance.user.username
@@ -328,7 +335,16 @@ class customermessageSerializer(serializers.ModelSerializer):
                 "Please provide message/ask any questions ")
         return value
 
-
+    def create(self, validate_data):
+        instance = super(customermessageSerializer, self).create(validate_data)
+        send_mail(
+            'You have a message from {}'.format(instance.first_name),
+            'Here is the message. DATA: {}'.format(validate_data),
+            'gowdasandeep8105@gmail.com',
+            ['sandeep.nexevo@gmail.com'],
+            fail_silently=False,
+        )
+        return instance
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
@@ -460,11 +476,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"password": "Password fields didn't match."})
         return attrs
-    # def validate(self, attrs):
-    #     if attrs['email'] is unique:
-    #         raise serializers.ValidationError(
-    #             {"email": "This e-mail is already taken"})
-    #     return attrs
     def validate_email(self, value):
         if value == None:
             raise serializers.ValidationError("Please provide email")
@@ -481,10 +492,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         if value == None:
             raise serializers.ValidationError("Please provide phone number")
         return value 
-    # def validate(self, attrs):
-    #     if attrs['phone_no'] is unique & attrs['phone_no'] is NULL:
-    #         raise serializers.ValidationError({"phone": "This phone mumber is already taken"})
-    #     return attrs
 
     def create(self, validated_data):
         user = User.objects.create(
@@ -494,32 +501,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=validated_data['last_name'],
             phone_no=validated_data['phone_no']
         )
-
         user.set_password(validated_data['password'])
         user.save()
 
         return user
 
-# class CustomRegisterSerializer(RegisterSerializer):
-#     #gender = serializers.ChoiceField(choices=GENDER_SELECTION)
-#     phone_number = serializers.CharField(max_length=30)
 
-#     # Define transaction.atomic to rollback the save operation in case of error
-#     @transaction.atomic
-#     def save(self, request):
-#         user = super().save(request)
-#         user.gender = self.data.get('gender')
-#         user.phone_number = self.data.get('phone_number')
-#         user.save()
-#         return user
-    
-# class CustomUserDetailsSerializer(serializers.ModelSerializer):
-
-#     class Meta:
-#         model = User
-#         fields = (
-#             'pk',
-#             'email',
-#             'phone_number',           
-#         )
-#         read_only_fields = ('pk', 'email', 'phone_number',)
+class CurrentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'id','password')

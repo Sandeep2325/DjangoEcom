@@ -13,4 +13,4 @@
 
 #     class Meta:
 #         model = Coupon
-#         fields = [ 'type', 'min_value', 'max_value']
+#         fields = [ 'type', 'min_value','max_value']

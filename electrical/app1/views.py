@@ -133,6 +133,12 @@ class attributedetail(generics.RetrieveAPIView):
     serializer_class = attributesSerializer
 
 
+# class orderlist(APIView):
+#     permission_classes = (IsAuthenticated, )
+#     def get(self, request):
+#         serializer = ordersSerializer(request.user)
+#         return Response(serializer.data)
+    
 class orderlist(viewsets.ModelViewSet):
     queryset = Order.objects.all()
 
@@ -190,7 +196,6 @@ class AddressCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
-
 
 class AddressUpdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
@@ -283,7 +288,6 @@ class AddCouponView(APIView):
         order.save(*args, **kwargs)
         return Response(status=HTTP_200_OK)
 
-
 class CouponViewSet(viewsets.ModelViewSet):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
@@ -294,23 +298,20 @@ class CouponViewSet(viewsets.ModelViewSet):
         # obj.coupon==queryset
         return Response()
 
-
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
-
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
    ######## 
-   
 class cartlist(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
 
     def list(self, request):
-        serializer = cartserializer(self.queryset, many=True)
+        serializer = cartserializer(self.queryset,many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
@@ -404,3 +405,18 @@ def password_reset_request(request):
                     return redirect("/password_reset/done/")
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="registration/password_reset.html", context={"password_reset_form": password_reset_form})
+
+# class CurrentUserViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = CurrentUserSerializer()
+    
+class CurrentUserViewSet(APIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request):
+        serializer = CurrentUserSerializer(request.user)
+        return Response(serializer.data)
+# class cart1(APIView):
+#     permission_classes=(IsAuthenticated,)
+#     def get(self,request):
+#         serializer=cartserializer(request.user)
+#         return Response(serializer.data)

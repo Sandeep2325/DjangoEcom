@@ -6,6 +6,7 @@ from app1.views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
+    path('current-user/',CurrentUserViewSet.as_view(),name="current_user"),
     path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterView.as_view(), name='auth_register'),
@@ -44,6 +45,7 @@ urlpatterns = [
     path('customer-message/create/', customermsgCreateView.as_view(),
          name='customer-message-create'),
     path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
+#     path('cart1/',cart1.as_view(),name="cart1"),
     path('cart/', cartlist.as_view({'get': 'list'}), name="cart"),
     path('cart/<int:pk>/', cartdetail.as_view(), name="single_cart"),
     path('cart/create/', cartCreateView.as_view(), name='cart-create'),

@@ -1,5 +1,6 @@
 arabic-reshaper==2.1.3
 asgiref==3.5.0
+autopep8==1.6.0
 beautifulsoup4==4.10.0
 bleach==4.1.0
 bootstrap-admin==0.4.4
@@ -12,6 +13,7 @@ cryptography==36.0.1
 defusedxml==0.7.1
 diff-match-patch==20200713
 Django==4.0.2
+django-admin-actions==0.1.1
 django-allauth==0.48.0
 django-appconf==1.0.5
 django-baton==2.2.3
@@ -69,6 +71,7 @@ protobuf==3.19.4
 psycopg2==2.9.3
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pycodestyle==2.8.0
 pycparser==2.21
 PyJWT==2.3.0
 pyparsing==3.0.7
@@ -93,6 +96,8 @@ social-auth-core==4.2.0
 soupsieve==2.3.1
 sqlparse==0.4.2
 tablib==3.2.0
+toml==0.10.2
+twilio==7.7.1
 tzdata==2021.5
 Unidecode==1.3.2
 uritemplate==4.1.1

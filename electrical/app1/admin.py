@@ -425,9 +425,8 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
         pass
 
 ##################################################################################################################################
-
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'address', 'product', 'quantity', 'price',
+    list_display = ('id', 'user', 'address', 'product', 'quantity', 'pricee','offer_price','Total_amount',
                     'coupon', 'attributes', 'status', 'ordered_date', 'updated_at', 'action_btn')
     list_editable = ('quantity', 'status', 'user', 'product')
     list_filter = ('status', 'ordered_date')
@@ -662,7 +661,7 @@ class customer_messageAdmin(admin.ModelAdmin):
 
 
 class mailadmin(admin.ModelAdmin):
-    list_display = ['subject', 'message', 'send_it',
+    list_display = ['subject', 'message', 'send_it','status',
                     'created_date', 'updated_at', 'action_btnn']
     actions = ['send_message', 'draft_message']
     list_editable = ['send_it']
@@ -690,7 +689,7 @@ class mailadmin(admin.ModelAdmin):
         return form
 ###################################################################################################################
 class cartadmin(admin.ModelAdmin):
-    list_display=['id','user','product','attributes','price','discounted_price','quantity','Total_amount','date','updated_at']
+    list_display=['id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at']
     list_editable = ['product','attributes','quantity']   
     search_fields = ['user__username','product__title']
 class checkoutadmin(admin.ModelAdmin):
@@ -726,7 +725,7 @@ admin.site.register(Brand,BrandAdmin)
 
 class UserAdmin(ExportActionMixin,OriginalUserAdmin):
     list_display = ['id','username', 'email', 'first_name',
-                    'last_name', 'is_staff', 'action_btn', 'phone_no']
+                    'last_name', 'is_staff', 'phone_no', 'action_btn']
     #actions = ['action_btn',]
 
     def action_btn(self, obj):
