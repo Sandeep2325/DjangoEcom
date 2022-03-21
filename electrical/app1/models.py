@@ -44,7 +44,6 @@ from numpy import product
 #from youtubeurl_field.modelfields import YoutubeUrlField
 ##################################################################################################################################
 
-
 class User(AbstractUser):
     username = models.CharField(
         max_length=50, blank=False, null=True, unique=True)
@@ -106,8 +105,6 @@ class my_account(models.Model):
        return "{}".format(self.email) """
 
 #######################################################################################################################################
-
-
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     door_number = models.BigIntegerField(null=True,)
@@ -397,7 +394,7 @@ class Cart(models.Model):
             total_amount=self.quantity*self.product.discounted_price
             return total_amount
     def __str__(self):
-        return str(self.product)
+        return str(self.product)    
 ###########################################################################        
 class checkout(models.Model):
     cart=models.ManyToManyField(Cart)
@@ -428,9 +425,12 @@ class Orders(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES,
         max_length=50,
-        default="Pending"
-    ) 
-#####################################################################################################################################
+        default="Pending") 
+#     # def users(self):
+#     #     user=self.checkout_product.cart
+#     #     return ",".join([str(p.user) for p in user.all()])
+#     # def product()
+# #####################################################################################################################################
 class Coupon(models.Model):
     coupon = models.CharField(
         verbose_name="Coupon_code", max_length=200, null=True, unique=True)
@@ -455,7 +455,6 @@ class Coupon(models.Model):
 #             raise ValidationError("Start date must be less than end date")
 #         except ValidationError:
 #             messages.warning(request,"Hello")
-
 # pre_save.connect(check_date, sender=Coupon)
 #################################################################################################################################
 STATUS_CHOICES = (
@@ -466,7 +465,6 @@ STATUS_CHOICES = (
     ('Delivered', 'Delivered'),
     ('Cancelled', 'Cancelled'),
 )
-
 class Order(models.Model):
     user = models.ForeignKey(User, verbose_name="User",
                              on_delete=models.CASCADE)
@@ -483,8 +481,8 @@ class Order(models.Model):
     # coupon=models.CharField(max_length=50,null=True)
     attributes = models.ForeignKey(
         Attributes, verbose_name=" Product Attributes", on_delete=models.SET_NULL, null=True, blank=True)
-    #ordered_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date")
-    #created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
+    # ordered_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date")
+    # created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
     ordered_date = models.DateTimeField(
         auto_now_add=True, verbose_name="ordered Date", null=True)
     updated_at = models.DateTimeField(
@@ -756,3 +754,6 @@ class MailText(models.Model):
     def __str__(self):
         return str(self.subject)
 
+# class orderlog(models.Model):
+#     def users(self):
+#         return 

@@ -40,7 +40,7 @@ from django.http import HttpResponse
 from django.utils.html import format_html
 # from django.core.files.images import get_image_dimensions
 from math import ceil
-#from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.contrib import messages
 from import_export.admin import ExportActionMixin
 from django_summernote.admin import SummernoteModelAdmin
@@ -61,7 +61,6 @@ import random
 from admin_actions.admin import ActionsModelAdmin
 ###########################################################################################################################################
 
-
 class AddressAdmin(ExportActionMixin, admin.ModelAdmin):
    #
     # env\Lib\site-packages\jazzmin\static\jazzmin\js\action_button.js
@@ -78,7 +77,6 @@ class AddressAdmin(ExportActionMixin, admin.ModelAdmin):
     class Meta:
         verbose_name_plural = "Customer Address"
 #####################################################################################################
-
 
 class imageAdmin(admin.ModelAdmin):
     try:
@@ -141,7 +139,6 @@ class imageAdmin(admin.ModelAdmin):
     except:
         pass
 ##################################################################################################################################
-
 
 class CategoryAdmin(ExportActionMixin, admin.ModelAdmin):
     try:
@@ -270,7 +267,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
         image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True
         list_display = ['id', 'title', 'category', 'brand','image_tag2', 'imagee', 'price', 'discounted_price', 'is_active',
-                        'updated_at', 'average_rating', 'count_review', 'reviews', 'action_btn']  # ,'is_active','is_featured'
+                        'updated_at', 'average_rating', 'count_review','action_btn']  # ,'is_active','is_featured'
         list_editable = ('category', 'is_active','brand')
         list_filter = ('category', 'is_active', 'updated_at')
         list_per_page = 20
@@ -386,7 +383,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                             else:
 
                                 print(fields[8])
-                                imagess = image.objects.get(pk=(fields[7]))
+                                imagess = image.objects.get(pk=(fields[7])),
                                 created.image.add(imagess)
                                 created.save()
 
@@ -400,7 +397,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                             """ if TypeError:
                                 message=messages.warning(request,"Check the category ID") """
                             message = messages.warning(
-                                request, "Something went wrong! check your file again \t   1.Upload correct file \t   2.Check your data once")
+                                request, "Something went wrong! check your file again \n 1.Upload correct file \n 2.Check your data once")
                             return render(request, "admin/csv_upload.html", data)
                         except TypeError as e:
                             form = CsvImportForm()
@@ -474,7 +471,6 @@ class AttributesAdmin(admin.ModelAdmin):
         return format_html(html)
     action_btn.short_description = "Action"
 ###############################################################################################################################
-
 class salesAdmin(admin.ModelAdmin):
     list_display = ('id', 'campaign_name', 'startdate', 'enddate',
                     'sales_discount', 'is_active', 'created_at', 'action_btn')
@@ -727,7 +723,8 @@ admin.site.register(MailText, mailadmin)
 admin.site.unregister(get_attachment_model())
 admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
-class UserAdmin(ExportActionMixin, OriginalUserAdmin):
+
+class UserAdmin(ExportActionMixin,OriginalUserAdmin):
     list_display = ['id','username', 'email', 'first_name',
                     'last_name', 'is_staff', 'action_btn', 'phone_no']
     #actions = ['action_btn',]

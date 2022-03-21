@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     'rest_auth',
     'allauth',
-    #'allauth.account',
+    # 'allauth.account',
     'rest_auth.registration',
     'ckeditor',
     'django_summernote',
@@ -113,6 +113,17 @@ TEMPLATES = [
     'social.backends.twitter.TwitterOAuth',
     'django.contrib.auth.backends.ModelBackend',
 ) """
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
+}
+# CUSTOM_PASSWORD_RESET_CONFIRM = 'desired URL'
+# LOGIN_URL = 'https://localhost:8000/dj-rest-auth/login'
 AUTHENTICATION_BACKEND = [
 
     'django.contrib.auth.backends.ModelBackend',
@@ -124,9 +135,9 @@ AUTHENTICATION_BACKEND = [
     'social_core.backends.facebook.FacebookOAuth2',
 
 ]
-#ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = "email"
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 WSGI_APPLICATION = 'electrical.wsgi.application'
@@ -198,6 +209,13 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 4,
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'dj_rest_auth.jwt_auth.JWTCookieAuthentication',),
+}
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = 'my-app-auth'
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'users.serializers.CustomUserDetailsSerializer',
 }
 
 """ REST_FRAMEWORK = {
