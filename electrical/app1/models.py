@@ -404,6 +404,7 @@ class Cart(models.Model):
         return str(self.product)    
 ###########################################################################        
 class checkout(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     cart=models.ManyToManyField(Cart)
     Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
     
@@ -427,6 +428,7 @@ STATUS_CHOICES = (
     ('Cancelled', 'Cancelled'),
 )
 class Orders(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product")
     ordered_date = models.DateTimeField(
         auto_now_add=True, verbose_name="ordered Date", null=True)
@@ -471,7 +473,7 @@ STATUS_CHOICES = (
     ('Delivered', 'Delivered'),
     ('Cancelled', 'Cancelled'),
 )
-class IndentationError(SyntaxError): ...
+
 class Order(models.Model):
     user = models.ForeignKey(User, verbose_name="User",
                              on_delete=models.CASCADE)

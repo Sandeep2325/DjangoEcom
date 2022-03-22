@@ -374,18 +374,20 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                 for i in range(len(splited_image)):
                                     iter_image = splited_image[i]
                                     # print("IM",iter_image)
-                                    imagess = image.objects.get(
-                                        pk=(int(iter_image)))
-
+                                    imagess = image.objects.get(pk=(int(iter_image)))
+                                    print(imagess)
                                     created.image.add(imagess)
                                     created.save()
 
                             else:
-
-                                print(fields[8])
-                                imagess = image.objects.get(pk=(fields[7])),
+                                # print('field 8-------------',fields[8])
+                                # k=fields[8].split(",")
+                                # print(k)
+                                imagess = image.objects.get(pk=fields[8])
+                                print(imagess)
                                 created.image.add(imagess)
                                 created.save()
+                                print("saved")
 
                         except IndexError:
                             pass
@@ -661,9 +663,9 @@ class customer_messageAdmin(admin.ModelAdmin):
 
 
 class mailadmin(admin.ModelAdmin):
-    list_display = ['subject', 'message', 'send_it','status',
+    list_display = ['subject', 'message', 'send_it',
                     'created_date', 'updated_at', 'action_btnn']
-    actions = ['send_message', 'draft_message']
+    actions = ['send_message',]
     list_editable = ['send_it']
     # @admin.action(description='send')
     # def send_message(modeladmin, request, queryset):
@@ -693,7 +695,7 @@ class cartadmin(admin.ModelAdmin):
     list_editable = ['product','attributes','quantity']   
     search_fields = ['user__username','product__title']
 class checkoutadmin(admin.ModelAdmin):
-    list_display=['id','products',"Shipping_address"]
+    list_display=['id','user','products',"Shipping_address"]
     # def get_products(self, obj):
         # return "\n".join([p.product for p in obj.cart.all()])     
 class ordersadmin(admin.ModelAdmin):

@@ -34,19 +34,13 @@ from django.db import transaction
         model = User
         fields = '__all__' """
 ##################################################################################
+# class userserializer(serializers.ModelSerializer):
+#     class Meta:
+#         fields="__all__"
 class myaccountserializers(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
         model=my_account
-    #user =  self.context['request'].user
-    #first_name=serializers.CharField(max_length=300)
-    # last_name=serializers.CharField(max_length=300)
-    # phone_number=serializers.IntegerField()
-    # email=serializers.EmailField(max_length=255)
-    # address=serializers.CharField(max_length=300)
-    # city=serializers.CharField(max_length=300)
-    # state=serializers.CharField(max_length=300)
-    # postal_address=serializers.CharField(max_length=300)  
     
     def validate_first_name(self, value):
         if value == None:
@@ -194,7 +188,7 @@ class attributesSerializer(serializers.ModelSerializer):
         
 class cartserializer(serializers.ModelSerializer):
     class Meta:
-        fields=('id','user','product','attributes','price','discounted_price','quantity','Total_amount','date','updated_at')
+        fields=('id','user','product','attributes','price','offer_price','quantity','Total_amount','date','updated_at')
         model=Cart
         
     

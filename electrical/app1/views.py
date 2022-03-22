@@ -62,19 +62,28 @@ def countt(request):
                'productcount': productcount,
                'ordercount': ordercount}
     return render(request, "templates/admin/index.html", context)
-##############################################################################################################################################
+
+#############################################################################################################################################
 class listmyaccount(viewsets.ModelViewSet):
-    queryset = my_account.objects.all()
+    # queryset = my_account.objects.all()
     serializer_class = myaccountserializers
+    def get_queryset(self):
+        user = self.request.user
+        return my_account.objects.filter(user=user)
+    
 class myaccountCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    # permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
+    def perform_create(self, serializer):
+       return serializer.save(created_by=self.request.user)
+        
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = categorySerializer
 
 class detailcategory(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated, )
     queryset = Category.objects.all()
     # serializer_class=categorySerializer
 
@@ -103,6 +112,7 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
 
 
 class Productlist(viewsets.ModelViewSet):
+    # permission_classes = (IsAuthenticated, )
     queryset = Product.objects.all()
     # product_detail = Product.objects.get(id=id)
     # review = Rating.objects.filter(product = product_detail)
@@ -131,8 +141,7 @@ class attributelist(viewsets.ModelViewSet):
 class attributedetail(generics.RetrieveAPIView):
     queryset = Attributes.objects.all()
     serializer_class = attributesSerializer
-
-
+      
 # class orderlist(APIView):
 #     permission_classes = (IsAuthenticated, )
 #     def get(self, request):
@@ -141,7 +150,8 @@ class attributedetail(generics.RetrieveAPIView):
     
 class orderlist(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-
+    # queryset= Order.objects.filter(user=2)
+    
     def list(self, request):
         serializer = ordersSerializer(self.queryset, many=True)
         return Response(serializer.data)
@@ -165,15 +175,13 @@ class orderDeleteView(DestroyAPIView):
         except ObjectDoesNotExist:
             raise Http404("You do not have an active order") """
 #########################################################################################
-
-
 class orderdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = ordersSerializer
 
 
 class orderCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    # permission_classes = (IsAuthenticated, )
     serializer_class = ordersSerializer
     queryset = Order.objects.all()
 
@@ -182,15 +190,14 @@ class orderCreateView(CreateAPIView):
 
 class AddressListView(ListAPIView):
     permission_classes = (IsAuthenticated, )
+   
     serializer_class = CustomerAddressSerializers
 
-    def get_queryset(self):
-        address_type = self.request.query_params.get('address_type', None)
-        qs = Address.objects.all()
-        if address_type is None:
-            return qs
-        return qs.filter(user=self.request.user, address_type=address_type)
 
+    def get_queryset(self):
+        user = self.request.user
+
+        return Address.objects.filter(user=user)
 
 class AddressCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
@@ -242,7 +249,7 @@ class Listrating(viewsets.ModelViewSet):
     serializer_class = ratingSerializer
 
 
-class ratingCreateView(CreateAPIView):
+class ratingCreateView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
     queryset = Rating.objects.all()
@@ -307,17 +314,24 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
    ######## 
+   
 class cartlist(viewsets.ModelViewSet):
-    queryset = Cart.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = cartserializer
+    def get_queryset(self):
+        user = self.request.user
+        return Cart.objects.filter(user=user)
+    
+    # queryset = Cart.objects.all()
 
-    def list(self, request):
-        serializer = cartserializer(self.queryset,many=True)
-        return Response(serializer.data)
+    # def list(self, request):
+    #     serializer = cartserializer(self.queryset,many=True)
+    #     return Response(serializer.data)
 
-    def retrieve(self, request, pk=None):
-        item = get_object_or_404(self.queryset, pk=pk)
-        serializer = cartserializer(item)
-        return Response(serializer.data)
+    # def retrieve(self, request, pk=None):
+    #     item = get_object_or_404(self.queryset, pk=pk)
+    #     serializer = cartserializer(item)
+    #     return Response(serializer.data)
 class cartCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = cartserializer
@@ -328,46 +342,69 @@ class cartDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Cart.objects.all()
 class cartdetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Cart.objects.all()
+    # queryset = Cart.objects.all()
     serializer_class = cartserializer
+    def get_queryset(self):
+        user = self.request.user
+
+        return Cart.objects.filter(user=user)
 class cartupdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = cartserializer
-    queryset = Orders.objects.all()
+    queryset = Cart.objects.all()
 ##
 class checkoutlist(viewsets.ModelViewSet):
-    queryset = checkout.objects.all()
+    # queryset = checkout.objects.all()
+    # for i in checkout.objects.all():
+    #     print(i.cart.all())
+    #     # for j in i.cart:
+    #     #     print(j)
+    #     for j in i.cart.all():
+    #         print(j.user)
+    #         user=j.user
+    #         print(",,,,,,,,,,,,,,",user)
+    # def list(self, request):
+    #     serializer = checkoutserializer(self.queryset, many=True)
+    #     return Response(serializer.data)
 
-    def list(self, request):
-        serializer = checkoutserializer(self.queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        item = get_object_or_404(self.queryset, pk=pk)
-        serializer = checkoutserializer(item)
-        return Response(serializer.data)
+    # def retrieve(self, request, pk=None):
+    #     item = get_object_or_404(self.queryset, pk=pk)
+    #     serializer = checkoutserializer(item)
+    #     return Response(serializer.data)
+    permission_classes = (IsAuthenticated, )
+    serializer_class = checkoutserializer
+    def get_queryset(self):
+        user = self.request.user
+        print("qeeeeeewqeeeeeee",user)
+        return checkout.objects.filter(user=user)
 class checkoutCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = checkoutserializer
     queryset = checkout.objects.all() 
 ##
 class orderslist(viewsets.ModelViewSet):
-    queryset = Orders.objects.all()
+    permission_classes = (IsAuthenticated, )
+    # queryset = Orders.objects.all()
 
-    def list(self, request):
-        serializer = orderserializer(self.queryset, many=True)
-        return Response(serializer.data)
+    # def list(self, request):
+    #     serializer = orderserializer(self.queryset, many=True)
+    #     return Response(serializer.data)
 
-    def retrieve(self, request, pk=None):
-        item = get_object_or_404(self.queryset, pk=pk)
-        serializer = orderserializer(item)
-        return Response(serializer.data)
-    
+    # def retrieve(self, request, pk=None):
+    #     item = get_object_or_404(self.queryset, pk=pk)
+    #     serializer = orderserializer(item)
+    #     return Response(serializer.data)
+    serializer_class=orderserializer
+    def get_queryset(self):
+        user = self.request.user
+        print("qeeeeeewqeeeeeee",user)
+        return Orders.objects.filter(user=user)
 class ordersDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Orders.objects.all()
 
 class ordersdetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated, )
     queryset = Orders.objects.all()
     serializer_class = orderserializer
 
@@ -420,3 +457,7 @@ class CurrentUserViewSet(APIView):
 #     def get(self,request):
 #         serializer=cartserializer(request.user)
 #         return Response(serializer.data)
+# class userlist(viewsets.ModelViewSet):
+#     permission_classes = (IsAuthenticated, )
+#     serializer_class = userserializer
+    
