@@ -4,7 +4,6 @@ from rest_framework_simplejwt import views as jwt_views
 from . import views
 from app1.views import *
 from rest_framework_simplejwt.views import TokenRefreshView
-
 urlpatterns = [
     path('current-user/', CurrentUserViewSet.as_view(), name="current_user"),
     path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
@@ -14,6 +13,8 @@ urlpatterns = [
          listmyaccount.as_view({'get': 'list'}), name="myaccount"),
     path('myaccount/create/', myaccountCreateView.as_view(),
          name='myaccount-create'),
+    path('myaccount/<pk>/update/',
+         myaccountupdateview.as_view(), name='myaccount-update'),
     path('categories/',
          views.listcategory.as_view({'get': 'list'}), name="category"),
     path('categories/<int:pk>/', detailcategory.as_view(), name="single_category"),

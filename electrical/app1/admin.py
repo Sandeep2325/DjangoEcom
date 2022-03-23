@@ -606,7 +606,6 @@ class FAQAdmin(admin.ModelAdmin):
 ##############################################################################################################################
 # Banner Register
 
-
 class BannerAdmin(admin.ModelAdmin):
     def image_tag(self, obj):
         try:
@@ -616,9 +615,8 @@ class BannerAdmin(admin.ModelAdmin):
             #message=messages.warning('Something went wrong! check your file again \n 1.Upload correct file \n 2.Check you data once')
     image_tag.short_description = 'Image'
     image_tag.allow_tags = True
-    list_display = ['id', 'title', 'image_tag', 'uploaded_date', 'action_btn']
+    list_display = ['id', 'title', 'image_tag','uploaded_date', 'action_btn']
     search_fields = ['title']
-
     def action_btn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/banner/" + \
             str(obj.id)+"/change/'></a><br></br>"
@@ -691,7 +689,7 @@ class mailadmin(admin.ModelAdmin):
         return form
 ###################################################################################################################
 class cartadmin(admin.ModelAdmin):
-    list_display=['id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at']
+    list_display=['id','user','product','attributes','price','offer_price','coupon','quantity','Total_amount','amount_saved','date','updated_at']
     list_editable = ['product','attributes','quantity']   
     search_fields = ['user__username','product__title']
 class checkoutadmin(admin.ModelAdmin):
@@ -724,12 +722,10 @@ admin.site.register(MailText, mailadmin)
 admin.site.unregister(get_attachment_model())
 admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
-
 class UserAdmin(ExportActionMixin,OriginalUserAdmin):
     list_display = ['id','username', 'email', 'first_name',
                     'last_name', 'is_staff', 'phone_no', 'action_btn']
     #actions = ['action_btn',]
-
     def action_btn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/user/" + \
             str(obj.id)+"/change/'></a><br></br>"
@@ -739,5 +735,4 @@ class UserAdmin(ExportActionMixin,OriginalUserAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-
 admin.site.register(User, UserAdmin)

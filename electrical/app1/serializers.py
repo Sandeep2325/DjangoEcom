@@ -17,6 +17,7 @@ from . models import *
 from math import ceil
 from django.utils.timezone import now
 from django.db import transaction
+import regex as re
 #from app1.models import User
 #from django.contrib.auth.models import User
 #from .models import User
@@ -43,19 +44,24 @@ class myaccountserializers(serializers.ModelSerializer):
         model=my_account
     
     def validate_first_name(self, value):
-        if value == None:
+        # if value == None:
+        if value==None:
             raise serializers.ValidationError("Please enter the first name")
         return value
     def validate_last_name(self, value):
         if value == None:
             raise serializers.ValidationError("Please enter the last name")
         return value
-    
+
     def validate_phone_number(self, value):
-        if len(str(value)) !=10 :
+        regex=re.compile(r"\d{9}[-\.\s]??\d{9}[-\.\s]??\d{9}|\(\d{9}\)\s*\d{9}[-\.\s]??\d{9}|\d{9}[-\.\s]??\d{2}")
+        if re.match(regex, str(value)):
+        # if len(str(value)) !=10 :
             raise serializers.ValidationError("invalid phone number")
         return value
     def validate_email(self, value):
+        # regex = re.compile(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b')
+        # if re.match(regex,value):
         if value == None:
             raise serializers.ValidationError("Please enter the email address")
         return value
@@ -188,9 +194,31 @@ class attributesSerializer(serializers.ModelSerializer):
         
 class cartserializer(serializers.ModelSerializer):
     class Meta:
-        fields=('id','user','product','attributes','price','offer_price','quantity','Total_amount','date','updated_at')
+        fields=('id','user','product','attributes','price','offer_price','coupon','quantity','Total_amount','date','updated_at')
         model=Cart
-        
+    def validate_coupon(self,value):
+        for coupons in Coupon.objects.all():
+            print("sssssssssssssssssssssssssssssssssssssssssss",coupons.coupon)
+            a=coupons.coupon
+            b=coupons.coupon_discount
+            
+            print("......................",b)
+            # break 
+        if value!="":
+            # if coupons.enddate< now():
+            # if now()>coupons.enddate:
+            if str(a)!=value:
+                    # print('date..............',a.enddate)
+                raise serializers.ValidationError("Invalid coupon")
+                    # return value
+            # return value
+        return value
+    
+    # def price(self,instance):
+    #     if instance.coupon:
+    #         instance.price-=200
+    #         print("zzzzzzzzzzzzzzzzzzzzzz")
+    #         return instance.price 
     
     # def price(self,instance):
     #     return instance.product.price
@@ -237,8 +265,6 @@ class bannerSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Banner
-
-
 class blogSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
@@ -343,6 +369,7 @@ class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
         fields = "__all__"
+        
 #         model=customer_message
 # class CouponSerializer(serializers.ModelSerializer):
 #     """

@@ -72,12 +72,15 @@ class listmyaccount(viewsets.ModelViewSet):
         return my_account.objects.filter(user=user)
     
 class myaccountCreateView(CreateAPIView):
-    # permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
-    def perform_create(self, serializer):
-       return serializer.save(created_by=self.request.user)
-        
+    # def perform_create(self, serializer):
+    #    return serializer.save(created_by=self.request.user)
+class myaccountupdateview(UpdateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = myaccountserializers
+    queryset = my_account.objects.all() 
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = categorySerializer

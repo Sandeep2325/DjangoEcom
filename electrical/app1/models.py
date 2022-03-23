@@ -334,11 +334,9 @@ class Attributes(models.Model):
         Product, on_delete=models.CASCADE, verbose_name="Product")
     Color = models.CharField(max_length=50, null=True, verbose_name="Color")
     Size = models.CharField(max_length=20, null=True, verbose_name="Size")
-
     def __str__(self):
         template = 'color: {0.Color}  Size: {0.Size}'
         return template.format(self)
-
     class Meta:
         verbose_name_plural = "Attributes"
 
@@ -373,41 +371,126 @@ class Cart(models.Model):
     date = models.DateTimeField(auto_now_add=True,verbose_name="Date",null=True)
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date", null=True)
+    coupon=models.CharField(max_length=50,null=True,blank=True)
+    coupons=models.ForeignKey("Coupon",on_delete=models.CASCADE,null=True)
     # price = models.DecimalField(
     #     max_digits=8, decimal_places=2, null=True, blank=True, verbose_name="Price(₹)")
     @property
     def price(self):
-        return self.product.price
+        try:
+            for a in Coupon.objects.all():
+                    coupon_=a.coupon     
+            if self.coupon==coupon_:  
+                # coupon_price=a.coupon_discount
+                return self.product.price
+            else:
+                return self.product.price
+        except:
+            pass
     @property
     def offer_price(self):
-        return self.product.discounted_price
+        try:
+            # for a in Coupon.objects.all():
+            #         coupon_=a.coupon     
+            # if self.coupon==coupon_: 
+            # if self.coupon:
+                # coupon_price=a.coupon_discount
+            return self.product.discounted_price
+            # else:
+            #     return self.product.discounted_price
+        except:
+            pass
     @property
     def Total_amount(self):
-        if self.product.discounted_price is None:
-            # print("222222222222222222222222222",self.product.price)
-            try:
-                total_amount=self.quantity*self.product.price
-            except:
-                total_amount=1*self.product.price
-            return total_amount
-        else:
-            total_amount=self.quantity*self.product.discounted_price
-            return total_amount
+        try:
+            if self.product.discounted_price is None:
+                # print("222222222222222222222222222",self.product.price)
+                for a in Coupon.objects.all():
+                        coupon_=a.coupon
+                try:  
+                    if self.coupon==coupon_:
+                        coupon_price=a.coupon_discount
+                        total_amount=(self.quantity*self.product.price)-(self.quantity*int(coupon_price))
+                    else:
+                        total_amount=(self.quantity*self.product.price)
+                except:
+                    if self.coupon==coupon_:
+                        coupon_price=a.coupon_discount
+                        total_amount=(1*self.product.price)-(self.quantity*int(coupon_price))
+                    else:
+                        total_amount=(1*self.product.price)
+                return total_amount
+            else:
+                for a in Coupon.objects.all():
+                        coupon_=a.coupon
+                if self.coupon==coupon_:
+                    coupon_price=a.coupon_discount
+                    total_amount=(self.quantity*self.product.discounted_price)-(self.quantity*int(coupon_price))
+                else:
+                    total_amount=(self.quantity*self.product.discounted_price)
+                return total_amount
+        except:
+            pass
     @property
     def amount_saved(self):
-        if self.product.discounted_price is not None:
-          
-            return (self.product.price*self.quantity)-(self.product.discounted_price*self.quantity)
-        else:
+        try:
+            for a in Coupon.objects.all():
+                coupon_=a.coupon
+            if self.product.discounted_price is not None:
+                if self.coupon==coupon_:
+                    coupon_price=a.coupon_discount
+                    return (self.product.price*self.quantity)-(self.product.discounted_price                                                                                                                                                                                                                                                             *self.quantity)
+            else:
+                pass
+        except:
             pass
+       
+    # @property
+    # def price(self):
+    #     try:
+    #         return self.product.price    
+    #     except:
+    #         pass
+    # @property
+    # def offer_price(self):
+    #     try:
+    #         return self.product.discounted_price
+    #     except:
+    #         pass
+    # @property
+    # def Total_amount(self):
+    #     try:
+    #         if self.product.discounted_price is None:
+    #             # print("222222222222222222222222222",self.product.price)
+    #             try: 
+    #                 total_amount=(self.quantity*self.product.price)
+    #             except:
+    #                 total_amount=(1*self.product.price)
+    #             return total_amount
+    #         else:
+    #             total_amount=(self.quantity*self.product.discounted_price)
+    #             return total_amount
+    #     except:
+    #         pass
+    # @property
+    # def amount_saved(self):
+    #     try:
+    #         if self.product.discounted_price is not None:
+    #             return (self.product.price*self.quantity)-(self.product.discounted_price*self.quantity)
+    #         else:
+    #             pass
+    #     except:
+    #         pass
+    
     def __str__(self):
         return str(self.product)    
-###########################################################################        
+    class Meta:
+        verbose_name_plural = "Carts"
+###########################################################################     
 class checkout(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     cart=models.ManyToManyField(Cart)
     Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
-    
     def products(self):
         return ",".join([str(p) for p in self.cart.all()])
     # def users(self):
@@ -417,9 +500,10 @@ class checkout(models.Model):
     
     def __str__(self):
         return str(self.cart.first())
+    class Meta:
+        verbose_name_plural = "Checkouts"
 ##################################################################################
 STATUS_CHOICES = (
-    
     ('Pending', 'Pending'),
     ('Accepted', 'Accepted'),
     ('Packed', 'Packed'),
@@ -435,7 +519,9 @@ class Orders(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES,
         max_length=50,
-        default="Pending") 
+        default="Pending")
+    class Meta:
+        verbose_name_plural = "Orders"
     # def users(self):
     #     user=self.checkout_product.cart
     #     return ",".join([str(p.user) for p in user.all()])
