@@ -38,11 +38,10 @@ from django.db.models import Avg
 #from phonenumber_field.modelfields import PhoneNumberField
 from embed_video.fields import EmbedVideoField
 from django.db.models import Avg, Count
-from numpy import product
-
+# from numpy import product
 #from django.contrib.auth.admin import UserAdmin
 #from youtubeurl_field.modelfields import YoutubeUrlField
-##################################################################################################################################
+############################################################################################################
 
 class User(AbstractUser):
     username = models.CharField(
@@ -482,21 +481,27 @@ class Cart(models.Model):
     #     except:
     #         pass
     
-    def __str__(self):
-        return str(self.product)    
+        
     class Meta:
         verbose_name_plural = "Carts"
-###########################################################################     
+    def __str__(self):
+        return str(self.product)
+###########################################################################
 class checkout(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     cart=models.ManyToManyField(Cart)
     Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
+    Coupon=models.CharField(max_length=100,null=True,blank=True)
     def products(self):
         return ",".join([str(p) for p in self.cart.all()])
-    # def users(self):
-    #     return self.cart.user
-    # def get_products(self):
-    #     return "\n".join([p.product for p in self.cart.all()])
+    def No_of_items_to_checkout(self):
+        return self.cart.all().count()
+    
+    # def total_price(self):
+    #     print(self.cart.all())
+    #     for cart in self.cart.all():
+    #         print("xxxxxxxxxxxxxxx",cart.Total_amount)
+    #         return cart.Total_amount
     
     def __str__(self):
         return str(self.cart.first())

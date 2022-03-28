@@ -116,7 +116,7 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
 
 class Productlist(viewsets.ModelViewSet):
     # permission_classes = (IsAuthenticated, )
-    queryset = Product.objects.all()
+    queryset = Product.objects.filter(is_active=True)
     # product_detail = Product.objects.get(id=id)
     # review = Rating.objects.filter(product = product_detail)
     serializer_class = productSerializer
@@ -124,7 +124,7 @@ class Productlist(viewsets.ModelViewSet):
 
 
 class Productdetail(generics.RetrieveAPIView):
-    queryset = Product.objects.all()
+    queryset = Product.objects.filter(is_active=True)
     serializer_class = productSerializer
 
 
@@ -383,7 +383,22 @@ class checkoutlist(viewsets.ModelViewSet):
 class checkoutCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = checkoutserializer
-    queryset = checkout.objects.all() 
+    queryset=checkout.objects.all()
+    # for i in Cart.objects.all():
+    #     global user1
+    #     user1=i.user
+       
+    # def get_queryset(self):
+    #     # user = self.request.user
+        
+    #     if user1==self.user:
+    #         # print(user1)
+    #         return checkout.objects.filter(user=user1)
+class checkoutcouponcreate(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = checkoutcouponserializer
+    queryset = checkout.objects.all()
+     
 ##
 class orderslist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )

@@ -8,8 +8,12 @@
 # from io import BytesIO
 # from django.contrib.admin import AdminSite
 #from rest_framework.authtoken.models import Token
-from re import S
-from this import s
+import base64
+# from contextlib import nullcontext
+from email.mime.text import MIMEText
+from multiprocessing import context
+# from re import S, template
+# from this import s
 from django.contrib.auth.admin import UserAdmin as OriginalUserAdmin
 from django.db import connection
 
@@ -21,7 +25,7 @@ from django.contrib.auth.forms import UserChangeForm
 from .models import User
 import mailbox
 from django.contrib.auth.models import Group
-from asyncio.windows_events import NULL
+# from asyncio.windows_events import NULL
 #from email.headerregistry import Group
 from logging import exception
 #from tokenize import group
@@ -46,7 +50,7 @@ from import_export.admin import ExportActionMixin
 from django_summernote.admin import SummernoteModelAdmin
 from django_summernote.utils import get_attachment_model
 from embed_video.admin import AdminVideoMixin, AdminVideoWidget
-import pandas as pd
+# import pandas as pd
 #from .views import serve_pdf_preview
 import pdfkit
 import tempfile
@@ -298,7 +302,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
             cursor = connection.cursor()
             cursor.execute("update app1_product set discounted_price =NULL") """
             for product in queryset:
-                product.discounted_price = NULL
+                product.discounted_price = None
                 product.save(update_fields=['discounted_price'])
                 if product.discounted_price == 0:
                     from django.db import connection
@@ -353,6 +357,8 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                         # print(fields)
                         try:
                             # print(fields[7])
+                            for i in range(len(fields)):
+                                print("fields[{}]".format(i),fields[i])
                             created, k = Product.objects.update_or_create(
                                 title=fields[0],
                                 sku=fields[1],
@@ -422,7 +428,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 return render(request, "admin/csv_upload.html", data)
             except (IntegrityError) as e:
                 messages.error(request, e)
-
+                
     except exception:
         pass
 
@@ -627,8 +633,10 @@ class BannerAdmin(admin.ModelAdmin):
         return format_html(html)
     action_btn.short_description = "Action"
 ####################################################################################################################
-
-
+# import smtplib,email,email.encoders,email.mime.text,email.mime.base
+# MIMEText
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string,select_template
 class customer_messageAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'Phone',
                     'Email', 'Message', 'created_date', 'updated_at', 'action_btn']
@@ -644,19 +652,21 @@ class customer_messageAdmin(admin.ModelAdmin):
 
     def send_message(self, request, queryset):
         print(queryset)
-        try:
-            for i in queryset:
-                if i.Email and i.first_name:
-                    email = i.Email
-                    message = "Hi {},\nyour message was recieved\nthank you ".format(
-                        i.first_name)
-                    a = send_mail('Prakash Electrical', message, 'gowdasandeep8105@gmail.com', [
-                                  email], fail_silently=False,), messages.success(request, "Successfully sent to {}".format(email))
-                    print(
-                        "++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
+        # try:
+        for i in queryset:
+            if i.Email and i.first_name:
+                html_tpl_path=("email.html",)
+                context_data={"name":"sandeep"}
+                email_html_template=select_template(html_tpl_path).render(context_data)
+                email = i.Email
+                message = "Hi {},\nyour message was recieved\nthank you ".format(i.first_name)
+                a = send_mail('Prakash Electrical', email_html_template, 'gowdasandeep8105@gmail.com', [
+                                email], fail_silently=False,),messages.success(request, "Successfully sent to {}".format(email))
+                print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
 
-        except:
-            return messages.warning(request, "something went wrong")
+        # except:
+        #     return messages.warning(request, "something went wrong")
+
     ##################################################################################################################
 
 
@@ -671,7 +681,6 @@ class mailadmin(admin.ModelAdmin):
     # @admin.action(description='draft')
     # def draft_message(modeladmin, request, queryset):
     #     queryset.update(status='d')
-
     def action_btnn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/mailtext/" + \
             str(obj.id)+"/change/'></a><br></br>"
@@ -700,9 +709,11 @@ class ordersadmin(admin.ModelAdmin):
     list_display=['id',"checkout_product","ordered_date","status"]
     list_editable = ['status']
 ######################################################################################################
+# from allauth.account.models import EmailAddress,EmailAddressManager,EmailConfirmation,EmailConfirmationManager,EmailConfirmationHMAC
+# admin.site.unregister(EmailConfirmationHMAC)
 admin.site.register(Orders,ordersadmin)
-admin.site.register(checkout,checkoutadmin)
-admin.site.register(Cart,cartadmin) 
+# admin.site.register(checkout,checkoutadmin)
+# admin.site.register(Cart,cartadmin) 
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
@@ -722,6 +733,7 @@ admin.site.register(MailText, mailadmin)
 admin.site.unregister(get_attachment_model())
 admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
+
 class UserAdmin(ExportActionMixin,OriginalUserAdmin):
     list_display = ['id','username', 'email', 'first_name',
                     'last_name', 'is_staff', 'phone_no', 'action_btn']
@@ -731,8 +743,7 @@ class UserAdmin(ExportActionMixin,OriginalUserAdmin):
             str(obj.id)+"/change/'></a><br></br>"
         html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/user/" + \
             str(obj.id)+"/change/'></a><br></br>"
-        html += "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/user/" + \
-            str(obj.id)+"/delete/'></a></div>"
+        html += "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/user/"+str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
 admin.site.register(User, UserAdmin)

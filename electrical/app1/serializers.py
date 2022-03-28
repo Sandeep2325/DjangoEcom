@@ -196,6 +196,7 @@ class cartserializer(serializers.ModelSerializer):
     class Meta:
         fields=('id','user','product','attributes','price','offer_price','coupon','quantity','Total_amount','date','updated_at')
         model=Cart
+    
     def validate_coupon(self,value):
         for coupons in Coupon.objects.all():
             print("sssssssssssssssssssssssssssssssssssssssssss",coupons.coupon)
@@ -236,9 +237,33 @@ class cartserializer(serializers.ModelSerializer):
     #         return total_amount
     
 class checkoutserializer(serializers.ModelSerializer):
+    # carts = serializers.SerializerMethodField()
+    # tag = CartSerializer(read_only=True, many=True)
+
     class Meta:
-        fields="__all__"
         model=checkout
+        fields=("user","cart","Shipping_address",'No_of_items_to_checkout')
+        
+class checkoutcouponserializer(serializers.ModelSerializer):
+    class Meta:
+        model=checkout
+        fields=("Coupon",)      
+    def validate_Coupon(self,value):
+        for coupons in Coupon.objects.all():
+            print("sssssssssssssssssssssssssssssssssssssssssss",coupons.coupon)
+            a=coupons.coupon
+            b=coupons.coupon_discount
+            print("......................",b)
+            # break 
+        if value!="":
+            # if coupons.enddate< now():
+            # if now()>coupons.enddate:
+            if str(a)!=value:
+                    # print('date..............',a.enddate)
+                raise serializers.ValidationError("Invalid coupon")
+                    # return value
+            # return value
+        return value
 class orderserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -359,7 +384,7 @@ class customermessageSerializer(serializers.ModelSerializer):
         instance = super(customermessageSerializer, self).create(validate_data)
         send_mail(
             'You have a message from {}'.format(instance.first_name),
-            'Here is the message. DATA: {}'.format(validate_data),
+            'First name: {}\nLast name: {}\nEmail: {}\nPhone: {}\nMessage: {}'.format(instance.first_name,instance.last_name,instance.Email,instance.Phone,instance.Message),
             'gowdasandeep8105@gmail.com',
             ['sandeep.nexevo@gmail.com'],
             fail_silently=False,
@@ -485,7 +510,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True, required=True)
     class Meta:
         model = User
-        fields = ('username', 'password', 'password2', 'email',
+        fields = ('id','username', 'password', 'password2', 'email',
                   'first_name', 'last_name', 'phone_no')
         # extra_kwargs = {
         #     'first_name': {'required': True},

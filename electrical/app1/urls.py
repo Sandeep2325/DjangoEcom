@@ -55,6 +55,7 @@ urlpatterns = [
     path('cart/<pk>/update/', cartupdateView.as_view(), name='cart-update'),
     path('checkout/', checkoutlist.as_view({'get': 'list'}), name="checkout"),
     path('checkout/create/', checkoutCreateView.as_view(), name='checkout-create'),
+#     path('checkout-coupon/create/', checkoutcouponcreate.as_view(), name='checkoutcoupon-create'),
     path('orders/', orderslist.as_view({'get': 'list'}), name="orders"),
     path('orders/<int:pk>/', ordersdetail.as_view(), name="single_orders"),
     path('orders/create/', ordersCreateView.as_view(), name='orders-create'),
