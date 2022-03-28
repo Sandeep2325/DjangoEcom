@@ -10,18 +10,18 @@ from django.db.models.signals import pre_save
 from asyncio.windows_events import NULL
 from enum import unique
 from pickle import FALSE
-#from pyexpat.errors import messages
+
 from re import VERBOSE
 from tabnanny import verbose
 from tkinter import CASCADE
 from django.db.models import Q
-#from typing_extensions import Self
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from PIL import Image
-#from django.contrib.postgres.fields import ArrayField
+
 from math import ceil
 from ckeditor.fields import RichTextField
 from django.http import Http404
@@ -31,17 +31,13 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-#from django.utils.translation import ugettext_lazy as _
-#from django.conf import settings
+
 from datetime import date
 from django.db.models import Avg
-#from phonenumber_field.modelfields import PhoneNumberField
+
 from embed_video.fields import EmbedVideoField
 from django.db.models import Avg, Count
-# from numpy import product
-#from django.contrib.auth.admin import UserAdmin
-#from youtubeurl_field.modelfields import YoutubeUrlField
-############################################################################################################
+
 
 class User(AbstractUser):
     username = models.CharField(
@@ -56,7 +52,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return "{}".format(str(self.username))
-#######################################################################################################################################
+
 class my_account(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     first_name=models.CharField(max_length=50,null=True,verbose_name="First Name")
@@ -92,7 +88,7 @@ class my_account(models.Model):
         user.set_password(password)
         user.save(using=self._db)
         return user """
-##################################################################################################################################
+
 """ class User(AbstractUser):
    username = models.CharField(max_length = 50, blank = True, null = True, unique = True)
    email = models.EmailField(('email address'), unique = True)
@@ -103,7 +99,6 @@ class my_account(models.Model):
    def __str__(self):
        return "{}".format(self.email) """
 
-#######################################################################################################################################
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     door_number = models.BigIntegerField(null=True,)
@@ -122,7 +117,6 @@ class Address(models.Model):
 
     class Meta:
         verbose_name_plural = "Customer Address"
-##################################################################################################################################
 
 class sales(models.Model):
     campaign_name = models.CharField(
@@ -141,12 +135,6 @@ class sales(models.Model):
 
     class Meta:
         verbose_name_plural = "Sales/Discount"
-    """ def save(self,*args,**kwargs):
-        if self.enddate>=now():
-            self.is_active=False
-            return super(Order, self).save(*args, **kwargs) """
-####################################################################################################################################
-
 
 class Category(models.Model):
     def validate_image(fieldfile_obj):
@@ -156,22 +144,20 @@ class Category(models.Model):
         if filesize > size:
             raise ValidationError(
                 "Max file size is 900*900 or should be less than 2MB")
-    # def get_family_tree(self):
+   
     brands = models.CharField(max_length=50, verbose_name="Brands")
-    #slug = models.SlugField(max_length=55, verbose_name="Category Slug")
+
     description = models.TextField(
         blank=True, verbose_name="Category Description")
-    # ,validators=[validate_image], null=True,help_text='Maximum file size allowed 900*900 or 2 MB'
     category_image = models.ImageField(
         upload_to='category', verbose_name="Brand Thumbnail", null=True, blank=True, max_length=500)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
-    #is_featured = models.BooleanField(verbose_name="Is Featured?",default=True)
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date")
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date")
 
-    #################auto resizing function#########################################
+        ##auto resizing##
     """ def save(self,):
         super().save()   # saving image first
         img = Image.open(self.category_image.path) # Open image using self
@@ -179,7 +165,7 @@ class Category(models.Model):
             new_img = (500, 500)
             img.thumbnail(new_img)
             img.save(self.category_image.path) """
-    ###################################################################################################################
+
     class Meta:
         verbose_name_plural = 'Categories'
         ordering = ('-created_at',)
@@ -189,7 +175,7 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = " Category"
-#########################################################################################################################################
+
 class Brand(models.Model):
     brand_name = models.CharField(max_length=150)
     logo = models.ImageField(upload_to='brand', blank=True, null=True)
@@ -198,7 +184,7 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.brand_name
-#################################################################################
+
 class image(models.Model):
     image = models.ImageField(upload_to="images")
     """ def __str__(self):
@@ -215,8 +201,6 @@ class image(models.Model):
             new_img = (500, 500)
             img.thumbnail(new_img)
             img.save(self.image.path) """
-    #product=models.ForeignKey (Product, on_delete=models.CASCADE,verbose_name="Product")
-#################################################################################################################################
 
 class Product(models.Model):
     def validate_image(fieldfile_obj):
@@ -227,7 +211,7 @@ class Product(models.Model):
             raise ValidationError(
                 "Max file size is 900*900 or should be less than 2mb")
     title = models.CharField(max_length=150, verbose_name="Product Title")
-    #slug = models.SlugField(max_length=160, verbose_name="Product Slug")
+   
     sku = models.CharField(max_length=255, unique=True,
                            verbose_name="Unique Product ID (SKU)")
     short_description = RichTextField(verbose_name="Short Description")
@@ -236,27 +220,22 @@ class Product(models.Model):
     image = models.ManyToManyField(image, blank=True)
     product_image = models.ImageField(
         upload_to='product', verbose_name="Product Thumbnail", blank=True, null=True, max_length=500)
-    #product_image1 = models.ImageField(upload_to='product', verbose_name="Product Image 1", blank=True, null=True,max_length=500)
-    # product_image2 = models.ImageField(upload_to='product', verbose_name="Product Image 2", blank=True, null=True,max_length=500)#,validators=[validate_image],help_text='Maximum file size allowed 900*900 or 2 MB'
+    
     price = models.DecimalField(
         max_digits=8, decimal_places=2, verbose_name='Price(₹)')
     discounted_price = models.DecimalField(
         max_digits=8, decimal_places=2, verbose_name="Offer Price(₹)", null=True, blank=True)
     category = models.ForeignKey(
         Category, verbose_name="Product category", on_delete=models.SET_NULL, null=True)
-    # attributess = models.ForeignKey(
-    #     'Attributes', verbose_name="Product attribute", on_delete=models.SET_NULL, null=True)
+
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
-    #is_featured = models.BooleanField(verbose_name="Is Featured?",default=True)
+
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date")
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date")
-    #rating_average = models.FloatField(default=0)
-    # review_count = models.IntegerField(default=0)
-    #################auto resizing function#########################################
-    
+
     """ def save(self):
         super().save()  # saving image first
 
@@ -266,8 +245,6 @@ class Product(models.Model):
             new_img = (500, 500)
             img.thumbnail(new_img)
             img.save(self.product_image.path)"""
-    #gigs = (Gig.objects.filter(status=True).annotate(avg_review=Avg('rates__rating')))
-    #################################################################################################
 
     @property
     def average_rating(self):
@@ -309,7 +286,6 @@ class Product(models.Model):
         else:
             return format_html("<p class=text-danger>No ratings!</p>")
 
-  ###############################################################################################################
     class Meta:
         # def countt(self):
         verbose_name_plural = '  Products'
@@ -318,16 +294,7 @@ class Product(models.Model):
     def __str__(self):
         template = '{0.title}/{0.category}/{0.brand}'
         return template.format(self)
-
-
-##################################################################################################################################
-""" class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    images = models.FileField(upload_to = 'product')
- 
-    def __str__(self):
-        return self.product.title """
-##################################################################################################################################
+##
 class Attributes(models.Model):
     Product = models.ForeignKey(
         Product, on_delete=models.CASCADE, verbose_name="Product")
@@ -338,28 +305,6 @@ class Attributes(models.Model):
         return template.format(self)
     class Meta:
         verbose_name_plural = "Attributes"
-
-#################################################################################################################################
-# class Cart(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     total = models.PositiveIntegerField()
-#     complit = models.BooleanField(default=False)
-#     date = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return self.user.email
-
-# class CartProduct(models.Model):
-#     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-#     product = models.ManyToManyField(Product)
-#     quantity = models.PositiveIntegerField()
-#     total = models.PositiveIntegerField()
-
-#     @property
-#     #category.values('module_name')
-#     def totalprice(self):
-#         total=self.quantity*self.product.values["price"]
-#         return total    
 
 class Cart(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,verbose_name="User")
@@ -372,40 +317,25 @@ class Cart(models.Model):
         auto_now=True, verbose_name="Updated Date", null=True)
     coupon=models.CharField(max_length=50,null=True,blank=True)
     coupons=models.ForeignKey("Coupon",on_delete=models.CASCADE,null=True)
-    # price = models.DecimalField(
-    #     max_digits=8, decimal_places=2, null=True, blank=True, verbose_name="Price(₹)")
+
     @property
     def price(self):
-        try:
-            for a in Coupon.objects.all():
-                    coupon_=a.coupon     
-            if self.coupon==coupon_:  
-                # coupon_price=a.coupon_discount
-                return self.product.price
-            else:
-                return self.product.price
+        try: 
+            return self.product.price
         except:
             pass
     @property
     def offer_price(self):
         try:
-            # for a in Coupon.objects.all():
-            #         coupon_=a.coupon     
-            # if self.coupon==coupon_: 
-            # if self.coupon:
-                # coupon_price=a.coupon_discount
             return self.product.discounted_price
-            # else:
-            #     return self.product.discounted_price
         except:
             pass
     @property
-    def Total_amount(self):
+    def Total_amount_(self): #not in use
         try:
+            coupons_list=[]
+            coupons_amount=[]
             if self.product.discounted_price is None:
-                # print("222222222222222222222222222",self.product.price)
-                for a in Coupon.objects.all():
-                        coupon_=a.coupon
                 try:  
                     if self.coupon==coupon_:
                         coupon_price=a.coupon_discount
@@ -430,6 +360,41 @@ class Cart(models.Model):
                 return total_amount
         except:
             pass
+        
+    @property
+    def Total_amount(self):
+        try:
+            coupons_list=[]
+            coupons_amount=[]
+            if self.product.discounted_price is None:
+                # print("222222222222222222222222222",self.product.price)
+                for a in Coupon.objects.all():
+                        coupon_=a.coupon
+                        coupons_list.append(coupon_)
+                        coupons_amount.append(a.coupon_discount)
+                print(coupons_amount)
+                print(coupons_list)
+                try:  
+                    for i in range(len(coupons_list)): 
+                        if self.coupon==coupons_list[i]:
+                            coupon_price=coupons_amount[i]
+                            total_amount=(self.quantity*self.product.price)-(self.quantity*int(coupon_price))
+                    return total_amount
+                             
+                except:
+                    for i in range(len(coupons_list)): 
+                        if self.coupon==coupons_list[i]:
+                            coupon_price=coupons_amount[i]
+                            total_amount=(1*self.product.price)-(self.quantity*int(coupon_price))
+                    return total_amount
+            else:
+                for i in range(len(coupons_list)): 
+                        if self.coupon==coupons_list[i]:
+                            coupon_price=coupons_amount[i]
+                            total_amount=(self.quantity*self.product.discounted_price)-(self.quantity*int(coupon_price))
+                return total_amount
+        except:
+            pass
     @property
     def amount_saved(self):
         try:
@@ -444,49 +409,11 @@ class Cart(models.Model):
         except:
             pass
        
-    # @property
-    # def price(self):
-    #     try:
-    #         return self.product.price    
-    #     except:
-    #         pass
-    # @property
-    # def offer_price(self):
-    #     try:
-    #         return self.product.discounted_price
-    #     except:
-    #         pass
-    # @property
-    # def Total_amount(self):
-    #     try:
-    #         if self.product.discounted_price is None:
-    #             # print("222222222222222222222222222",self.product.price)
-    #             try: 
-    #                 total_amount=(self.quantity*self.product.price)
-    #             except:
-    #                 total_amount=(1*self.product.price)
-    #             return total_amount
-    #         else:
-    #             total_amount=(self.quantity*self.product.discounted_price)
-    #             return total_amount
-    #     except:
-    #         pass
-    # @property
-    # def amount_saved(self):
-    #     try:
-    #         if self.product.discounted_price is not None:
-    #             return (self.product.price*self.quantity)-(self.product.discounted_price*self.quantity)
-    #         else:
-    #             pass
-    #     except:
-    #         pass
-    
-        
     class Meta:
         verbose_name_plural = "Carts"
     def __str__(self):
         return str(self.product)
-###########################################################################
+
 class checkout(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     cart=models.ManyToManyField(Cart)
@@ -496,18 +423,12 @@ class checkout(models.Model):
         return ",".join([str(p) for p in self.cart.all()])
     def No_of_items_to_checkout(self):
         return self.cart.all().count()
-    
-    # def total_price(self):
-    #     print(self.cart.all())
-    #     for cart in self.cart.all():
-    #         print("xxxxxxxxxxxxxxx",cart.Total_amount)
-    #         return cart.Total_amount
-    
+
     def __str__(self):
         return str(self.cart.first())
     class Meta:
         verbose_name_plural = "Checkouts"
-##################################################################################
+
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Accepted', 'Accepted'),
@@ -527,11 +448,7 @@ class Orders(models.Model):
         default="Pending")
     class Meta:
         verbose_name_plural = "Orders"
-    # def users(self):
-    #     user=self.checkout_product.cart
-    #     return ",".join([str(p.user) for p in user.all()])
-    # def product()
-# #####################################################################################################################################
+
 class Coupon(models.Model):
     coupon = models.CharField(
         verbose_name="Coupon_code", max_length=200, null=True, unique=True)
@@ -546,16 +463,7 @@ class Coupon(models.Model):
         return self.coupon
     class Meta:
         verbose_name_plural = "Coupons"
-
-# def check_date(request,sender,instance,*args, **kwargs):
-#     if instance.startdate > instance.enddate:
-#         #raise ValueError('Start date must be less than end date')
-#         try:
-#             raise ValidationError("Start date must be less than end date")
-#         except ValidationError:
-#             messages.warning(request,"Hello")
-# pre_save.connect(check_date, sender=Coupon)
-#################################################################################################################################
+####
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Accepted', 'Accepted'),
@@ -575,14 +483,10 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField(verbose_name="Quantity")
     price = models.DecimalField(
         max_digits=8, decimal_places=2, null=True, blank=True, verbose_name="Price(₹)")
-    #discount_applied_price=models.DecimalField(max_digits=8, decimal_places=2,null=True,blank=True)
     coupon = models.ForeignKey(
         Coupon, on_delete=models.SET_NULL, blank=True, null=True)
-    # coupon=models.CharField(max_length=50,null=True)
     attributes = models.ForeignKey(
         Attributes, verbose_name=" Product Attributes", on_delete=models.SET_NULL, null=True, blank=True)
-    # ordered_date = models.DateTimeField(auto_now_add=True, verbose_name="Ordered Date")
-    # created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
     ordered_date = models.DateTimeField(
         auto_now_add=True, verbose_name="ordered Date", null=True)
     updated_at = models.DateTimeField(
@@ -637,49 +541,7 @@ class Order(models.Model):
     class Meta:
         verbose_name_plural = "Order"
 
-#############################################################################################################################
-""" class Coupon(models.Model):
-    coupon=models.CharField(verbose_name="Coupon",max_length=200,null=True)
-    startdate=models.DateField(verbose_name="Start Date",null=True)
-    enddate=models.DateField(verbose_name="End Date",null=True)
-    coupon_discount=models.DecimalField(max_digits=5, decimal_places=2,null=True,verbose_name='Discount(%)',validators=[
-        MinValueValidator(1),MaxValueValidator(100)
-    ])
-    is_active = models.BooleanField(verbose_name="Is Active?",default=False)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
-    def __str__(self):
-        return self.coupon
-    class Meta:
-        verbose_name_plural = "Coupons" """
-#############################################################################################################################
-""" class Coupon(models.Model):
-    COUPON_TYPES = (
-    ('percent', 'percent'),
-    ('value', 'value'),
-)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    code = models.CharField(max_length=64)
-    #code_l = models.CharField(max_length=64, blank=True, unique=True)
-    type = models.CharField(max_length=16, choices=COUPON_TYPES)
-    expires = models.DateTimeField(blank=True, null=True)
-    value = models.DecimalField(default=0.0, max_digits=5, decimal_places=2)
-    # bound = models.BooleanField(default=False)
-    #user = models.ManyToManyField(User, blank=True)
-    #product = models.ForeignKey(Product, verbose_name="Product", on_delete=models.CASCADE,null=True,blank=True)
-    repeat = models.IntegerField(default=0)
-
-    def __str__(self):
-        return str(self.code) """
-
-""" class ClaimedCoupon(models.Model):
-    redeemed = models.DateTimeField(auto_now_add=True)
-    coupon = models.ForeignKey('Coupon',on_delete=models.CASCADE)
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.user) """
-###########################################################Rating Models########################################################
+##Rating Models##
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Rejected', 'Rejected'),
@@ -722,9 +584,6 @@ class Rating(models.Model):
         elif Rating.objects.filter(Q(Status="Pending") & Q(product=self.product) & Q(Reviews=self.Reviews) & Q(user=self.user) & Q(Rating=self.Rating)):
             return format_html('<p class="text-primary fa fa-clock" aria-hidden="true"><span class="ml-2">Pending</span></p>')
 
-#####################################################################################################################
-# BLOG MODEL
-
 class Blog(models.Model):
     # def validate_image(fieldfile_obj):
     #     filesize = fieldfile_obj.file.size
@@ -742,7 +601,7 @@ class Blog(models.Model):
     #category=models.ForeignKey(BlogCategory, on_delete=models.CASCADE)
     uploaded_date = models.DateField(auto_now_add=True)
 
-    #################auto resizing function############################################################################
+    ###auto resizing function###
     def save(self):
         super().save()  # saving image first
         try:
@@ -760,8 +619,7 @@ class Blog(models.Model):
     def __str__(self):
         return self.title
 
-##############################################################################################################################
-# FAQ MODEL
+##faq##
 STATUS_CHOICES = [
     ('d', 'Draft'),
     ('p', 'Published'),
@@ -776,15 +634,13 @@ class FAQ(models.Model):
         auto_now=True, verbose_name="Updated Date", null=True)
     status = models.CharField(
         max_length=1, choices=STATUS_CHOICES, default="d")
-    #created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created Date" ,null=True)
 
     class Meta:
         verbose_name_plural = "FAQs"
 
     def __str__(self):
         return str(self.Question,)
-####################################################################################################################
-# Contact Model
+
 class customer_message(models.Model):
     first_name = models.CharField(
         max_length=50, null=True, verbose_name="First Name", blank=True)
@@ -804,8 +660,7 @@ class customer_message(models.Model):
 
     class Meta:
         verbose_name_plural = "Customer messages"
-####################################################################################################################
-# Banner Model
+
 
 class Banner(models.Model):
 
@@ -828,7 +683,6 @@ class Banner(models.Model):
     def __str__(self):
         return str(self.title,)
 
-#########################################################################################################################
 STATUS_CHOICES = [
     ('d', 'Draft'),
     ('s', 'sent'),
@@ -837,8 +691,6 @@ class MailText(models.Model):
     users = models.ManyToManyField(User)
     subject = models.CharField(max_length=255, null=True, blank=True)
     message = models.TextField(null=True)
-    #users = models.ForeignKey(User,blank=True,on_delete=models.CASCADE,null=True)
-    # check it if you want to send your email
     send_it = models.BooleanField(default=False)
     created_date = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date", null=True)
@@ -848,12 +700,11 @@ class MailText(models.Model):
         max_length=1, choices=STATUS_CHOICES, default="d")
     
     def save(self,*args, **kwargs):
-        # self.status="s"
+
         savee = super(MailText, self).save(*args, **kwargs)
-        # for lp in range(5):
+
         if self.send_it == True:
-            # self.status="s"
-            # savee=super(MailText, self).save(*args, **kwargs)   
+ 
             user_list = []
             print(self.users.all())
             for u in self.users.all():
@@ -868,7 +719,7 @@ class MailText(models.Model):
             
         self.status="s"    
         return savee
-            # super(MailText, self).save(*args, **kwargs)
+
             
     class Meta:
         verbose_name = "Email marketing"
@@ -877,6 +728,3 @@ class MailText(models.Model):
     def __str__(self):
         return str(self.subject)
 
-# class orderlog(models.Model):
-#     def users(self):
-#         return 

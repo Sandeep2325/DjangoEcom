@@ -122,11 +122,9 @@ class Productlist(viewsets.ModelViewSet):
     serializer_class = productSerializer
     pagination_class = PageNumberPagination
 
-
 class Productdetail(generics.RetrieveAPIView):
     queryset = Product.objects.filter(is_active=True)
     serializer_class = productSerializer
-
 
 class attributelist(viewsets.ModelViewSet):
     queryset = Attributes.objects.all()
@@ -238,13 +236,11 @@ class Listfaq(viewsets.ModelViewSet):
     queryset = FAQ.objects.filter(status="p")
     serializer_class = ffaqSerializer
 
-
 class faqCreateView(CreateAPIView):
     # queryset=FAQ.objects.filter(Status="Approved")
     permission_classes = (IsAuthenticated, )
     serializer_class = faqSerializer
     queryset = FAQ.objects.all()
-
 
 class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.filter(Status="Approved")

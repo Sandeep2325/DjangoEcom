@@ -1,22 +1,8 @@
-# import time
-# from reportlab.platypus import SimpleDocTemplate,Table
-# import pdfkit
-# import ast
-# from xhtml2pdf import pisa
-# from django import forms
-# from django.views.generic import View
-# from io import BytesIO
-# from django.contrib.admin import AdminSite
-#from rest_framework.authtoken.models import Token
-import base64
-# from contextlib import nullcontext
+
 from email.mime.text import MIMEText
 from multiprocessing import context
-# from re import S, template
-# from this import s
 from django.contrib.auth.admin import UserAdmin as OriginalUserAdmin
 from django.db import connection
-
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth import get_user_model
@@ -25,10 +11,7 @@ from django.contrib.auth.forms import UserChangeForm
 from .models import User
 import mailbox
 from django.contrib.auth.models import Group
-# from asyncio.windows_events import NULL
-#from email.headerregistry import Group
 from logging import exception
-#from tokenize import group
 from django.contrib import admin
 from django.contrib import messages
 from django.db import IntegrityError
@@ -42,7 +25,6 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.http import HttpResponse
 from django.utils.html import format_html
-# from django.core.files.images import get_image_dimensions
 from math import ceil
 # from django.contrib.auth.models import User
 from django.contrib import messages
@@ -50,8 +32,6 @@ from import_export.admin import ExportActionMixin
 from django_summernote.admin import SummernoteModelAdmin
 from django_summernote.utils import get_attachment_model
 from embed_video.admin import AdminVideoMixin, AdminVideoWidget
-# import pandas as pd
-#from .views import serve_pdf_preview
 import pdfkit
 import tempfile
 import zipfile
@@ -63,7 +43,6 @@ from django.core.mail import send_mail
 import math
 import random
 from admin_actions.admin import ActionsModelAdmin
-###########################################################################################################################################
 
 class AddressAdmin(ExportActionMixin, admin.ModelAdmin):
    #
@@ -80,7 +59,6 @@ class AddressAdmin(ExportActionMixin, admin.ModelAdmin):
 
     class Meta:
         verbose_name_plural = "Customer Address"
-#####################################################################################################
 
 class imageAdmin(admin.ModelAdmin):
     try:
@@ -142,7 +120,6 @@ class imageAdmin(admin.ModelAdmin):
                 pass
     except:
         pass
-##################################################################################################################################
 
 class CategoryAdmin(ExportActionMixin, admin.ModelAdmin):
     try:
@@ -217,7 +194,7 @@ class CategoryAdmin(ExportActionMixin, admin.ModelAdmin):
                 return HttpResponse("Something went wrong")
     except exception:
         raise Http404
-#################################################################################################################################################
+
 class BrandAdmin(ExportActionMixin, admin.ModelAdmin):
     try:
         def image_tag(self, obj):
@@ -250,7 +227,7 @@ class BrandAdmin(ExportActionMixin, admin.ModelAdmin):
         action_btn.short_description = "Action"
     except:
         pass
-############################################################################
+
 class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
     try:
         #inlines = [ProductImageAdmin]
@@ -347,16 +324,15 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                         messages.warning(request, 'Please upload csv file')
                         return HttpResponseRedirect(request.path_info)
                     file_data = csv_file.read().decode("utf-8")
-                    #import csv
-                    #records = csv.reader(csv_file)
+                    
                     csv_data = file_data.split("\n")
-                    #csv_data = records.split("\n")
+
                     for x in csv_data:
                         print(x, type(x))
                         fields = x.split(",")
-                        # print(fields)
+                        
                         try:
-                            # print(fields[7])
+                            
                             for i in range(len(fields)):
                                 print("fields[{}]".format(i),fields[i])
                             created, k = Product.objects.update_or_create(
@@ -379,16 +355,14 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
 
                                 for i in range(len(splited_image)):
                                     iter_image = splited_image[i]
-                                    # print("IM",iter_image)
+                                    
                                     imagess = image.objects.get(pk=(int(iter_image)))
                                     print(imagess)
                                     created.image.add(imagess)
                                     created.save()
 
                             else:
-                                # print('field 8-------------',fields[8])
-                                # k=fields[8].split(",")
-                                # print(k)
+                                
                                 imagess = image.objects.get(pk=fields[8])
                                 print(imagess)
                                 created.image.add(imagess)
@@ -402,8 +376,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                             form = CsvImportForm()
                             data = {"form": form}
 
-                            """ if TypeError:
-                                message=messages.warning(request,"Check the category ID") """
+                           
                             message = messages.warning(
                                 request, "Something went wrong! check your file again \n 1.Upload correct file \n 2.Check your data once")
                             return render(request, "admin/csv_upload.html", data)
@@ -431,8 +404,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 
     except exception:
         pass
-
-##################################################################################################################################
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'address', 'product', 'quantity', 'pricee','offer_price','Total_amount',
                     'coupon', 'attributes', 'status', 'ordered_date', 'updated_at', 'action_btn')
@@ -458,8 +429,6 @@ class OrderAdmin(admin.ModelAdmin):
         self.exclude = ("price", )
         form = super(OrderAdmin, self).get_form(request, obj, **kwargs)
         return form
-#############################################################################################################################
-
 
 class AttributesAdmin(admin.ModelAdmin):
     list_display = ('id', 'Product', 'Color', 'Size', 'action_btn')
@@ -477,7 +446,7 @@ class AttributesAdmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-###############################################################################################################################
+
 class salesAdmin(admin.ModelAdmin):
     list_display = ('id', 'campaign_name', 'startdate', 'enddate',
                     'sales_discount', 'is_active', 'created_at', 'action_btn')
@@ -496,9 +465,7 @@ class salesAdmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-
-##################################################################################################################################
-
+    
 class CoupenAdmin(admin.ModelAdmin):
     list_display = ['id', 'coupon', 'coupon_discount',
                     'startdate', 'enddate', 'created_at', 'action_btn']
@@ -515,8 +482,6 @@ class CoupenAdmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-##############################################################################################################################
-
 
 class RatingAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'product', 'Reviews', 'Rating',
@@ -540,9 +505,6 @@ class RatingAdmin(admin.ModelAdmin):
     @admin.action(description='Reject')
     def rejected_status(self, request, queryset):
         queryset.update(Status='Rejected')
-
- #####################################################################################
-
 
 class BlogAdmin(AdminVideoMixin, SummernoteModelAdmin):
     try:
@@ -593,8 +555,6 @@ class BlogAdmin(AdminVideoMixin, SummernoteModelAdmin):
         action_btn.short_description = "Action"
     except:
         pass
-##############################################################################################################################
-
 
 class FAQAdmin(admin.ModelAdmin):
     list_display = ['id', 'Question', 'Answer',
@@ -609,8 +569,6 @@ class FAQAdmin(admin.ModelAdmin):
     @admin.action(description='Withdraw')
     def make_withdraw(modeladmin, request, queryset):
         queryset.update(status='w')
-##############################################################################################################################
-# Banner Register
 
 class BannerAdmin(admin.ModelAdmin):
     def image_tag(self, obj):
@@ -632,9 +590,7 @@ class BannerAdmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-####################################################################################################################
-# import smtplib,email,email.encoders,email.mime.text,email.mime.base
-# MIMEText
+
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string,select_template
 class customer_messageAdmin(admin.ModelAdmin):
@@ -643,8 +599,7 @@ class customer_messageAdmin(admin.ModelAdmin):
     actions = ["send_message"]
 
     def action_btn(self, obj):
-        #html="<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/change/'></a><br></br>"
-        #html+="<a class='text-success fa fa-eye ml-2' href='/admin/app1/mailtext/"+str(obj.id)+"/change/'></a><br></br>"
+        
         html = "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/customer_message/" + \
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
@@ -664,10 +619,6 @@ class customer_messageAdmin(admin.ModelAdmin):
                                 email], fail_silently=False,),messages.success(request, "Successfully sent to {}".format(email))
                 print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
 
-        # except:
-        #     return messages.warning(request, "something went wrong")
-
-    ##################################################################################################################
 
 
 class mailadmin(admin.ModelAdmin):
@@ -675,12 +626,7 @@ class mailadmin(admin.ModelAdmin):
                     'created_date', 'updated_at', 'action_btnn']
     actions = ['send_message',]
     list_editable = ['send_it']
-    # @admin.action(description='send')
-    # def send_message(modeladmin, request, queryset):
-    #     queryset.update(status='s')
-    # @admin.action(description='draft')
-    # def draft_message(modeladmin, request, queryset):
-    #     queryset.update(status='d')
+
     def action_btnn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/mailtext/" + \
             str(obj.id)+"/change/'></a><br></br>"
@@ -708,9 +654,7 @@ class checkoutadmin(admin.ModelAdmin):
 class ordersadmin(admin.ModelAdmin):
     list_display=['id',"checkout_product","ordered_date","status"]
     list_editable = ['status']
-######################################################################################################
-# from allauth.account.models import EmailAddress,EmailAddressManager,EmailConfirmation,EmailConfirmationManager,EmailConfirmationHMAC
-# admin.site.unregister(EmailConfirmationHMAC)
+
 admin.site.register(Orders,ordersadmin)
 # admin.site.register(checkout,checkoutadmin)
 # admin.site.register(Cart,cartadmin) 
