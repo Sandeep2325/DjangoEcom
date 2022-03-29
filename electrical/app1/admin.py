@@ -291,12 +291,12 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
             Sales = sales.objects.all()
             # print(Sales)
             for sale in Sales:
-                discount = sale.sales_discount  # percentage
+                discount = sale.sales_discount 
                 print("##################################", discount)
                 if sale.is_active == True:
                     for product in queryset:
                         print("***************************", discount)
-                        multiplier = discount / 100  # discount / 100 in python 3
+                        multiplier = discount / 100 
                         print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", multiplier)
                         old_price = product.price
                         new_price = ceil(old_price - (old_price * multiplier))
@@ -310,7 +310,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                     return messages.warning(request, 'No Discounts')
         sales_discount.short_description = format_html(
             "<p class='text-success fa fa-tags'><span class='ml-2'>Apply discount</span></p>")
-
         def get_urls(self):
             urls = super().get_urls()
             new_urls = [path('upload-csv/', self.upload_csv), ]
@@ -619,6 +618,7 @@ class customer_messageAdmin(admin.ModelAdmin):
                                 email], fail_silently=False,),messages.success(request, "Successfully sent to {}".format(email))
                 print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
 
+    # actions = ["send_message"]
 
 
 class mailadmin(admin.ModelAdmin):
@@ -642,7 +642,6 @@ class mailadmin(admin.ModelAdmin):
         self.exclude = ("send_it", )
         form = super(mailadmin, self).get_form(request, obj, **kwargs)
         return form
-###################################################################################################################
 class cartadmin(admin.ModelAdmin):
     list_display=['id','user','product','attributes','price','offer_price','coupon','quantity','Total_amount','amount_saved','date','updated_at']
     list_editable = ['product','attributes','quantity']   
@@ -653,8 +652,69 @@ class checkoutadmin(admin.ModelAdmin):
         # return "\n".join([p.product for p in obj.cart.all()])     
 class ordersadmin(admin.ModelAdmin):
     list_display=['id',"checkout_product","ordered_date","status"]
-    list_editable = ['status']
-
+    list_editable = ['status']   
+class latestproductadmin(admin.ModelAdmin):
+    list_display=['id','product','created_date','action_btnn']
+    list_editable=['product']
+    
+    def action_btnn(self, obj):
+        html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/latest_product/" + \
+            str(obj.id)+"/change/'></a><br></br>"
+        html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/latest_product/" + \
+            str(obj.id)+"/change/'></a><br></br>"
+        html += "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/latest_product/" + \
+            str(obj.id)+"/delete/'></a></div>"
+        return format_html(html)
+    action_btnn.short_description = "Action"
+    
+class mostselledproductadmin(admin.ModelAdmin):
+    list_display=['id','product','created_date','action_btnn']
+    list_editable=['product']
+    
+    def action_btnn(self, obj):
+        html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/most_selled_products/" + \
+            str(obj.id)+"/change/'></a><br></br>"
+        html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/most_selled_products/" + \
+            str(obj.id)+"/change/'></a><br></br>"
+        html += "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/most_selled_products/" + \
+            str(obj.id)+"/delete/'></a></div>"
+        return format_html(html)
+    action_btnn.short_description = "Action"
+class newsletterproductadmin(admin.ModelAdmin):
+    list_display=['id','Email','subscribed_date']
+    # list_editable=['']
+    search_fields = ['Email']
+class socialmedialinksadmin(admin.ModelAdmin):
+    list_display=['id','social_media','links','action_btnn']
+    list_editable=['links']
+    
+    def action_btnn(self, obj):
+        html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/socialmedialinks/" + \
+            str(obj.id)+"/change/'></a><br></br>"
+        html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/socialmedialinks/" + \
+            str(obj.id)+"/change/'></a><br></br>"
+        html += "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/socialmedialinks/" + \
+            str(obj.id)+"/delete/'></a></div>"
+        return format_html(html)
+    action_btnn.short_description = "Action"
+class faq_enquiryAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'Phone',
+                    'Email', 'Message', 'created_date', 'updated_at', 'action_btn']
+    def action_btn(self, obj):
+        
+        html = "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/customer_message/" + \
+            str(obj.id)+"/delete/'></a></div>"
+        return format_html(html)
+    action_btn.short_description = "Action"
+admin.site.register(enquiryform,faq_enquiryAdmin)
+# class redeemedadmin(admin.ModelAdmin):
+#     list_display=['id','coupon','redeemed_date']
+#     search_fields=['id','coupon',]
+# admin.site.register(redeemed_coupon,redeemedadmin)
+admin.site.register(socialmedialinks,socialmedialinksadmin)
+admin.site.register(latest_product,latestproductadmin)
+admin.site.register(most_selled_products,mostselledproductadmin)
+admin.site.register(newsletter,newsletterproductadmin)
 admin.site.register(Orders,ordersadmin)
 # admin.site.register(checkout,checkoutadmin)
 # admin.site.register(Cart,cartadmin) 
@@ -677,7 +737,7 @@ admin.site.register(MailText, mailadmin)
 admin.site.unregister(get_attachment_model())
 admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
-
+# admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin):
     list_display = ['id','username', 'email', 'first_name',
                     'last_name', 'is_staff', 'phone_no', 'action_btn']

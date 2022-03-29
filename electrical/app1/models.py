@@ -1,4 +1,5 @@
 from ctypes import BigEndianStructure
+from logging import exception
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.html import strip_tags
@@ -7,13 +8,13 @@ from django.db.models.signals import post_save
 from django.core.mail import send_mail
 from datetime import datetime
 from django.db.models.signals import pre_save
-from asyncio.windows_events import NULL
+
 from enum import unique
 from pickle import FALSE
 
 from re import VERBOSE
 from tabnanny import verbose
-from tkinter import CASCADE
+
 from django.db.models import Q
 
 from django.db import models
@@ -37,7 +38,8 @@ from django.db.models import Avg
 
 from embed_video.fields import EmbedVideoField
 from django.db.models import Avg, Count
-
+from django.utils import timezone
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 
 class User(AbstractUser):
     username = models.CharField(
@@ -316,7 +318,7 @@ class Cart(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date", null=True)
     coupon=models.CharField(max_length=50,null=True,blank=True)
-    coupons=models.ForeignKey("Coupon",on_delete=models.CASCADE,null=True)
+    # coupons=models.ForeignKey("Coupon",on_delete=models.CASCADE,null=True)
 
     @property
     def price(self):
@@ -360,52 +362,66 @@ class Cart(models.Model):
                 return total_amount
         except:
             pass
-        
     @property
     def Total_amount(self):
         try:
-            coupons_list=[]
-            coupons_amount=[]
-            if self.product.discounted_price is None:
-                # print("222222222222222222222222222",self.product.price)
-                for a in Coupon.objects.all():
-                        coupon_=a.coupon
-                        coupons_list.append(coupon_)
-                        coupons_amount.append(a.coupon_discount)
-                print(coupons_amount)
-                print(coupons_list)
-                try:  
+            if self.coupon !=None:
+                coupons_list=[]
+                coupons_amount=[]
+                if self.product.discounted_price is None:
+                    # print("222222222222222222222222222",self.product.price)
+                    for a in Coupon.objects.all():
+                            coupon_=a.coupon
+                            coupons_list.append(coupon_)
+                            coupons_amount.append(a.coupon_discount)
+                    print(coupons_amount)
+                    print(coupons_list)
+                    try: 
+                        for i in range(len(coupons_list)): 
+                            if self.coupon==coupons_list[i]:
+                                coupon_price=coupons_amount[i]
+                                total_amount=(self.quantity*self.product.price)-(self.quantity*int(coupon_price))
+                            else:
+                                total_amount=(self.quantity*self.product.price)
+                        return total_amount
+                                
+                    except:
+                        for i in range(len(coupons_list)): 
+                            if self.coupon==coupons_list[i]:
+                                coupon_price=coupons_amount[i]
+                                total_amount=(1*self.product.price)-(self.quantity*int(coupon_price))
+                            else:
+                                total_amount=(1*self.product.price)
+                        return total_amount
+                else:
+                    for a in Coupon.objects.all():
+                            coupon_=a.coupon
+                            coupons_list.append(coupon_)
+                            coupons_amount.append(a.coupon_discount)
+                    print(coupons_amount)
+                    print(coupons_list)
+                    
                     for i in range(len(coupons_list)): 
-                        if self.coupon==coupons_list[i]:
-                            coupon_price=coupons_amount[i]
-                            total_amount=(self.quantity*self.product.price)-(self.quantity*int(coupon_price))
+                            if self.coupon==coupons_list[i]:
+                                coupon_price=coupons_amount[i]
+                                total_amount=(self.quantity*self.product.discounted_price)-(self.quantity*int(coupon_price))
+                            else:
+                                total_amount=(self.quantity*self.product.discounted_price)
                     return total_amount
-                             
-                except:
-                    for i in range(len(coupons_list)): 
-                        if self.coupon==coupons_list[i]:
-                            coupon_price=coupons_amount[i]
-                            total_amount=(1*self.product.price)-(self.quantity*int(coupon_price))
-                    return total_amount
-            else:
-                for i in range(len(coupons_list)): 
-                        if self.coupon==coupons_list[i]:
-                            coupon_price=coupons_amount[i]
-                            total_amount=(self.quantity*self.product.discounted_price)-(self.quantity*int(coupon_price))
-                return total_amount
         except:
-            pass
+            if self.product.discounted_price is None:
+                try:
+                    total_amount=(self.quantity*self.product.price)
+                except:
+                    total_amount=(1*self.product.price)
+                return total_amount
+            else:
+                total_amount=(self.quantity*self.product.discounted_price)
+                return total_amount
     @property
     def amount_saved(self):
         try:
-            for a in Coupon.objects.all():
-                coupon_=a.coupon
-            if self.product.discounted_price is not None:
-                if self.coupon==coupon_:
-                    coupon_price=a.coupon_discount
-                    return (self.product.price*self.quantity)-(self.product.discounted_price                                                                                                                                                                                                                                                             *self.quantity)
-            else:
-                pass
+            return self.price-self.Total_amount
         except:
             pass
        
@@ -428,6 +444,11 @@ class checkout(models.Model):
         return str(self.cart.first())
     class Meta:
         verbose_name_plural = "Checkouts"
+    @property
+    def checkout_amount(self):
+        for i in self.cart.all():
+            print(i)
+        
 
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
@@ -437,6 +458,15 @@ STATUS_CHOICES = (
     ('Delivered', 'Delivered'),
     ('Cancelled', 'Cancelled'),
 )
+class redeemed_coupon(models.Model):
+    
+    checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="checkout product",null=True)
+    coupon=models.CharField(max_length=50,null=True,blank=True)
+    redeemed_date = models.DateTimeField(
+        auto_now_add=True, verbose_name="Created Date", null=True)
+    
+    def __str__(self):
+        return self.coupon
 class Orders(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product")
@@ -472,12 +502,11 @@ STATUS_CHOICES = (
     ('Delivered', 'Delivered'),
     ('Cancelled', 'Cancelled'),
 )
-
 class Order(models.Model):
     user = models.ForeignKey(User, verbose_name="User",
                              on_delete=models.CASCADE)
     address = models.ForeignKey(
-        Address, verbose_name="Shipping Address", on_delete=models.CASCADE, default=NULL)
+        Address, verbose_name="Shipping Address", on_delete=models.CASCADE, )
     product = models.ForeignKey(
         Product, verbose_name="Product", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name="Quantity")
@@ -506,7 +535,7 @@ class Order(models.Model):
     @property
     def Total_amount(self):
         if self.product.discounted_price is None:
-            # print("222222222222222222222222222",self.product.price)
+            
             try:
                 total_amount=self.quantity*self.product.price
             except:
@@ -547,7 +576,6 @@ STATUS_CHOICES = (
     ('Rejected', 'Rejected'),
     ('Approved', 'Approved'),
 )
-
 class Rating(models.Model):
     # Product = models.ForeignKey(to, on_delete)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -659,7 +687,7 @@ class customer_message(models.Model):
         return str(self.first_name,)
 
     class Meta:
-        verbose_name_plural = "Customer messages"
+        verbose_name_plural = "Customer msgs/contact us"
 
 
 class Banner(models.Model):
@@ -728,3 +756,49 @@ class MailText(models.Model):
     def __str__(self):
         return str(self.subject)
 
+class latest_product(models.Model):
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True)
+    created_date = models.DateTimeField(
+        auto_now_add=True, verbose_name="created date", null=True)
+    
+    class Meta:
+        verbose_name_plural = "Latest Products"
+class most_selled_products(models.Model):
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True)
+    created_date = models.DateTimeField(
+        auto_now_add=True, verbose_name="created date", null=True)
+    
+    class Meta:
+        verbose_name_plural = "Most selled products"
+class newsletter(models.Model):
+    Email=models.EmailField(max_length=255,null=True,blank=True)
+    subscribed_date = models.DateTimeField(
+        auto_now_add=True, verbose_name="created date", null=True)
+    
+    class Meta:
+        verbose_name_plural="News letter"
+class enquiryform(models.Model):
+    name = models.CharField(
+        max_length=50, null=True, verbose_name="First Name", blank=True)
+    #Name=models.CharField(max_length=50, null=True,)
+    Email = models.EmailField(max_length=50, null=True,)
+    Phone = models.BigIntegerField(null=True,)
+    Message = models.TextField(max_length=200, null=True,)
+    created_date = models.DateTimeField(
+        auto_now_add=True, verbose_name="Created Date", null=True)
+    updated_at = models.DateTimeField(
+        auto_now=True, verbose_name="Updated Date", null=True)
+    class Meta:
+        verbose_name_plural="FAQ Enquiry"
+class socialmedialinks(models.Model):
+    social_media=models.CharField(max_length=100,null=True,blank=True)
+    links=models.URLField(null=True,blank=True)
+    
+    class Meta:
+        verbose_name_plural="Social media links"        
+class notification(models.Model):
+    @property
+    def action_notifications(self):
+        for i in Orders.objects.all():
+            if i.status:
+                return i.status

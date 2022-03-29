@@ -102,18 +102,6 @@ class CustomerAddressSerializers(serializers.ModelSerializer):
             raise serializers.ValidationError("please enter the door number")
         return value
     
-    # def validate(self, attrs):
-    #     if attrs['door_number'] in NULL:
-    #         raise serializers.ValidationError(
-    #             {"door_number": "field required."})
-
-    #     return attrs
-    
-    # def to_representation(self, instance):
-    #     response=super().to_representation(instance)
-    #     response["user"]=instance.user.username
-    #     return response
-
 
 class categorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -186,15 +174,42 @@ class productdetailserializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Product
-
+class latestproductserializer(serializers.ModelSerializer):
+    class Meta:
+        fields="__all__"
+        models=latest_product
+        
+class mostselledserializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = most_selled_products    
 class attributesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Attributes
+class newsletterserializer(serializers.ModelSerializer):
+    class Meta:
+        fields=("Email",)
+        model=newsletter       
         
+    def validate_Email(self,value):
+        if value == "":
+            raise serializers.ValidationError("Please provide email")
+        return value
+    
+    def create(self, validate_data):
+        instance = super(newsletterserializer, self).create(validate_data)
+        send_mail(
+            'Prakash Electricals',
+            'Thank you for subscribing our Newsletter',
+            'gowdasandeep8105@gmail.com',
+            [instance.Email],
+            fail_silently=False,
+        )
+        return instance    
 class cartserializer(serializers.ModelSerializer):
     class Meta:
-        fields=('id','user','product','attributes','price','offer_price','coupon','quantity','Total_amount','date','updated_at')
+        fields=('id','user','product','attributes','price','offer_price','coupon','quantity','Total_amount','amount_saved','date','updated_at')
         model=Cart
     
     def validate_coupon(self,value):
@@ -218,6 +233,21 @@ class checkoutserializer(serializers.ModelSerializer):
         model=checkout
         fields=("user","cart","Shipping_address",'No_of_items_to_checkout')
         
+class couponserializers(serializers.ModelSerializer):
+    class Meta:
+        model=redeemed_coupon
+        fields=("checkout_product","coupon","redeemed_date")
+    def validate_coupon(self,value):
+        list1=[]
+        for coupons in Coupon.objects.all():
+            a=coupons.coupon
+            list1.append(a)
+            b=coupons.coupon_discount  
+        if value!="":   
+            if value not in list1:
+                raise serializers.ValidationError("Invalid coupon")
+        return value
+                
 class checkoutcouponserializer(serializers.ModelSerializer):
     class Meta:
         model=checkout
@@ -249,8 +279,12 @@ class ordersSerializer(serializers.ModelSerializer):
         # response["coupon"]=instance.coupon.coupon
         # response["attributes"]=instance.attributes.Color
         return response
-
-
+    
+class notificationserializer(serializers.ModelSerializer):
+    class Meta:
+        fields=("action_notifications",)
+        model=notification
+        
 class bannerSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
@@ -260,18 +294,15 @@ class blogSerializer(serializers.ModelSerializer):
         fields = "__all__"
         model = Blog
 
-
 class faqSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("Question",)
         model = FAQ
 
-
 class ffaqSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("id", 'Question', 'Answer', 'created_date', 'updated_at')
         model = FAQ
-
 
 class ratingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -284,10 +315,7 @@ class ratingSerializer(serializers.ModelSerializer):
         if value == None:
             raise serializers.ValidationError("Please rate this product")
         return value
-    # def validate_Reviews(self, value):
-    #     if value =="":
-    #         raise serializers.ValidationError("Please rate this product")
-    #     return value
+
 
     def validate_product(self, value):
         if value == None:
@@ -298,18 +326,12 @@ class ratingSerializer(serializers.ModelSerializer):
         if value == None:
             raise serializers.ValidationError("user is required")
         return value
-    # def validate(self, value):
-    #     if value['Rating'] == None or value["Rating"]>5:
-    #         raise serializers.ValidationError({"Rating": "please rate this product and maximum rating point is 5 star"})
-    #     return value
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['user'] = instance.user.username
         #response["product"] = "product: ", instance.product.title, "category: ", instance.product.category.brands
-
         return response
-
 
 class customermessageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -344,6 +366,17 @@ class customermessageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Please provide message/ask any questions ")
         return value
+    
+    # def create(self, validate_data):
+    #     instance = super(customermessageSerializer, self).create(validate_data)
+    #     send_mail(
+    #         'Prakash Electricals',
+    #         'Thank you,\n your message was recieved',
+    #         'gowdasandeep8105@gmail.com',
+    #         [instance.Email],
+    #         fail_silently=False,
+    #     )
+    #     return instance
 
     def create(self, validate_data):
         instance = super(customermessageSerializer, self).create(validate_data)
@@ -353,8 +386,54 @@ class customermessageSerializer(serializers.ModelSerializer):
             'gowdasandeep8105@gmail.com',
             ['sandeep.nexevo@gmail.com'],
             fail_silently=False,
+        
         )
         return instance
+class faq_enquirySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = enquiryform
+
+    def validate_name(self, value):
+        if value == "":
+            raise serializers.ValidationError("Please provide last name")
+        return value
+
+    def validate_Email(self, value):
+        # pass
+        if value == None:
+            raise serializers.ValidationError("Please provide your email name")
+        return value
+
+    def validate_Phone(self, value):
+        # pass
+        if value == None:
+            raise serializers.ValidationError(
+                "Please provide your mobile number")
+        return value
+
+    def validate_Message(self, value):
+        if value == None:
+            raise serializers.ValidationError(
+                "Please provide message/ask any questions ")
+        return value
+
+
+    def create(self, validate_data):
+        instance = super(faq_enquirySerializer, self).create(validate_data)
+        send_mail(
+            'You have a message from {}'.format(instance.name),
+            'Name: {}\nEmail: {}\nPhone: {}\nMessage: {}'.format(instance.name,instance.Email,instance.Phone,instance.Message),
+            'gowdasandeep8105@gmail.com',
+            ['sandeep.nexevo@gmail.com'],
+            fail_silently=False,
+        
+        )
+        return instance   
+class sociallinkserializer(serializers.ModelSerializer):
+    class Meta:
+        model=socialmedialinks
+        fields="__all__"  
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
@@ -423,3 +502,21 @@ class CurrentUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'id','password')
+        
+from django.contrib.auth import authenticate        
+from .validators import validate_username        
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+    def validate(self, attrs):
+        user = authenticate(username=attrs['email'], password=attrs['password'])
+
+        if not user:
+            raise serializers.ValidationError('Incorrect email or password.')
+
+        if not user.is_active:
+            raise serializers.ValidationError('User is disabled.')
+
+        return {'user': user}
+

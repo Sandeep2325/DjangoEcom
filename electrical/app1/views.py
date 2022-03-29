@@ -70,7 +70,12 @@ class listmyaccount(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return my_account.objects.filter(user=user)
-    
+class notificationlist(viewsets.ModelViewSet):
+    # queryset = my_account.objects.all()
+    serializer_class = notificationserializer
+    def get_queryset(self):
+        user = self.request.user
+        return notification.objects.all()  
 class myaccountCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
@@ -88,7 +93,7 @@ class listcategory(viewsets.ModelViewSet):
 class detailcategory(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Category.objects.all()
-    # serializer_class=categorySerializer
+    serializer_class=categorySerializer
 
     def list(self, request):
         serializer = categorySerializer(self.queryset, many=True)
@@ -122,9 +127,28 @@ class Productlist(viewsets.ModelViewSet):
     serializer_class = productSerializer
     pagination_class = PageNumberPagination
 
+
 class Productdetail(generics.RetrieveAPIView):
     queryset = Product.objects.filter(is_active=True)
     serializer_class = productSerializer
+
+class latestproductlist(viewsets.ModelViewSet):
+    queryset = latest_product.objects.all()
+    serializer_class = latestproductserializer
+    pagination_class = PageNumberPagination
+
+class latestproductdetail(generics.RetrieveAPIView):
+    queryset = latest_product.objects.all()
+    serializer_class = latestproductserializer
+
+class mostselledproductlist(viewsets.ModelViewSet):
+    queryset = most_selled_products.objects.all()
+    serializer_class = mostselledserializer
+    pagination_class = PageNumberPagination
+
+class mostselledproductdetail(generics.RetrieveAPIView):
+    queryset = most_selled_products.objects.all()
+    serializer_class = mostselledserializer
 
 class attributelist(viewsets.ModelViewSet):
     queryset = Attributes.objects.all()
@@ -188,7 +212,6 @@ class orderCreateView(CreateAPIView):
 
 ############################################################################################
 
-
 class AddressListView(ListAPIView):
     permission_classes = (IsAuthenticated, )
    
@@ -216,11 +239,10 @@ class AddressDeleteView(DestroyAPIView):
     queryset = Address.objects.all()
 
 
-#######################################################################################################
-""" class ListCustomerAddress(viewsets.ModelViewSet):
-    queryset = Address.objects.all()
-    serializer_class = CustomerAddressSerializers """
-
+class newsletterCreateView(CreateAPIView):
+    # permission_classes = (IsAuthenticated, )
+    serializer_class = newsletterserializer
+    queryset = newsletter.objects.all()
 
 class Listbanner(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
@@ -236,11 +258,13 @@ class Listfaq(viewsets.ModelViewSet):
     queryset = FAQ.objects.filter(status="p")
     serializer_class = ffaqSerializer
 
+
 class faqCreateView(CreateAPIView):
     # queryset=FAQ.objects.filter(Status="Approved")
     permission_classes = (IsAuthenticated, )
     serializer_class = faqSerializer
     queryset = FAQ.objects.all()
+
 
 class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.filter(Status="Approved")
@@ -277,7 +301,11 @@ class customermsgCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = customermessageSerializer
     queryset = customer_message.objects.all()
-
+    
+class enquiryCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = faq_enquirySerializer
+    queryset = enquiryform.objects.all()
 
 class AddCouponView(APIView):
     permission_classes = (IsAuthenticated, )
@@ -426,8 +454,18 @@ class ordersCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = orderserializer
     queryset = Orders.objects.all()
-
-
+class couponredeemview(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = couponserializers
+    queryset = redeemed_coupon.objects.all()
+    
+class socialmedialist(viewsets.ModelViewSet):
+    # permission_classes = (IsAuthenticated, )
+    queryset = socialmedialinks.objects.all()
+    # product_detail = Product.objects.get(id=id)
+    # review = Rating.objects.filter(product = product_detail)
+    serializer_class = sociallinkserializer
+    pagination_class = PageNumberPagination
 def password_reset_request(request):
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
@@ -474,4 +512,5 @@ class CurrentUserViewSet(APIView):
 # class userlist(viewsets.ModelViewSet):
 #     permission_classes = (IsAuthenticated, )
 #     serializer_class = userserializer
-    
+def handler404(request,exception):
+    return render(request, '404.html', status=404)
