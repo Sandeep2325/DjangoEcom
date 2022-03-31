@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     'rest_auth',
     'allauth',
-    'allauth.account',
+    # 'allauth.account',
     'rest_auth.registration',
     'ckeditor',
     'django_summernote',

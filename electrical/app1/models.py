@@ -1,4 +1,5 @@
 from ctypes import BigEndianStructure
+from itertools import product
 from logging import exception
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
@@ -119,7 +120,32 @@ class Address(models.Model):
 
     class Meta:
         verbose_name_plural = "Customer Address"
-
+class notification(models.Model):
+    order_no=models.IntegerField(null=True,blank=True)
+    notification=models.TextField(null=True,blank=True)
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+    created_date = models.DateTimeField(
+        auto_now_add=True, verbose_name="Created Date", null=True)
+    # checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product",null=True,blank=True)
+    checkout_product=models.CharField(max_length=50,null=True,blank=True)
+    sales=models.CharField(max_length=100,null=True,blank=True)
+    product=models.CharField(max_length=100,null=True,blank=True)
+    status=models.CharField(max_length=50,null=True,blank=True)
+    coupons=models.TextField(null=True,blank=True)
+    @property
+    def user_notifications(self):
+        if self.sales is not None:
+            a="Exciting offer is waiting for you "
+        elif self.product is not None:
+            a="new product is added"
+        elif self.coupons is not None:
+            a=self.coupons
+        else:
+            a="Hi {} your product {} is {}".format(self.user.first_name,self.checkout_product,self.status)
+        return a
+    # def __str__(self):
+    #     return self.action_notifications
+    
 class sales(models.Model):
     campaign_name = models.CharField(
         verbose_name="Campaign name", max_length=200, null=True)
@@ -131,7 +157,10 @@ class sales(models.Model):
     is_active = models.BooleanField(verbose_name="Is Active?", default=False)
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date", null=True)
-
+    def save(self, *args, **kwargs):
+        notification.objects.create(sales=self.campaign_name)
+        return super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.campaign_name
 
@@ -287,7 +316,11 @@ class Product(models.Model):
                 return review
         else:
             return format_html("<p class=text-danger>No ratings!</p>")
-
+        
+    def save(self, *args, **kwargs):
+        notification.objects.create(product=self.title)
+        return super().save(*args, **kwargs)
+    
     class Meta:
         # def countt(self):
         verbose_name_plural = '  Products'
@@ -317,13 +350,13 @@ class Cart(models.Model):
     date = models.DateTimeField(auto_now_add=True,verbose_name="Date",null=True)
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date", null=True)
-    coupon=models.CharField(max_length=50,null=True,blank=True)
+    # coupon=models.CharField(max_length=50,null=True,blank=True)
     # coupons=models.ForeignKey("Coupon",on_delete=models.CASCADE,null=True)
 
     @property
     def price(self):
         try: 
-            return self.product.price
+            return self.product.price*self.quantity
         except:
             pass
     @property
@@ -333,37 +366,22 @@ class Cart(models.Model):
         except:
             pass
     @property
-    def Total_amount_(self): #not in use
+    def Total_amount(self): 
         try:
-            coupons_list=[]
-            coupons_amount=[]
+            
             if self.product.discounted_price is None:
                 try:  
-                    if self.coupon==coupon_:
-                        coupon_price=a.coupon_discount
-                        total_amount=(self.quantity*self.product.price)-(self.quantity*int(coupon_price))
-                    else:
-                        total_amount=(self.quantity*self.product.price)
+                    total_amount=(self.quantity*self.product.price)
                 except:
-                    if self.coupon==coupon_:
-                        coupon_price=a.coupon_discount
-                        total_amount=(1*self.product.price)-(self.quantity*int(coupon_price))
-                    else:
-                        total_amount=(1*self.product.price)
+                    total_amount=(1*self.product.price)
                 return total_amount
             else:
-                for a in Coupon.objects.all():
-                        coupon_=a.coupon
-                if self.coupon==coupon_:
-                    coupon_price=a.coupon_discount
-                    total_amount=(self.quantity*self.product.discounted_price)-(self.quantity*int(coupon_price))
-                else:
-                    total_amount=(self.quantity*self.product.discounted_price)
+                total_amount=(self.quantity*self.product.discounted_price)
                 return total_amount
         except:
             pass
     @property
-    def Total_amount(self):
+    def Total_amount_(self): #not in use
         try:
             if self.coupon !=None:
                 coupons_list=[]
@@ -434,7 +452,9 @@ class checkout(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     cart=models.ManyToManyField(Cart)
     Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
+    
     Coupon=models.CharField(max_length=100,null=True,blank=True)
+    
     def products(self):
         return ",".join([str(p) for p in self.cart.all()])
     def No_of_items_to_checkout(self):
@@ -444,20 +464,44 @@ class checkout(models.Model):
         return str(self.cart.first())
     class Meta:
         verbose_name_plural = "Checkouts"
+  
     @property
     def checkout_amount(self):
-        for i in self.cart.all():
-            print(i)
-        
-
-STATUS_CHOICES = (
-    ('Pending', 'Pending'),
-    ('Accepted', 'Accepted'),
-    ('Packed', 'Packed'),
-    ('On The Way', 'On The Way'),
-    ('Delivered', 'Delivered'),
-    ('Cancelled', 'Cancelled'),
-)
+        try:
+            total=0
+            for i in self.cart.all():
+                total=total+i.Total_amount
+            if self.Coupon !=None:
+                coupons_list=[]
+                coupons_discount=[]
+                # if self.product.discounted_price is None:
+                    # print("222222222222222222222222222",self.product.price)
+                for a in Coupon.objects.all():
+                        coupon_=a.coupon
+                        coupons_list.append(coupon_)
+                        coupons_discount.append(a.coupon_discount)
+                print(coupons_discount)
+                print(coupons_list)
+                try: 
+                    for i in range(len(coupons_list)): 
+                        if self.Coupon==coupons_list[i]:
+                            coupon_price=coupons_discount[i]
+                            multiplier=coupon_price/100
+                            old_price=total
+                            newprice=ceil(old_price-(old_price*multiplier))
+                            price=newprice
+                        else:
+                            price=total
+                    return price
+                                
+                except Exception as e:
+                    print(e)
+        except :
+            # print(e)
+            total=0
+            for i in self.cart.all():
+                total=total+i.Total_amount
+            return total
 class redeemed_coupon(models.Model):
     
     checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="checkout product",null=True)
@@ -467,7 +511,20 @@ class redeemed_coupon(models.Model):
     
     def __str__(self):
         return self.coupon
+    
+
+
+STATUS_CHOICES = (
+    ('ordered','ordered'),
+    ('Pending', 'Pending'),
+    ('Accepted', 'Accepted'),
+    ('Packed', 'Packed'),
+    ('On The Way', 'On The Way'),
+    ('Delivered', 'Delivered'),
+    ('Cancelled', 'Cancelled'),
+)
 class Orders(models.Model):
+    # notifications=models.ForeignKey("notification",on_delete=models.CASCADE,null=True,blank=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product")
     ordered_date = models.DateTimeField(
@@ -475,20 +532,29 @@ class Orders(models.Model):
     status = models.CharField(
         choices=STATUS_CHOICES,
         max_length=50,
-        default="Pending")
+        default="ordered")
     class Meta:
         verbose_name_plural = "Orders"
+        
+    def save(self, *args, **kwargs):
+        notification.objects.create(user=self.user,checkout_product=self.checkout_product,status=self.status,order_no=self.id)
+        return super().save(*args, **kwargs)
 
+         
 class Coupon(models.Model):
     coupon = models.CharField(
         verbose_name="Coupon_code", max_length=200, null=True, unique=True)
     startdate = models.DateField(verbose_name="Start Date", null=True)
     enddate = models.DateField(verbose_name="End Date", null=True)
-    coupon_discount = models.IntegerField(
-        null=True, verbose_name="Discount(₹)")
+    coupon_discount = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name='Discount(%)', validators=[
+        MinValueValidator(1), MaxValueValidator(99)])
     #is_active = models.BooleanField(verbose_name="Is Active?",default=False)
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date", null=True)
+    def save(self, *args, **kwargs):
+        coupons="use {} coupon to get {}% discount".format(self.coupon,self.coupon_discount)
+        notification.objects.create(coupons=coupons)
+        return super().save(*args, **kwargs)
     def __str__(self):
         return self.coupon
     class Meta:
@@ -795,10 +861,5 @@ class socialmedialinks(models.Model):
     links=models.URLField(null=True,blank=True)
     
     class Meta:
-        verbose_name_plural="Social media links"        
-class notification(models.Model):
-    @property
-    def action_notifications(self):
-        for i in Orders.objects.all():
-            if i.status:
-                return i.status
+        verbose_name_plural="Social media links"    
+            

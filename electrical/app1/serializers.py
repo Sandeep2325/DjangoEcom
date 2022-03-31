@@ -177,7 +177,7 @@ class productdetailserializer(serializers.ModelSerializer):
 class latestproductserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
-        models=latest_product
+        model=latest_product
         
 class mostselledserializer(serializers.ModelSerializer):
     class Meta:
@@ -209,7 +209,7 @@ class newsletterserializer(serializers.ModelSerializer):
         return instance    
 class cartserializer(serializers.ModelSerializer):
     class Meta:
-        fields=('id','user','product','attributes','price','offer_price','coupon','quantity','Total_amount','amount_saved','date','updated_at')
+        fields=('id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at')
         model=Cart
     
     def validate_coupon(self,value):
@@ -231,8 +231,18 @@ class checkoutserializer(serializers.ModelSerializer):
 
     class Meta:
         model=checkout
-        fields=("user","cart","Shipping_address",'No_of_items_to_checkout')
-        
+        fields=("user","cart","Shipping_address",'No_of_items_to_checkout','checkout_amount','Coupon')
+    def validate_Coupon(self,value):
+        list1=[]
+        for coupons in Coupon.objects.all():
+            a=coupons.coupon
+            list1.append(a)
+            b=coupons.coupon_discount  
+        if value!="":   
+            if value not in list1:
+                raise serializers.ValidationError("Invalid coupon")
+        return value   
+    
 class couponserializers(serializers.ModelSerializer):
     class Meta:
         model=redeemed_coupon
@@ -262,9 +272,27 @@ class checkoutcouponserializer(serializers.ModelSerializer):
         return value
 class orderserializer(serializers.ModelSerializer):
     class Meta:
-        fields="__all__"
         model=Orders
+        fields=("user","checkout_product","status")
+    
+    # def create(self, validated_data):
+    #     notify = notification.objects.create(
+    #         user=validated_data['user'],
+            
+    #         checkout_product=str(validated_data['checkout_product']),
+    #         status=str(validated_data['status']),
+    #     )
+    #     # user.set_password(validated_data['password'])
+    #     notify.save()
+
+    #     return notify
+class orderscancelserializer(serializers.ModelSerializer):
+    class Meta:
+        models=Orders
+        fields=("id","checkout_product","status")
         
+    def validate_status(self,value):
+        pass
 class ordersSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id',"user", "address", "product", 'quantity',
@@ -282,7 +310,7 @@ class ordersSerializer(serializers.ModelSerializer):
     
 class notificationserializer(serializers.ModelSerializer):
     class Meta:
-        fields=("action_notifications",)
+        fields=('user_notifications','created_date')
         model=notification
         
 class bannerSerializer(serializers.ModelSerializer):

@@ -643,7 +643,7 @@ class mailadmin(admin.ModelAdmin):
         form = super(mailadmin, self).get_form(request, obj, **kwargs)
         return form
 class cartadmin(admin.ModelAdmin):
-    list_display=['id','user','product','attributes','price','offer_price','coupon','quantity','Total_amount','amount_saved','date','updated_at']
+    list_display=['id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at']
     list_editable = ['product','attributes','quantity']   
     search_fields = ['user__username','product__title']
 class checkoutadmin(admin.ModelAdmin):
@@ -651,7 +651,7 @@ class checkoutadmin(admin.ModelAdmin):
     # def get_products(self, obj):
         # return "\n".join([p.product for p in obj.cart.all()])     
 class ordersadmin(admin.ModelAdmin):
-    list_display=['id',"checkout_product","ordered_date","status"]
+    list_display=['id','user',"checkout_product","ordered_date","status"]
     list_editable = ['status']   
 class latestproductadmin(admin.ModelAdmin):
     list_display=['id','product','created_date','action_btnn']
@@ -667,6 +667,12 @@ class latestproductadmin(admin.ModelAdmin):
         return format_html(html)
     action_btnn.short_description = "Action"
     
+    MAX_OBJECTS = 1
+
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 10:
+            return False
+        return super().has_add_permission(request)
 class mostselledproductadmin(admin.ModelAdmin):
     list_display=['id','product','created_date','action_btnn']
     list_editable=['product']
@@ -680,6 +686,10 @@ class mostselledproductadmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btnn.short_description = "Action"
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 10:
+            return False
+        return super().has_add_permission(request)
 class newsletterproductadmin(admin.ModelAdmin):
     list_display=['id','Email','subscribed_date']
     # list_editable=['']
@@ -706,18 +716,21 @@ class faq_enquiryAdmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
+class notificationadmin(admin.ModelAdmin):
+    list_display=["id",'order_no','notification','checkout_product','status','user','user_notifications','coupons','created_date',]
+admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
 # class redeemedadmin(admin.ModelAdmin):
 #     list_display=['id','coupon','redeemed_date']
 #     search_fields=['id','coupon',]
-# admin.site.register(redeemed_coupon,redeemedadmin)
+# admin.site.register(redeemed_coupon)
 admin.site.register(socialmedialinks,socialmedialinksadmin)
 admin.site.register(latest_product,latestproductadmin)
 admin.site.register(most_selled_products,mostselledproductadmin)
 admin.site.register(newsletter,newsletterproductadmin)
 admin.site.register(Orders,ordersadmin)
-# admin.site.register(checkout,checkoutadmin)
-# admin.site.register(Cart,cartadmin) 
+admin.site.register(checkout,checkoutadmin)
+admin.site.register(Cart,cartadmin) 
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)

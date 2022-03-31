@@ -10,6 +10,11 @@
 # from .filters import CouponFilter
 # from django.utils.decorators import method_decorator
 # from django.contrib.auth.decorators import user_passes_test
+# from django.http import Http404
+# from django.core.exceptions import ObjectDoesNotExist
+# from rest_framework.mixins import ListModelMixin
+# from re import U
+from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 from django.shortcuts import render, redirect
 from django.utils.encoding import force_bytes
@@ -23,10 +28,6 @@ from django.core.mail import send_mail, BadHeaderError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
 from .serializers import MyTokenObtainPairSerializer
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.mixins import ListModelMixin
-from django.http import Http404
-from rest_framework.viewsets import ViewSet
 from rest_framework import generics
 from . serializers import *
 from rest_framework.response import Response
@@ -70,18 +71,33 @@ class listmyaccount(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return my_account.objects.filter(user=user)
+    
 class notificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
+    permission_classes = (IsAuthenticated, )
     serializer_class = notificationserializer
     def get_queryset(self):
         user = self.request.user
-        return notification.objects.all()  
+        # return notification.objects.all()
+        return notification.objects.filter(user=user)
+class deletenotification(DestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+    def get_queryset(self):
+        user = self.request.user
+        # return notification.objects.all()
+        return notification.objects.filter(user=user)
+    
+class universalnotificationlist(viewsets.ModelViewSet):
+    # queryset = my_account.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = notificationserializer
+    queryset = notification.objects.values("coupons")
+   
 class myaccountCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
-    # def perform_create(self, serializer):
-    #    return serializer.save(created_by=self.request.user)
+   
 class myaccountupdateview(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
@@ -136,7 +152,13 @@ class latestproductlist(viewsets.ModelViewSet):
     queryset = latest_product.objects.all()
     serializer_class = latestproductserializer
     pagination_class = PageNumberPagination
-
+    
+# class latestproductlist(viewsets.ModelViewSet):
+#     # queryset=Product.objects.order_by('+id')[10]
+#     queryset = latest_product.objects.all()
+#     serializer_class = latestproductserializer
+#     pagination_class = PageNumberPagination
+    
 class latestproductdetail(generics.RetrieveAPIView):
     queryset = latest_product.objects.all()
     serializer_class = latestproductserializer
@@ -453,7 +475,12 @@ class ordersdetail(generics.RetrieveUpdateDestroyAPIView):
 class ordersCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = orderserializer
-    queryset = Orders.objects.all()
+    queryset = Orders.objects.all()   
+class ordercancelview(UpdateAPIView):
+    permission_classes= (IsAuthenticated,)
+    queryset=Orders.objects.all()
+    serializer_class=orderscancelserializer
+    
 class couponredeemview(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = couponserializers
@@ -466,6 +493,7 @@ class socialmedialist(viewsets.ModelViewSet):
     # review = Rating.objects.filter(product = product_detail)
     serializer_class = sociallinkserializer
     pagination_class = PageNumberPagination
+    
 def password_reset_request(request):
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
