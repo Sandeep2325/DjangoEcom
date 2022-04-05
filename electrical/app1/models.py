@@ -60,6 +60,17 @@ class my_account(models.Model):
     def __str__(self):
         return self.first_name    
 
+    def save(self):
+        super().save()  # saving image first
+        try:
+            img = Image.open(self.photo.path)  # Open image using self
+            if img.height > 700 or img.width > 700:
+                new_img = (500, 500)
+                img.thumbnail(new_img)
+                img.save(self.photo.path)
+        except:
+            pass
+        
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     fullname=models.CharField(max_length=150,null=True,blank=True,verbose_name="Full Name")
@@ -814,9 +825,11 @@ class enquiryform(models.Model):
         verbose_name_plural="FAQ Enquiry"
         
 class socialmedialinks(models.Model):
-    social_media=models.CharField(max_length=100,null=True,blank=True)
-    links=models.URLField(null=True,blank=True)
+    social_media=models.CharField(max_length=100,null=True,blank=True,verbose_name="social media")
+    links=models.URLField(null=True,blank=True,verbose_name="link")
     
+    def __str__(self):
+        return self.social_media
     class Meta:
         verbose_name_plural="Social media links"    
             
