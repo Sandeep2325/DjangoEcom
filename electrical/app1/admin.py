@@ -48,11 +48,11 @@ class AddressAdmin(ExportActionMixin, admin.ModelAdmin):
    #
     # env\Lib\site-packages\jazzmin\static\jazzmin\js\action_button.js
     js = ('jazzmin/js/action_button.js',)
-    list_display = ('id', 'user', 'door_number', 'street', 'city',
-                    'country', 'pincode', 'phone_no', 'alternate_phone_no')
-    list_filter = ('city', 'user', 'state', 'pincode')
+    list_display = ('id', 'user', 'fullname','phone','locality','city','state','address','home','work')
+    list_filter = ('city', 'user', 'state', 'pincode','home','work')
     list_per_page = 10
-    search_fields = ('user', 'city', 'state', 'pincode')
+    search_fields = ('user', 'city', 'state', 'pincode','home','work')
+    list_editable=("home",'work')
     # actions=['downloadCV']
     #autocomplete_fields = ['user']
     save_on_top = True

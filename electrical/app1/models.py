@@ -62,18 +62,18 @@ class my_account(models.Model):
 
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    door_number = models.BigIntegerField(null=True,)
-    street = models.CharField(max_length=200, null=True,)
-    city = models.CharField(max_length=200, null=True,)
-    state = models.CharField(max_length=200, null=True,)
-    country = models.CharField(max_length=200, null=True,)
-    pincode = models.IntegerField(null=True,)
-    phone_no = models.BigIntegerField(null=True, verbose_name="Phone")
-    alternate_phone_no = models.BigIntegerField(
-        null=True, verbose_name="Alternate Phone", blank=True)
+    fullname=models.CharField(max_length=150,null=True,blank=True,verbose_name="Full Name")
+    phone=models.BigIntegerField(null=True,blank=True,verbose_name="Phone Number")
+    locality=models.TextField(null=True,blank=True,verbose_name="locality")
+    state=models.CharField(max_length=100,null=True,blank=True,verbose_name="State")
+    city=models.CharField(max_length=100,null=True,blank=True,verbose_name="City")
+    pincode=models.BigIntegerField(null=True,blank=True,verbose_name="Pin code")
+    address=models.TextField(null=True,blank=True,verbose_name="Address")
+    home=models.BooleanField(default=False,verbose_name="Home")
+    work=models.BooleanField(default=False,verbose_name="Work")
 
     def __str__(self):
-        template = '{0.door_number} {0.street} {0.city} {0.state} {0.country} '
+        template = '{0.fullname} {0.phone} {0.locality} {0.city} {0.state} '
         return template.format(self)
 
     class Meta:
@@ -668,7 +668,6 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
-
 ##faq##
 STATUS_CHOICES = [
     ('d', 'Draft'),

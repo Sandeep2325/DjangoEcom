@@ -3,6 +3,7 @@ autopep8==1.6.0
 bootstrap-admin==0.4.4
 certifi==2021.10.8
 charset-normalizer==2.0.12
+defusedxml==0.7.1
 diff-match-patch==20200713
 Django==4.0.2
 django-admin-actions==0.1.1
@@ -30,6 +31,7 @@ django-wpadmin==1.8.0
 djangorestframework==3.13.1
 djangorestframework-jwt==1.11.0
 djangorestframework-simplejwt==5.0.0
+et-xmlfile==1.1.0
 google-api-core==2.5.0
 google-api-python-client==2.37.0
 google-auth==2.6.0
@@ -38,10 +40,13 @@ googleapis-common-protos==1.54.0
 html5lib==1.1
 httplib2==0.20.4
 idna==3.3
+MarkupPy==1.14
 mysql-connector-python==8.0.28
 mysqlclient==2.1.0
 oauth2==1.9.0.post1
 oauthlib==3.2.0
+odfpy==1.4.1
+openpyxl==3.0.9
 pdfkit==1.0.0
 Pillow==9.0.1
 pycparser==2.21
@@ -52,6 +57,7 @@ python-openid==2.2.5
 python-social-auth==0.3.6
 python3-openid==3.2.0
 pytz==2022.1
+PyYAML==6.0
 regex==2022.1.18
 reportlab==3.6.6
 requests==2.27.1
@@ -64,3 +70,5 @@ tablib==3.2.0
 tzdata==2022.1
 urllib3==1.26.9
 xhtml2pdf==0.2.5
+xlrd==2.0.1
+xlwt==1.3.0
