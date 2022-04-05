@@ -27,6 +27,8 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.core.mail import send_mail, BadHeaderError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
+
+from app1.admin import cartadmin
 from .serializers import MyTokenObtainPairSerializer
 from rest_framework import generics
 from . serializers import *
@@ -62,7 +64,7 @@ def countt(request):
     context = {'usercount': usercount,
                'productcount': productcount,
                'ordercount': ordercount}
-    return render(request, "templates/admin/index.html", context)
+    return render(request, "admin/index.html", context)
 
 #############################################################################################################################################
 class listmyaccount(viewsets.ModelViewSet):
@@ -80,6 +82,7 @@ class notificationlist(viewsets.ModelViewSet):
         user = self.request.user
         # return notification.objects.all()
         return notification.objects.filter(user=user)
+    
 class deletenotification(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     def get_queryset(self):
@@ -90,8 +93,8 @@ class deletenotification(DestroyAPIView):
 class universalnotificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
-    serializer_class = notificationserializer
-    queryset = notification.objects.values("coupons")
+    serializer_class = unotificationserializer
+    queryset = notification.objects.all()
    
 class myaccountCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
@@ -142,7 +145,10 @@ class Productlist(viewsets.ModelViewSet):
     # review = Rating.objects.filter(product = product_detail)
     serializer_class = productSerializer
     pagination_class = PageNumberPagination
-
+    filter_fields = (
+        'category',
+        'brand',
+    )
 
 class Productdetail(generics.RetrieveAPIView):
     queryset = Product.objects.filter(is_active=True)
@@ -363,7 +369,7 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
    ######## 
-   
+
 class cartlist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = cartserializer
@@ -395,10 +401,9 @@ class cartdetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = cartserializer
     def get_queryset(self):
         user = self.request.user
-
         return Cart.objects.filter(user=user)
 class cartupdateView(UpdateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = cartserializer
     queryset = Cart.objects.all()
 ##

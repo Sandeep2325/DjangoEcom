@@ -34,6 +34,7 @@ urlpatterns = [
 
     #path('jet/', include('jet.urls', 'jet')),
     #path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
+    # path('admin/',views.countt),
     path('admin/', admin.site.urls),
     # path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(
     #     template_name='main/password/password_reset_done.html'), name='password_reset_done'),

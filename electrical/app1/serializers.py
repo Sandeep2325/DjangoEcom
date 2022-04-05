@@ -1,4 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate        
+from .validators import validate_username  
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from dataclasses import field, fields
@@ -10,7 +12,7 @@ from unittest.util import _MAX_LENGTH
 from django.forms import CharField
 from pyparsing import And
 from rest_framework import serializers
-
+import math, random
 from app1.admin import ordersadmin
 #from rest_auth.registration.serializers import RegisterSerializer
 from . models import *
@@ -18,6 +20,7 @@ from math import ceil
 from django.utils.timezone import now
 from django.db import transaction
 import regex as re
+from collections import OrderedDict
 #from app1.models import User
 #from django.contrib.auth.models import User
 #from .models import User
@@ -228,7 +231,6 @@ class cartserializer(serializers.ModelSerializer):
 class checkoutserializer(serializers.ModelSerializer):
     # carts = serializers.SerializerMethodField()
     # tag = CartSerializer(read_only=True, many=True)
-
     class Meta:
         model=checkout
         fields=("user","cart","Shipping_address",'No_of_items_to_checkout','checkout_amount','Coupon')
@@ -273,7 +275,7 @@ class checkoutcouponserializer(serializers.ModelSerializer):
 class orderserializer(serializers.ModelSerializer):
     class Meta:
         model=Orders
-        fields=("user","checkout_product","status")
+        fields=("user","checkout_product",)
     
     # def create(self, validated_data):
     #     notify = notification.objects.create(
@@ -298,7 +300,6 @@ class ordersSerializer(serializers.ModelSerializer):
         fields = ('id',"user", "address", "product", 'quantity',
                   'coupon','price', 'attributes', 'status')
         model = Order
-
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response["user"] = instance.user.username
@@ -312,7 +313,14 @@ class notificationserializer(serializers.ModelSerializer):
     class Meta:
         fields=('user_notifications','created_date')
         model=notification
-        
+
+class unotificationserializer(serializers.ModelSerializer):
+    class Meta:
+        fields=("sales","coupons")
+        model=notification    
+    def to_representation(self, instance):
+        result = super(unotificationserializer, self).to_representation(instance)
+        return OrderedDict([(key, result[key]) for key in result if result[key] is not None])    
 class bannerSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
@@ -445,8 +453,7 @@ class faq_enquirySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Please provide message/ask any questions ")
         return value
-
-
+    
     def create(self, validate_data):
         instance = super(faq_enquirySerializer, self).create(validate_data)
         send_mail(
@@ -455,7 +462,6 @@ class faq_enquirySerializer(serializers.ModelSerializer):
             'gowdasandeep8105@gmail.com',
             ['sandeep.nexevo@gmail.com'],
             fail_silently=False,
-        
         )
         return instance   
 class sociallinkserializer(serializers.ModelSerializer):
@@ -489,7 +495,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id','username', 'password', 'password2', 'email',
-                  'first_name', 'last_name', 'phone_no')
+                 'phone_no')
         
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -500,39 +506,54 @@ class RegisterSerializer(serializers.ModelSerializer):
         if value == None:
             raise serializers.ValidationError("Please provide email")
         return value
-    def validate_first_name(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please provide first name")
-        return value
-    def validate_last_name(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please provide last name")
-        return value
+    # def validate_first_name(self, value):
+    #     if value == None:
+    #         raise serializers.ValidationError("Please provide first name")
+    #     return value
+    # def validate_last_name(self, value):
+    #     if value == None:
+    #         raise serializers.ValidationError("Please provide last name")
+    #     return value
     def validate_phone_no(self, value):
         if value == None:
             raise serializers.ValidationError("Please provide phone number")
         return value 
-
+    
     def create(self, validated_data):
-        user = User.objects.create(
+        user,k = User.objects.update_or_create(
             username=validated_data['username'],
             email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
+            # first_name=validated_data['first_name'],
+            # last_name=validated_data['last_name'],
             phone_no=validated_data['phone_no']
+        )
+        def generateOTP():
+            digits = "0123456789"
+            OTP = ""
+            for i in range(4) :
+                OTP += digits[math.floor(random.random() * 10)]
+            return OTP
+        name=validated_data['username']
+        to_email=validated_data['email']
+        otp=generateOTP()
+        send_mail(
+            'Hi... {}'.format(name),
+            'your otp is {}'.format(otp),
+            'gowdasandeep8105@gmail.com',
+            [to_email],
+            fail_silently=False,
+        
         )
         user.set_password(validated_data['password'])
         user.save()
-
         return user
-
+# class otpvalidation
 class CurrentUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'id','password')
         
-from django.contrib.auth import authenticate        
-from .validators import validate_username        
+      
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
@@ -547,4 +568,5 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('User is disabled.')
 
         return {'user': user}
+
 

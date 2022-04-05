@@ -9,15 +9,7 @@ from django.db.models.signals import post_save
 from django.core.mail import send_mail
 from datetime import datetime
 from django.db.models.signals import pre_save
-
-from enum import unique
-from pickle import FALSE
-
-from re import VERBOSE
-from tabnanny import verbose
-
 from django.db.models import Q
-
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -26,17 +18,15 @@ from PIL import Image
 
 from math import ceil
 from ckeditor.fields import RichTextField
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-
 from datetime import date
 from django.db.models import Avg
-
 from embed_video.fields import EmbedVideoField
 from django.db.models import Avg, Count
 from django.utils import timezone
@@ -44,10 +34,10 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permis
 
 class User(AbstractUser):
     username = models.CharField(
-        max_length=50, blank=False, null=True, unique=True)
+        max_length=50, blank=False, null=True, unique=True,verbose_name="Full name")
     email = models.EmailField(_('email address'), unique=True)
-    first_name=models.CharField(max_length=50,blank=False,null=True)
-    last_name=models.CharField(max_length=50,blank=False,null=True)
+    # first_name=models.CharField(max_length=50,blank=False,null=True)
+    # last_name=models.CharField(max_length=50,blank=False,null=True)
     #native_name = models.CharField(max_length = 5)
     phone_no = models.CharField(max_length=10, null=True, unique=True)
     USERNAME_FIELD = 'email'
@@ -58,6 +48,7 @@ class User(AbstractUser):
 
 class my_account(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    photo=models.ImageField(upload_to='profile', verbose_name="Profle photo", null=True, blank=True, max_length=500)
     first_name=models.CharField(max_length=50,null=True,verbose_name="First Name")
     last_name=models.CharField(max_length=50,null=True,verbose_name="last Name")
     phone_number=models.BigIntegerField(null=True,verbose_name="Phone number")
@@ -65,42 +56,9 @@ class my_account(models.Model):
     address=models.TextField(null=True,verbose_name="Address")
     city=models.CharField(max_length=100,null=True,verbose_name="City")
     state=models.CharField(max_length=50,null=True,verbose_name="State")
-    postal_address=models.TextField(null=True,verbose_name="Postal address")
+    postal_pin=models.BigIntegerField(null=True,verbose_name="Postal address")
     def __str__(self):
         return self.first_name    
-
-""" class AccountManager(BaseUserManager):
-    def create_superuser(self,email,first_name,password,**other_fields):
-        other_fields.setdefault('is_staff',True)
-        other_fields.setdefault('is_superuser',True)
-        other_fields.setdefault('is_active',True)
-
-        if other_fields.get('is_staff') is not True:
-            raise ValueError('is_staff is set to False')
-        if other_fields.get('is_superuser') is not True:
-            raise ValueError('is_superuser is set to False')
-        return self.create_user(email,first_name,password,**other_fields)
-
-    def create_user(self,email,first_name,password, **other_fields):
-        if not email:
-            raise ValueError(_("Users must have an email address"))
-     
-        email=self.normalize_email(email)
-        user=self.model(email=email,first_name=first_name,**other_fields)
-        user.is_active=True
-        user.set_password(password)
-        user.save(using=self._db)
-        return user """
-
-""" class User(AbstractUser):
-   username = models.CharField(max_length = 50, blank = True, null = True, unique = True)
-   email = models.EmailField(('email address'), unique = True)
-   native_name = models.CharField(max_length = 5)
-   phone_no = models.CharField(max_length = 10)
-   USERNAME_FIELD = 'email'
-   REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
-   def __str__(self):
-       return "{}".format(self.email) """
 
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -128,20 +86,20 @@ class notification(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)
     # checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product",null=True,blank=True)
     checkout_product=models.CharField(max_length=50,null=True,blank=True)
-    sales=models.CharField(max_length=100,null=True,blank=True)
+    sales=models.TextField(null=True,blank=True)
     product=models.CharField(max_length=100,null=True,blank=True)
     status=models.CharField(max_length=50,null=True,blank=True)
     coupons=models.TextField(null=True,blank=True)
     @property
     def user_notifications(self):
         if self.sales is not None:
-            a="Exciting offer is waiting for you "
+            a="Exciting offer is waiting for you"
         elif self.product is not None:
             a="new product is added"
         elif self.coupons is not None:
             a=self.coupons
         else:
-            a="Hi {} your product {} is {}".format(self.user.first_name,self.checkout_product,self.status)
+            a="Hi {} your product {} is {}".format(self.user.username,self.checkout_product,self.status)
         return a
     # def __str__(self):
     #     return self.action_notifications
@@ -158,8 +116,11 @@ class sales(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date", null=True)
     def save(self, *args, **kwargs):
-        notification.objects.create(sales=self.campaign_name)
+        
+        a="{} sale is ON buy any product get {}% discount".format(self.campaign_name,self.sales_discount)
+        notification.objects.create(sales=a)
         return super().save(*args, **kwargs)
+        
     
     def __str__(self):
         return self.campaign_name
@@ -317,9 +278,9 @@ class Product(models.Model):
         else:
             return format_html("<p class=text-danger>No ratings!</p>")
         
-    def save(self, *args, **kwargs):
-        notification.objects.create(product=self.title)
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     notification.objects.create(product=self.title)
+    #     return super().save(*args, **kwargs)
     
     class Meta:
         # def countt(self):
@@ -459,12 +420,10 @@ class checkout(models.Model):
         return ",".join([str(p) for p in self.cart.all()])
     def No_of_items_to_checkout(self):
         return self.cart.all().count()
-
     def __str__(self):
         return str(self.cart.first())
     class Meta:
         verbose_name_plural = "Checkouts"
-  
     @property
     def checkout_amount(self):
         try:
@@ -474,8 +433,6 @@ class checkout(models.Model):
             if self.Coupon !=None:
                 coupons_list=[]
                 coupons_discount=[]
-                # if self.product.discounted_price is None:
-                    # print("222222222222222222222222222",self.product.price)
                 for a in Coupon.objects.all():
                         coupon_=a.coupon
                         coupons_list.append(coupon_)
@@ -483,13 +440,17 @@ class checkout(models.Model):
                 print(coupons_discount)
                 print(coupons_list)
                 try: 
-                    for i in range(len(coupons_list)): 
+                    for i in range(len(coupons_list)):
+                        print("---------------------------",coupons_list[i],"=",i) 
+                        print(self.Coupon,"==",coupons_list[i])
+                        
                         if self.Coupon==coupons_list[i]:
                             coupon_price=coupons_discount[i]
                             multiplier=coupon_price/100
                             old_price=total
                             newprice=ceil(old_price-(old_price*multiplier))
                             price=newprice
+                            # continue
                         else:
                             price=total
                     return price
@@ -502,18 +463,15 @@ class checkout(models.Model):
             for i in self.cart.all():
                 total=total+i.Total_amount
             return total
-class redeemed_coupon(models.Model):
-    
+        
+class redeemed_coupon(models.Model):  
     checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="checkout product",null=True)
     coupon=models.CharField(max_length=50,null=True,blank=True)
     redeemed_date = models.DateTimeField(
-        auto_now_add=True, verbose_name="Created Date", null=True)
-    
+        auto_now_add=True, verbose_name="Created Date", null=True)    
     def __str__(self):
         return self.coupon
     
-
-
 STATUS_CHOICES = (
     ('ordered','ordered'),
     ('Pending', 'Pending'),
@@ -524,7 +482,6 @@ STATUS_CHOICES = (
     ('Cancelled', 'Cancelled'),
 )
 class Orders(models.Model):
-    # notifications=models.ForeignKey("notification",on_delete=models.CASCADE,null=True,blank=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product")
     ordered_date = models.DateTimeField(
@@ -666,7 +623,6 @@ class Rating(models.Model):
             return self.product.title
         except:
             return str(None)
-
     @property
     def status_(self):
         # if Rating.objects.filter(Status=None):
@@ -843,6 +799,7 @@ class newsletter(models.Model):
     
     class Meta:
         verbose_name_plural="News letter"
+        
 class enquiryform(models.Model):
     name = models.CharField(
         max_length=50, null=True, verbose_name="First Name", blank=True)
@@ -856,6 +813,7 @@ class enquiryform(models.Model):
         auto_now=True, verbose_name="Updated Date", null=True)
     class Meta:
         verbose_name_plural="FAQ Enquiry"
+        
 class socialmedialinks(models.Model):
     social_media=models.CharField(max_length=100,null=True,blank=True)
     links=models.URLField(null=True,blank=True)

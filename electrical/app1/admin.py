@@ -717,7 +717,7 @@ class faq_enquiryAdmin(admin.ModelAdmin):
         return format_html(html)
     action_btn.short_description = "Action"
 class notificationadmin(admin.ModelAdmin):
-    list_display=["id",'order_no','notification','checkout_product','status','user','user_notifications','coupons','created_date',]
+    list_display=["id",'checkout_product','status','user','user_notifications','coupons','sales','created_date',]
 admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
 # class redeemedadmin(admin.ModelAdmin):
@@ -752,8 +752,7 @@ admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
 # admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin):
-    list_display = ['id','username', 'email', 'first_name',
-                    'last_name', 'is_staff', 'phone_no', 'action_btn']
+    list_display = ['id','username', 'email','is_staff', 'phone_no', 'action_btn']
     #actions = ['action_btn',]
     def action_btn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/user/" + \

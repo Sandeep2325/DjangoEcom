@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     'rest_auth',
     'allauth',
-    # 'allauth.account',
+    'allauth.account',
     'rest_auth.registration',
     'ckeditor',
     'django_summernote',
@@ -62,7 +62,6 @@ INSTALLED_APPS = [
     # 'allauth.socialaccount.providers.twitter',
 
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

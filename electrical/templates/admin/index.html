@@ -17,7 +17,7 @@
 {% get_side_menu using="app_list" as dashboard_list %}
 {% for app in dashboard_list %}
 {% for model in app.models %}
-{%if model.name == "Order" or model.name == "Users" or model.name == "  Products"%}
+{%if model.name == "Orders" or model.name == "Users" or model.name == "  Products"%}
 <div class="card bg-secondary m-2 text-white">
     <div class="card-header d-flex">
       {%if model.name == "Users" %}
@@ -31,7 +31,7 @@
     <div class="card-body">
       <h5 class="card-title">Total {{ model.name }}</h5>
 
-      <p class="card-text">{{model.id_set.all.count}}</p>
+      <p class="card-text">{{model|length}}</p>
       
       <a class="btn btn-primary" href="{{ model.url }}">{{ model.name }}</a>
       {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
