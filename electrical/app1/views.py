@@ -66,7 +66,7 @@ def countt(request):
                'ordercount': ordercount}
     return render(request, "admin/index.html", context)
 
-#############################################################################################################################################
+
 class listmyaccount(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -91,7 +91,7 @@ class notificationlist(viewsets.ModelViewSet):
         user = self.request.user
         # return notification.objects.all()
         return notification.objects.filter(user=user)
-    
+
 class deletenotification(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     def get_queryset(self):
@@ -121,7 +121,12 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = categorySerializer(item)
         return Response(serializer.data)
-
+class listbrand(viewsets.ModelViewSet):
+    queryset=Brand.objects.all()
+    serializer_class=brandserializer
+class detailbrand(RetrieveAPIView):
+    queryset=Brand.objects.all()
+    serializer_class=brandserializer
 # class Productlist(viewsets.ModelViewSet):
 #     queryset = Product.objects.all()
 #     serializer_class=productSerializer
@@ -215,7 +220,7 @@ class orderlist(viewsets.ModelViewSet):
 class orderDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Order.objects.all()
-##################################################################################
+
 """ class OrderDetailView(RetrieveAPIView):
     serializer_class = ordersSerializer
     permission_classes = (IsAuthenticated,)
@@ -226,7 +231,7 @@ class orderDeleteView(DestroyAPIView):
             return order
         except ObjectDoesNotExist:
             raise Http404("You do not have an active order") """
-#########################################################################################
+
 class orderdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = ordersSerializer

@@ -131,13 +131,13 @@ class CategoryAdmin(ExportActionMixin, admin.ModelAdmin):
                 #message=messages.warning('Something went wrong! check your file again \n 1.Upload correct file \n 2.Check you data once')
         image_tag.short_description = 'Brand Thumbnail'
         image_tag.allow_tags = True
-        list_display = ['id', 'brands', 'image_tag',
+        list_display = ['id', 'category', 'image_tag',
                         'is_active', 'updated_at', 'action_btn']
         #list_editable = ('slug', )
         list_editable = ('is_active',)
-        list_filter = ('brands', 'is_active', 'updated_at')
+        list_filter = ('category', 'is_active', 'updated_at')
         list_per_page = 10
-        search_fields = ('brands', 'description', 'is_active', 'updated_at')
+        search_fields = ('category', 'description', 'is_active', 'updated_at')
         save_on_top = True
 
         def action_btn(self, obj):
@@ -375,8 +375,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                         except (ValidationError, IntegrityError):
                             form = CsvImportForm()
                             data = {"form": form}
-
-                           
                             message = messages.warning(
                                 request, "Something went wrong! check your file again \n 1.Upload correct file \n 2.Check your data once")
                             return render(request, "admin/csv_upload.html", data)
@@ -401,7 +399,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 return render(request, "admin/csv_upload.html", data)
             except (IntegrityError) as e:
                 messages.error(request, e)
-                
     except exception:
         pass
 class OrderAdmin(admin.ModelAdmin):
@@ -524,7 +521,6 @@ class BlogAdmin(AdminVideoMixin, SummernoteModelAdmin):
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
         imagee.short_description = 'Image'
         imagee.allow_tags = True
-
         def image_tag(self, obj):
             try:
                 return format_html('<img src="{}" width="{}" height="{}"/>'.format(obj.images.url, "100", "100"))
@@ -643,7 +639,7 @@ class mailadmin(admin.ModelAdmin):
         self.exclude = ("send_it", )
         form = super(mailadmin, self).get_form(request, obj, **kwargs)
         return form
-class cartadmin(admin.ModelAdmin):
+class cartadmin(ExportActionMixin,admin.ModelAdmin):
     list_display=['id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at']
     list_editable = ['product','attributes','quantity']   
     search_fields = ['user__username','product__title']

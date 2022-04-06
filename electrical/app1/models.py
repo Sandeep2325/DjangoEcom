@@ -148,10 +148,10 @@ class Category(models.Model):
             raise ValidationError(
                 "Max file size is 900*900 or should be less than 2MB")
    
-    brands = models.CharField(max_length=50, verbose_name="Brands")
+    category = models.CharField(max_length=50, verbose_name="Category",null=True)
 
     description = models.TextField(
-        blank=True, verbose_name="Category Description")
+        blank=True, verbose_name="Category Description",null=True)
     category_image = models.ImageField(
         upload_to='category', verbose_name="Brand Thumbnail", null=True, blank=True, max_length=500)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
@@ -174,7 +174,7 @@ class Category(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return self.brands
+        return self.category
 
     class Meta:
         verbose_name_plural = " Category"
@@ -508,7 +508,8 @@ class Orders(models.Model):
     def save(self, *args, **kwargs):
         notification.objects.create(user=self.user,checkout_product=self.checkout_product,status=self.status,order_no=self.id)
         return super().save(*args, **kwargs)
-
+    def __str__(self):
+        return (str(self.checkout_product))
          
 class Coupon(models.Model):
     coupon = models.CharField(
@@ -530,7 +531,6 @@ class Coupon(models.Model):
         verbose_name_plural = "Coupons"
 ####
 STATUS_CHOICES = (
-    
     ('Pending', 'Pending'),
     ('Accepted', 'Accepted'),
     ('Packed', 'Packed'),
@@ -791,14 +791,21 @@ class latest_product(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True)
     created_date = models.DateTimeField(
         auto_now_add=True, verbose_name="created date", null=True)
-    
     class Meta:
         verbose_name_plural = "Latest Products"
 class most_selled_products(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True)
+    orders=models.ForeignKey(Orders,on_delete=models.CASCADE,null=True)
     created_date = models.DateTimeField(
         auto_now_add=True, verbose_name="created date", null=True)
-    
+    # @property
+    # def sellcount(self):
+    #     try:
+    #         count=Orders.objects.filter(id=self.orders.id).count()
+    #         return count
+    #     except:
+    #         pass
+        
     class Meta:
         verbose_name_plural = "Most selled products"
 class newsletter(models.Model):

@@ -47,6 +47,7 @@ class myaccountlistserializer(serializers.ModelSerializer):
     class Meta:
         fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
         model=my_account
+        
 class myaccountserializers(serializers.ModelSerializer):
     user=userserializer(read_only=True)
     class Meta:
@@ -139,28 +140,32 @@ class categorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Category
-
-    # def get_photo_url(self, Category):
-    #     request = self.context.get('request')
-    #     photo_url = Category.category_image.url
-    #     return request.build_absolute_uri(photo_url)
+class brandserializer(serializers.ModelSerializer):
+    class Meta:
+        fields="__all__"
+        model=Brand 
+class imageserializer(serializers.ModelSerializer):
+    class Meta:
+        fields="__all__"
+        model=image
 class productSerializer(serializers.ModelSerializer):
-    #category_name = serializers.RelatedField(source='category.name', read_only=True)
-    #category = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    category=categorySerializer(read_only=True)
+    brand=brandserializer(read_only=True)
+    image=imageserializer(many=True,read_only=True)
     class Meta:
         fields = ("id", "title", "discounted_price", "category","brand","sku", "short_description", "detail_description", "image", "product_image", "price",
                  "is_active", "created_at", "updated_at", "average_rating", "count_review", "reviews")
         model = Product
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['category'] = instance.category.brands
-        response['brand']=instance.brand.brand_name
-        response['image']=",".join([(p.image.url) for p in instance.image.all()])
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['category'] = instance.category.brands
+    #     response['brand']=instance.brand.brand_name
+    #     response['image']=",".join([(p.image.url) for p in instance.image.all()])
         #response['image'] = instance.image.last().image.url,instance.image.first().image.url,
         # response['price'] = instance.item.price
 
-        return response
+        # return response
 
     def averagee_rating(self, instance):
         if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
@@ -207,13 +212,15 @@ class productdetailserializer(serializers.ModelSerializer):
         fields = "__all__"
         model = Product
 class latestproductserializer(serializers.ModelSerializer):
+    product=productSerializer(read_only=True)
     class Meta:
-        fields="__all__"
+        fields=("id","product","created_date")
         model=latest_product
         
 class mostselledserializer(serializers.ModelSerializer):
+    product=productSerializer(read_only=True)
     class Meta:
-        fields = "__all__"
+        fields = ("id","product","created_date")
         model = most_selled_products    
 class attributesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -258,7 +265,6 @@ class cartserializer(serializers.ModelSerializer):
             b=coupons.coupon_discount
             
         if value!="":
-            
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
         return value
@@ -311,7 +317,7 @@ class couponserializers(serializers.ModelSerializer):
 class checkoutcouponserializer(serializers.ModelSerializer):
     class Meta:
         model=checkout
-        fields=("Coupon",)      
+        fields=("Coupon",)
     def validate_Coupon(self,value):
         for coupons in Coupon.objects.all():
             a=coupons.coupon
@@ -443,18 +449,7 @@ class customermessageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Please provide message/ask any questions ")
         return value
-    
-    # def create(self, validate_data):
-    #     instance = super(customermessageSerializer, self).create(validate_data)
-    #     send_mail(
-    #         'Prakash Electricals',
-    #         'Thank you,\n your message was recieved',
-    #         'gowdasandeep8105@gmail.com',
-    #         [instance.Email],
-    #         fail_silently=False,
-    #     )
-    #     return instance
-
+ 
     def create(self, validate_data):
         instance = super(customermessageSerializer, self).create(validate_data)
         send_mail(
