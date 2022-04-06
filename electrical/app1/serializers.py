@@ -354,8 +354,6 @@ class ordersSerializer(serializers.ModelSerializer):
         response["user"] = instance.user.username
         response["address"] = instance.address.city
         response["product"] = instance.product.title
-        # response["coupon"]=instance.coupon.coupon
-        # response["attributes"]=instance.attributes.Color
         return response
     
 class notificationserializer(serializers.ModelSerializer):
@@ -393,8 +391,6 @@ class ratingSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("user", "product", "Reviews", "Rating")
         model = Rating
-    #Rating=serializers.DecimalField(min_value=1,max_value=5, max_digits=3,decimal_places=1,)
-    #user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def validate_Rating(self, value):
         if value == None:
@@ -468,7 +464,7 @@ class faq_enquirySerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         if value == "":
-            raise serializers.ValidationError("Please provide last name")
+            raise serializers.ValidationError("Please provide full name")
         return value
 
     def validate_Email(self, value):
@@ -586,9 +582,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class CurrentUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'email', 'id','password')
-        
-      
+        fields = ('username', 'email', 'id','password')     
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()

@@ -793,6 +793,7 @@ class latest_product(models.Model):
         auto_now_add=True, verbose_name="created date", null=True)
     class Meta:
         verbose_name_plural = "Latest Products"
+        
 class most_selled_products(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True)
     orders=models.ForeignKey(Orders,on_delete=models.CASCADE,null=True)
@@ -818,7 +819,7 @@ class newsletter(models.Model):
         
 class enquiryform(models.Model):
     name = models.CharField(
-        max_length=50, null=True, verbose_name="First Name", blank=True)
+        max_length=50, null=True, verbose_name="Full Name", blank=True)
     #Name=models.CharField(max_length=50, null=True,)
     Email = models.EmailField(max_length=50, null=True,)
     Phone = models.BigIntegerField(null=True,)

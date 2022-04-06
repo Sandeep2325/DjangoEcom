@@ -292,12 +292,9 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
             # print(Sales)
             for sale in Sales:
                 discount = sale.sales_discount 
-                print("##################################", discount)
                 if sale.is_active == True:
                     for product in queryset:
-                        print("***************************", discount)
                         multiplier = discount / 100 
-                        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", multiplier)
                         old_price = product.price
                         new_price = ceil(old_price - (old_price * multiplier))
                         product.discounted_price = new_price
@@ -331,7 +328,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                         fields = x.split(",")
                         
                         try:
-                            
                             for i in range(len(fields)):
                                 print("fields[{}]".format(i),fields[i])
                             created, k = Product.objects.update_or_create(
@@ -344,12 +340,10 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                 category=Category.objects.get(pk=(fields[5])),
                                 brand=Brand.objects.get(pk=(fields[7])),
                             )
-                            
                             n = str(x)
                             l = n.split('"')
                             if len(l) > 1:
                                 k = l[1].split('"')
-
                                 images_csv = (k[0].split('"'))
                                 splited_image = (images_csv[0].split(','))
 
@@ -362,7 +356,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                     created.save()
 
                             else:
-                                
                                 imagess = image.objects.get(pk=fields[8])
                                 print(imagess)
                                 created.image.add(imagess)
@@ -443,7 +436,6 @@ class AttributesAdmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-
 class salesAdmin(admin.ModelAdmin):
     list_display = ('id', 'campaign_name', 'startdate', 'enddate',
                     'sales_discount', 'is_active', 'created_at', 'action_btn')
@@ -452,7 +444,6 @@ class salesAdmin(admin.ModelAdmin):
     list_per_page = 20
     search_fields = ('campaign_name', 'startdate', 'enddate')
     save_on_top = True
-
     def action_btn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/sales/" + \
             str(obj.id)+"/change/'></a><br></br>"

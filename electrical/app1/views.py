@@ -241,14 +241,9 @@ class orderCreateView(CreateAPIView):
     # permission_classes = (IsAuthenticated, )
     serializer_class = ordersSerializer
     queryset = Order.objects.all()
-
-############################################################################################
-
 class AddressListView(ListAPIView):
     permission_classes = (IsAuthenticated, )
-   
     serializer_class = CustomerAddressSerializers
-
 
     def get_queryset(self):
         user = self.request.user
@@ -265,12 +260,9 @@ class AddressUpdateView(UpdateAPIView):
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
 
-
 class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Address.objects.all()
-
-
 class newsletterCreateView(CreateAPIView):
     # permission_classes = (IsAuthenticated, )
     serializer_class = newsletterserializer
@@ -297,19 +289,14 @@ class faqCreateView(CreateAPIView):
     serializer_class = faqSerializer
     queryset = FAQ.objects.all()
 
-
 class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.filter(Status="Approved")
     #queryset = Rating.objects.all()
     serializer_class = ratingSerializer
-
-
 class ratingCreateView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
     queryset = Rating.objects.all()
-
-
 class ratingupdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
@@ -323,8 +310,6 @@ class ratingupdateView(UpdateAPIView):
     #     serializer.is_valid(raise_exception=True)
     #     self.perform_update(serializer)
     #     return Response(serializer.data)
-
-
 class listcustomermessage(viewsets.ModelViewSet):
     queryset = customer_message.objects.all()
     serializer_class = customermessageSerializer
@@ -411,24 +396,7 @@ class cartupdateView(UpdateAPIView):
     serializer_class = cartcreateserializer
     queryset = Cart.objects.all()
 ##
-class checkoutlist(viewsets.ModelViewSet):
-    # queryset = checkout.objects.all()
-    # for i in checkout.objects.all():
-    #     print(i.cart.all())
-    #     # for j in i.cart:
-    #     #     print(j)
-    #     for j in i.cart.all():
-    #         print(j.user)
-    #         user=j.user
-    #         print(",,,,,,,,,,,,,,",user)
-    # def list(self, request):
-    #     serializer = checkoutserializer(self.queryset, many=True)
-    #     return Response(serializer.data)
-
-    # def retrieve(self, request, pk=None):
-    #     item = get_object_or_404(self.queryset, pk=pk)
-    #     serializer = checkoutserializer(item)
-    #     return Response(serializer.data)
+class checkoutlist(viewsets.ModelViewSet): 
     permission_classes = (IsAuthenticated, )
     serializer_class = checkoutserializer
     def get_queryset(self):
@@ -439,16 +407,7 @@ class checkoutCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = checkoutcreateserializer
     queryset=checkout.objects.all()
-    # for i in Cart.objects.all():
-    #     global user1
-    #     user1=i.user
-       
-    # def get_queryset(self):
-    #     # user = self.request.user
-        
-    #     if user1==self.user:
-    #         # print(user1)
-    #         return checkout.objects.filter(user=user1)
+    
 class checkoutcouponcreate(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = checkoutcouponserializer
@@ -541,13 +500,6 @@ class CurrentUserViewSet(APIView):
     def get(self, request):
         serializer = CurrentUserSerializer(request.user)
         return Response(serializer.data)
-# class cart1(APIView):
-#     permission_classes=(IsAuthenticated,)
-#     def get(self,request):
-#         serializer=cartserializer(request.user)
-#         return Response(serializer.data)
-# class userlist(viewsets.ModelViewSet):
-#     permission_classes = (IsAuthenticated, )
-#     serializer_class = userserializer
+
 def handler404(request,exception):
     return render(request, '404.html', status=404)
