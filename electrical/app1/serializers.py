@@ -38,12 +38,19 @@ from collections import OrderedDict
         model = User
         fields = '__all__' """
 ##################################################################################
-# class userserializer(serializers.ModelSerializer):
-#     class Meta:
-#         fields="__all__"
-class myaccountserializers(serializers.ModelSerializer):
+class userserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
+        model=User
+class myaccountlistserializer(serializers.ModelSerializer):
+    user=userserializer(read_only=True)
+    class Meta:
+        fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
+        model=my_account
+class myaccountserializers(serializers.ModelSerializer):
+    user=userserializer(read_only=True)
+    class Meta:
+        fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
         model=my_account
     
     def validate_first_name(self, value):
@@ -84,26 +91,48 @@ class myaccountserializers(serializers.ModelSerializer):
         if value == None:
             raise serializers.ValidationError("Please enter the postal address")
         return value
+class customerlistserializer(serializers.ModelSerializer):
     
+    class Meta:
+        fields=("id","user","fullname","phone","locality","state","city","pincode","address","home","work")
+        model=Address    
 class CustomerAddressSerializers(serializers.ModelSerializer):
     class Meta:
-        fields = '__all__'
+        fields = ("id","user","fullname","phone","locality","state","city","pincode","address","home","work")
         model = Address
-    # user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    # # user=serializers.PrimaryKeyRelatedField(max_length=200)
-    # door_number = serializers.IntegerField()
-    # street = serializers.CharField(max_length=300)
-    # city = serializers.CharField(max_length=300)
-    # state = serializers.CharField(max_length=300)
-    # country = serializers.CharField(max_length=300)
-    # pincode = serializers.IntegerField()
-    # phone_no = serializers.IntegerField()
-
-    
-    def validate_door_number(self, value):
-        if value == None:
-            raise serializers.ValidationError("please enter the door number")
+    def validate_fullname(self, value):
+        if value == "":
+            raise serializers.ValidationError("Please provide Full Name")
         return value
+    def validate_phone(self,value):
+        if value==None:
+            raise serializers.ValidationError("Please Enter phone number")
+        return value
+    def validate_locality(self,value):
+        if value=="":
+            raise serializers.ValidationError("Please Enter locality")
+        return value
+    
+    def validate_state(self,value):
+        if value=="":
+            raise serializers.ValidationError("Please provide state name")
+        return value
+    def validate_city(self,value):
+        if value=="":
+            raise serializers.ValidationError("Please provide city name")
+        return value
+    def validate_pincode(self,value):
+        if value==None:
+            raise serializers.ValidationError("Please provide pincode")
+        return value
+    def validate_address(self,value):
+        if value=="":
+            raise serializers.ValidationError("Please provide address")
+        return value
+    # def validate_address(self,value):
+    #     if value=="":
+    #         raise serializers.ValidationError("Please provide address")
+    #     return value
     
 
 class categorySerializer(serializers.ModelSerializer):
@@ -210,11 +239,17 @@ class newsletterserializer(serializers.ModelSerializer):
             fail_silently=False,
         )
         return instance    
-class cartserializer(serializers.ModelSerializer):
+class cartcreateserializer(serializers.ModelSerializer): 
     class Meta:
         fields=('id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at')
         model=Cart
+class cartserializer(serializers.ModelSerializer):
     
+    product=productSerializer(read_only=True)
+    attributes=attributesSerializer(read_only=True)
+    class Meta:
+        fields=('id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at')
+        model=Cart
     def validate_coupon(self,value):
         list1=[]
         for coupons in Coupon.objects.all():
@@ -227,10 +262,23 @@ class cartserializer(serializers.ModelSerializer):
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
         return value
-
+class checkoutcreateserializer(serializers.ModelSerializer):
+    class Meta:
+        model=checkout
+        fields=("user","cart","Shipping_address",'No_of_items_to_checkout','checkout_amount','Coupon')
+    def validate_Coupon(self,value):
+        list1=[]
+        for coupons in Coupon.objects.all():
+            a=coupons.coupon
+            list1.append(a)
+            b=coupons.coupon_discount  
+        if value!="":   
+            if value not in list1:
+                raise serializers.ValidationError("Invalid coupon")
+        return value 
 class checkoutserializer(serializers.ModelSerializer):
-    # carts = serializers.SerializerMethodField()
-    # tag = CartSerializer(read_only=True, many=True)
+    cart=cartserializer(many=True,read_only=True)
+    Shipping_address=CustomerAddressSerializers(read_only=True)
     class Meta:
         model=checkout
         fields=("user","cart","Shipping_address",'No_of_items_to_checkout','checkout_amount','Coupon')
@@ -272,22 +320,17 @@ class checkoutcouponserializer(serializers.ModelSerializer):
             if str(a)!=value:  
                 raise serializers.ValidationError("Invalid coupon")
         return value
-class orderserializer(serializers.ModelSerializer):
+class ordercreateserializer(serializers.ModelSerializer):
+    # checkout_product= checkoutserializer(read_only=True)
     class Meta:
         model=Orders
-        fields=("user","checkout_product",)
+        fields=('id',"user","checkout_product",)
+class orderserializer(serializers.ModelSerializer):
+    checkout_product= checkoutserializer(read_only=True)
+    class Meta:
+        model=Orders
+        fields=("id","user","checkout_product",)
     
-    # def create(self, validated_data):
-    #     notify = notification.objects.create(
-    #         user=validated_data['user'],
-            
-    #         checkout_product=str(validated_data['checkout_product']),
-    #         status=str(validated_data['status']),
-    #     )
-    #     # user.set_password(validated_data['password'])
-    #     notify.save()
-
-    #     return notify
 class orderscancelserializer(serializers.ModelSerializer):
     class Meta:
         models=Orders
@@ -351,8 +394,6 @@ class ratingSerializer(serializers.ModelSerializer):
         if value == None:
             raise serializers.ValidationError("Please rate this product")
         return value
-
-
     def validate_product(self, value):
         if value == None:
             raise serializers.ValidationError("Please select the product")

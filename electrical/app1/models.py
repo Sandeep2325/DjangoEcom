@@ -501,6 +501,7 @@ class Orders(models.Model):
         choices=STATUS_CHOICES,
         max_length=50,
         default="ordered")
+    Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address",null=True,blank=True)
     class Meta:
         verbose_name_plural = "Orders"
         
@@ -529,6 +530,7 @@ class Coupon(models.Model):
         verbose_name_plural = "Coupons"
 ####
 STATUS_CHOICES = (
+    
     ('Pending', 'Pending'),
     ('Accepted', 'Accepted'),
     ('Packed', 'Packed'),
@@ -562,14 +564,12 @@ class Order(models.Model):
     @property
     def pricee(self,):
         return self.product.price
-    # pricee.short_description="Price"
     @property
     def offer_price(self):
         return self.product.discounted_price
     @property
     def Total_amount(self):
         if self.product.discounted_price is None:
-            
             try:
                 total_amount=self.quantity*self.product.price
             except:
@@ -628,7 +628,6 @@ class Rating(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date", null=True)
-
     def __str__(self):
         try:
             return self.product.title

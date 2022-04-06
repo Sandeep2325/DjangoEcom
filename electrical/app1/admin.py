@@ -344,6 +344,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                 category=Category.objects.get(pk=(fields[5])),
                                 brand=Brand.objects.get(pk=(fields[7])),
                             )
+                            
                             n = str(x)
                             l = n.split('"')
                             if len(l) > 1:
@@ -656,7 +657,6 @@ class ordersadmin(admin.ModelAdmin):
 class latestproductadmin(admin.ModelAdmin):
     list_display=['id','product','created_date','action_btnn']
     list_editable=['product']
-    
     def action_btnn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/latest_product/" + \
             str(obj.id)+"/change/'></a><br></br>"

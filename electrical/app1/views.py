@@ -69,11 +69,20 @@ def countt(request):
 #############################################################################################################################################
 class listmyaccount(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
-    serializer_class = myaccountserializers
+    permission_classes = (IsAuthenticated, )
+    serializer_class = myaccountlistserializer
     def get_queryset(self):
         user = self.request.user
-        return my_account.objects.filter(user=user)
-    
+        return my_account.objects.filter(user=user)  
+class myaccountCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = myaccountserializers
+    queryset = my_account.objects.all()
+   
+class myaccountupdateview(UpdateAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = myaccountserializers
+    queryset = my_account.objects.all() 
 class notificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -95,16 +104,6 @@ class universalnotificationlist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = unotificationserializer
     queryset = notification.objects.all()
-   
-class myaccountCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
-    serializer_class = myaccountserializers
-    queryset = my_account.objects.all()
-   
-class myaccountupdateview(UpdateAPIView):
-    permission_classes = (IsAuthenticated, )
-    serializer_class = myaccountserializers
-    queryset = my_account.objects.all() 
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = categorySerializer
@@ -389,7 +388,7 @@ class cartlist(viewsets.ModelViewSet):
     #     return Response(serializer.data)
 class cartCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    serializer_class = cartserializer
+    serializer_class = cartcreateserializer
     queryset = Cart.objects.all()  
     # for i in queryset:
     #     print(i.product)     
@@ -404,7 +403,7 @@ class cartdetail(generics.RetrieveUpdateDestroyAPIView):
         return Cart.objects.filter(user=user)
 class cartupdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = cartserializer
+    serializer_class = cartcreateserializer
     queryset = Cart.objects.all()
 ##
 class checkoutlist(viewsets.ModelViewSet):
@@ -433,7 +432,7 @@ class checkoutlist(viewsets.ModelViewSet):
         return checkout.objects.filter(user=user)
 class checkoutCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    serializer_class = checkoutserializer
+    serializer_class = checkoutcreateserializer
     queryset=checkout.objects.all()
     # for i in Cart.objects.all():
     #     global user1
@@ -479,7 +478,7 @@ class ordersdetail(generics.RetrieveUpdateDestroyAPIView):
 
 class ordersCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    serializer_class = orderserializer
+    serializer_class = ordercreateserializer
     queryset = Orders.objects.all()   
 class ordercancelview(UpdateAPIView):
     permission_classes= (IsAuthenticated,)
