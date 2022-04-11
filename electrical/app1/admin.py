@@ -31,7 +31,7 @@ from django.contrib import messages
 from import_export.admin import ExportActionMixin
 from django_summernote.admin import SummernoteModelAdmin
 from django_summernote.utils import get_attachment_model
-from embed_video.admin import AdminVideoMixin, AdminVideoWidget
+from embed_video.admin import AdminVideoMixin
 import pdfkit
 import tempfile
 import zipfile
@@ -354,7 +354,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                     print(imagess)
                                     created.image.add(imagess)
                                     created.save()
-
                             else:
                                 imagess = image.objects.get(pk=fields[8])
                                 print(imagess)
@@ -382,7 +381,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                             data = {"form": form}
                             message = messages.warning(
                                 request, "category or image query doesnt exist")
-
                             return render(request, "admin/csv_upload.html", data)
                     url = reverse('admin:index')
                     return HttpResponseRedirect(url)
@@ -453,7 +451,6 @@ class salesAdmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-    
 class CoupenAdmin(admin.ModelAdmin):
     list_display = ['id', 'coupon', 'coupon_discount',
                     'startdate', 'enddate', 'created_at', 'action_btn']
@@ -577,7 +574,6 @@ class BannerAdmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string,select_template
 class customer_messageAdmin(admin.ModelAdmin):
@@ -585,13 +581,11 @@ class customer_messageAdmin(admin.ModelAdmin):
                     'Email', 'Message', 'created_date', 'updated_at', 'action_btn']
     actions = ["send_message"]
 
-    def action_btn(self, obj):
-        
+    def action_btn(self, obj):  
         html = "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/customer_message/" + \
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btn.short_description = "Action"
-
     def send_message(self, request, queryset):
         print(queryset)
         # try:
@@ -605,10 +599,7 @@ class customer_messageAdmin(admin.ModelAdmin):
                 a = send_mail('Prakash Electrical', email_html_template, 'gowdasandeep8105@gmail.com', [
                                 email], fail_silently=False,),messages.success(request, "Successfully sent to {}".format(email))
                 print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
-
     # actions = ["send_message"]
-
-
 class mailadmin(admin.ModelAdmin):
     list_display = ['subject', 'message', 'send_it',
                     'created_date', 'updated_at', 'action_btnn']
@@ -637,7 +628,7 @@ class cartadmin(ExportActionMixin,admin.ModelAdmin):
 class checkoutadmin(admin.ModelAdmin):
     list_display=['id','user','products',"Shipping_address"]
     # def get_products(self, obj):
-        # return "\n".join([p.product for p in obj.cart.all()])     
+    # return "\n".join([p.product for p in obj.cart.all()])     
 class ordersadmin(admin.ModelAdmin):
     list_display=['id','user',"checkout_product","ordered_date","status"]
     list_editable = ['status']   
@@ -653,7 +644,7 @@ class latestproductadmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btnn.short_description = "Action"
-    
+
     MAX_OBJECTS = 1
 
     def has_add_permission(self, request):
@@ -663,7 +654,7 @@ class latestproductadmin(admin.ModelAdmin):
 class mostselledproductadmin(admin.ModelAdmin):
     list_display=['id','product','created_date','action_btnn']
     list_editable=['product']
-    
+
     def action_btnn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/most_selled_products/" + \
             str(obj.id)+"/change/'></a><br></br>"
@@ -684,7 +675,6 @@ class newsletterproductadmin(admin.ModelAdmin):
 class socialmedialinksadmin(admin.ModelAdmin):
     list_display=['id','social_media','links','action_btnn']
     list_editable=['links']
-    
     def action_btnn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/socialmedialinks/" + \
             str(obj.id)+"/change/'></a><br></br>"
@@ -694,11 +684,11 @@ class socialmedialinksadmin(admin.ModelAdmin):
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
     action_btnn.short_description = "Action"
+
 class faq_enquiryAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'Phone',
                     'Email', 'Message', 'created_date', 'updated_at', 'action_btn']
     def action_btn(self, obj):
-        
         html = "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/customer_message/" + \
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)
@@ -707,10 +697,6 @@ class notificationadmin(admin.ModelAdmin):
     list_display=["id",'checkout_product','status','user','user_notifications','coupons','sales','created_date',]
 admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
-# class redeemedadmin(admin.ModelAdmin):
-#     list_display=['id','coupon','redeemed_date']
-#     search_fields=['id','coupon',]
-# admin.site.register(redeemed_coupon)
 admin.site.register(socialmedialinks,socialmedialinksadmin)
 admin.site.register(latest_product,latestproductadmin)
 admin.site.register(most_selled_products,mostselledproductadmin)
@@ -738,8 +724,9 @@ admin.site.unregister(get_attachment_model())
 admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
 # admin.site.register(User)
-class UserAdmin(ExportActionMixin,OriginalUserAdmin):
-    list_display = ['id','username', 'email','is_staff', 'phone_no', 'action_btn']
+class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
+    list_display = ['id','username', 'email','is_staff', 'phone_no', 'action_btn','is_confirmed','is_staff']
+    list_editable=['is_confirmed']
     #actions = ['action_btn',]
     def action_btn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/user/" + \

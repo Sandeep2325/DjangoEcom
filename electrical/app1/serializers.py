@@ -199,7 +199,6 @@ class productSerializer(serializers.ModelSerializer):
             for review in reviews:
                 return review
         else:
-            # return format_html("<p class=text-danger>No ratings yet!</p>")
             return "no ratings yet"
 
         # reviews=Rating.objects.filter(product=instance).values_list("Reviews")
@@ -263,7 +262,7 @@ class cartserializer(serializers.ModelSerializer):
             a=coupons.coupon
             list1.append(a)
             b=coupons.coupon_discount
-            
+
         if value!="":
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
@@ -278,7 +277,7 @@ class checkoutcreateserializer(serializers.ModelSerializer):
             a=coupons.coupon
             list1.append(a)
             b=coupons.coupon_discount  
-        if value!="":   
+        if value!="":
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
         return value 
@@ -297,8 +296,7 @@ class checkoutserializer(serializers.ModelSerializer):
         if value!="":   
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
-        return value   
-    
+        return value
 class couponserializers(serializers.ModelSerializer):
     class Meta:
         model=redeemed_coupon
@@ -336,12 +334,10 @@ class orderserializer(serializers.ModelSerializer):
     class Meta:
         model=Orders
         fields=("id","user","checkout_product",)
-    
 class orderscancelserializer(serializers.ModelSerializer):
     class Meta:
         models=Orders
         fields=("id","checkout_product","status")
-        
     def validate_status(self,value):
         pass
 class ordersSerializer(serializers.ModelSerializer):
@@ -355,19 +351,17 @@ class ordersSerializer(serializers.ModelSerializer):
         response["address"] = instance.address.city
         response["product"] = instance.product.title
         return response
-    
 class notificationserializer(serializers.ModelSerializer):
     class Meta:
         fields=('user_notifications','created_date')
         model=notification
-
 class unotificationserializer(serializers.ModelSerializer):
     class Meta:
         fields=("sales","coupons")
         model=notification    
     def to_representation(self, instance):
         result = super(unotificationserializer, self).to_representation(instance)
-        return OrderedDict([(key, result[key]) for key in result if result[key] is not None])    
+        return OrderedDict([(key, result[key]) for key in result if result[key] is not None])     
 class bannerSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
@@ -376,12 +370,10 @@ class blogSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Blog
-
 class faqSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("Question",)
         model = FAQ
-
 class ffaqSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("id", 'Question', 'Answer', 'created_date', 'updated_at')
@@ -495,7 +487,7 @@ class faq_enquirySerializer(serializers.ModelSerializer):
             ['sandeep.nexevo@gmail.com'],
             fail_silently=False,
         )
-        return instance   
+        return instance
 class sociallinkserializer(serializers.ModelSerializer):
     class Meta:
         model=socialmedialinks
@@ -574,15 +566,16 @@ class RegisterSerializer(serializers.ModelSerializer):
             'gowdasandeep8105@gmail.com',
             [to_email],
             fail_silently=False,
-        
         )
         user.set_password(validated_data['password'])
         user.save()
         return user
+    
 class CurrentUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'id','password')     
+        
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()

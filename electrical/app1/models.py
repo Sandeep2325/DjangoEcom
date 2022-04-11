@@ -32,14 +32,19 @@ from django.db.models import Avg, Count
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 
-class User(AbstractUser):
+class User(AbstractUser,PermissionsMixin):
     username = models.CharField(
         max_length=50, blank=False, null=True, unique=True,verbose_name="Full name")
     email = models.EmailField(_('email address'), unique=True)
     # first_name=models.CharField(max_length=50,blank=False,null=True)
     # last_name=models.CharField(max_length=50,blank=False,null=True)
     #native_name = models.CharField(max_length = 5)
+    is_confirmed = models.BooleanField(default=False) #default is True when not using otp email verification
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
     phone_no = models.CharField(max_length=10, null=True, unique=True)
+    otp = models.IntegerField(default=False)
+    is_used = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name','phone_no']
 
@@ -374,7 +379,6 @@ class Cart(models.Model):
                             else:
                                 total_amount=(self.quantity*self.product.price)
                         return total_amount
-                                
                     except:
                         for i in range(len(coupons_list)): 
                             if self.coupon==coupons_list[i]:
@@ -419,12 +423,10 @@ class Cart(models.Model):
         verbose_name_plural = "Carts"
     def __str__(self):
         return str(self.product)
-
 class checkout(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     cart=models.ManyToManyField(Cart)
     Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
-    
     Coupon=models.CharField(max_length=100,null=True,blank=True)
     
     def products(self):
@@ -452,9 +454,9 @@ class checkout(models.Model):
                 print(coupons_list)
                 try: 
                     for i in range(len(coupons_list)):
-                        print("---------------------------",coupons_list[i],"=",i) 
+                        print("---------------------------",coupons_list[i],"=",i)
                         print(self.Coupon,"==",coupons_list[i])
-                        
+
                         if self.Coupon==coupons_list[i]:
                             coupon_price=coupons_discount[i]
                             multiplier=coupon_price/100
@@ -474,7 +476,7 @@ class checkout(models.Model):
             for i in self.cart.all():
                 total=total+i.Total_amount
             return total
-        
+
 class redeemed_coupon(models.Model):  
     checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="checkout product",null=True)
     coupon=models.CharField(max_length=50,null=True,blank=True)
@@ -482,7 +484,6 @@ class redeemed_coupon(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)    
     def __str__(self):
         return self.coupon
-    
 STATUS_CHOICES = (
     ('ordered','ordered'),
     ('Pending', 'Pending'),
@@ -510,7 +511,7 @@ class Orders(models.Model):
         return super().save(*args, **kwargs)
     def __str__(self):
         return (str(self.checkout_product))
-         
+    
 class Coupon(models.Model):
     coupon = models.CharField(
         verbose_name="Coupon_code", max_length=200, null=True, unique=True)
@@ -560,7 +561,7 @@ class Order(models.Model):
         choices=STATUS_CHOICES,
         max_length=50,
         default="Pending"
-    )
+        )
     @property
     def pricee(self,):
         return self.product.price

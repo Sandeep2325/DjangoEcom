@@ -91,14 +91,12 @@ class notificationlist(viewsets.ModelViewSet):
         user = self.request.user
         # return notification.objects.all()
         return notification.objects.filter(user=user)
-
 class deletenotification(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     def get_queryset(self):
         user = self.request.user
         # return notification.objects.all()
         return notification.objects.filter(user=user)
-    
 class universalnotificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -107,16 +105,13 @@ class universalnotificationlist(viewsets.ModelViewSet):
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = categorySerializer
-
 class detailcategory(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Category.objects.all()
     serializer_class=categorySerializer
-
     def list(self, request):
         serializer = categorySerializer(self.queryset, many=True)
         return Response(serializer.data)
-
     def retrieve(self, request, pk=None):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = categorySerializer(item)
@@ -291,7 +286,6 @@ class faqCreateView(CreateAPIView):
 
 class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.filter(Status="Approved")
-    #queryset = Rating.objects.all()
     serializer_class = ratingSerializer
 class ratingCreateView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, )
@@ -310,6 +304,7 @@ class ratingupdateView(UpdateAPIView):
     #     serializer.is_valid(raise_exception=True)
     #     self.perform_update(serializer)
     #     return Response(serializer.data)
+    
 class listcustomermessage(viewsets.ModelViewSet):
     queryset = customer_message.objects.all()
     serializer_class = customermessageSerializer
@@ -323,7 +318,7 @@ class enquiryCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = faq_enquirySerializer
     queryset = enquiryform.objects.all()
-
+    
 class AddCouponView(APIView):
     permission_classes = (IsAuthenticated, )
 
@@ -338,7 +333,7 @@ class AddCouponView(APIView):
         order.coupon = coupon
         order.save(*args, **kwargs)
         return Response(status=HTTP_200_OK)
-
+    
 class CouponViewSet(viewsets.ModelViewSet):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
@@ -359,19 +354,17 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
    ######## 
 
+
 class cartlist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = cartserializer
     def get_queryset(self):
         user = self.request.user
         return Cart.objects.filter(user=user)
-    
     # queryset = Cart.objects.all()
-
     # def list(self, request):
     #     serializer = cartserializer(self.queryset,many=True)
     #     return Response(serializer.data)
-
     # def retrieve(self, request, pk=None):
     #     item = get_object_or_404(self.queryset, pk=pk)
     #     serializer = cartserializer(item)
@@ -381,7 +374,7 @@ class cartCreateView(CreateAPIView):
     serializer_class = cartcreateserializer
     queryset = Cart.objects.all()  
     # for i in queryset:
-    #     print(i.product)     
+    #     print(i.product)
 class cartDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Cart.objects.all()
@@ -444,6 +437,7 @@ class ordersCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ordercreateserializer
     queryset = Orders.objects.all()   
+    
 class ordercancelview(UpdateAPIView):
     permission_classes= (IsAuthenticated,)
     queryset=Orders.objects.all()
