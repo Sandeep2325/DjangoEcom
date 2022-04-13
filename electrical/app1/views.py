@@ -283,7 +283,6 @@ class faqCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = faqSerializer
     queryset = FAQ.objects.all()
-
 class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.filter(Status="Approved")
     serializer_class = ratingSerializer
@@ -295,6 +294,7 @@ class ratingupdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
     queryset = Rating.objects.all()
+    
     # queryset=Rating.objects.filter(Status="Approved")
     # def update(self, request, *args, **kwargs):
     #     instance = self.get_object()
@@ -321,7 +321,6 @@ class enquiryCreateView(CreateAPIView):
     
 class AddCouponView(APIView):
     permission_classes = (IsAuthenticated, )
-
     def post(self, request, *args, **kwargs):
         code = request.data.get('code', None)
         if code is None:
@@ -424,6 +423,8 @@ class orderslist(viewsets.ModelViewSet):
         user = self.request.user
         print("qeeeeeewqeeeeeee",user)
         return Orders.objects.filter(user=user)
+class ordercancel(APIView):
+    pass
 class ordersDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Orders.objects.all()
@@ -436,7 +437,7 @@ class ordersdetail(generics.RetrieveUpdateDestroyAPIView):
 class ordersCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ordercreateserializer
-    queryset = Orders.objects.all()   
+    queryset = Orders.objects.all()
     
 class ordercancelview(UpdateAPIView):
     permission_classes= (IsAuthenticated,)

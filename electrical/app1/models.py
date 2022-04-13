@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from PIL import Image
-
+from django.conf import settings
 from math import ceil
 from ckeditor.fields import RichTextField
 from django.http import Http404, HttpResponse
@@ -747,6 +747,7 @@ STATUS_CHOICES = [
     ('d', 'Draft'),
     ('s', 'sent'),
 ]
+
 class MailText(models.Model):
     users = models.ManyToManyField(User)
     subject = models.CharField(max_length=255, null=True, blank=True)
@@ -764,7 +765,6 @@ class MailText(models.Model):
         savee = super(MailText, self).save(*args, **kwargs)
 
         if self.send_it == True:
- 
             user_list = []
             print(self.users.all())
             for u in self.users.all():
@@ -773,7 +773,7 @@ class MailText(models.Model):
             # print(user_list)
             send_mail(str(self.subject),
                       strip_tags(str(self.message)),
-                      'gowdasandeep8105@gmail.com',
+                      settings.EMAIL_HOST_USER,
                       user_list,
                       fail_silently=False)
             

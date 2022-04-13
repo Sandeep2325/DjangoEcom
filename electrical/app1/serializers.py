@@ -148,7 +148,7 @@ class imageserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
         model=image
-class productSerializer(serializers.ModelSerializer):
+class productSerializer(serializers.HyperlinkedModelSerializer):
     category=categorySerializer(read_only=True)
     brand=brandserializer(read_only=True)
     image=imageserializer(many=True,read_only=True)
@@ -240,7 +240,7 @@ class newsletterserializer(serializers.ModelSerializer):
         send_mail(
             'Prakash Electricals',
             'Thank you for subscribing our Newsletter',
-            'gowdasandeep8105@gmail.com',
+            settings.EMAIL_HOST_USER,
             [instance.Email],
             fail_silently=False,
         )
@@ -443,7 +443,7 @@ class customermessageSerializer(serializers.ModelSerializer):
         send_mail(
             'You have a message from {}'.format(instance.first_name),
             'First name: {}\nLast name: {}\nEmail: {}\nPhone: {}\nMessage: {}'.format(instance.first_name,instance.last_name,instance.Email,instance.Phone,instance.Message),
-            'gowdasandeep8105@gmail.com',
+            settings.EMAIL_HOST_USER,
             ['sandeep.nexevo@gmail.com'],
             fail_silently=False,
         
@@ -483,7 +483,7 @@ class faq_enquirySerializer(serializers.ModelSerializer):
         send_mail(
             'You have a message from {}'.format(instance.name),
             'Name: {}\nEmail: {}\nPhone: {}\nMessage: {}'.format(instance.name,instance.Email,instance.Phone,instance.Message),
-            'gowdasandeep8105@gmail.com',
+            settings.EMAIL_HOST_USER,
             ['sandeep.nexevo@gmail.com'],
             fail_silently=False,
         )
@@ -563,7 +563,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         send_mail(
             'Hi... {}'.format(name),
             'your otp is {}'.format(otp),
-            'gowdasandeep8105@gmail.com',
+            settings.EMAIL_HOST_USER,
             [to_email],
             fail_silently=False,
         )

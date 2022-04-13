@@ -17,7 +17,6 @@ from django.core.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
-
 # generating OTP
 
 
@@ -147,8 +146,50 @@ class ForgotPasswordView(APIView):
             )
             return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
         else:
-            return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST) 
+class resendotp(APIView):
+    serializer_class = ForgotPasswordSerializer
+    permission_classes = (AllowAny,)  
+    subject = 'Forgot Password OTP'
+    message = 'Your password change OTP is ' + generateOTP()
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = ['sandeep.nexevo@gmail.com']
+
+    send_mail(
+                subject,
+                message,
+                email_from,
+                recipient_list,
+                fail_silently=False,
+            )
+    
+    # def post(self, request):
+    #     serializer = self.serializer_class(data=request.data)
         
+    #     # password2 = handler.hash()
+
+    #     if serializer.is_valid():
+    #         email = request.data['email']
+    #         # password=request.data['password2']
+    #         # password2 = handler.hash(password)
+    #         # print(email)
+    #         # User.objects.filter(email=email).update(password=password2)
+
+    #         subject = 'Forgot Password OTP'
+    #         message = 'Your password change OTP is ' + generateOTP()
+    #         email_from = settings.EMAIL_HOST_USER
+    #         recipient_list = [a]
+
+    #         send_mail(
+    #             subject,
+    #             message,
+    #             email_from,
+    #             recipient_list,
+    #             fail_silently=False,
+    #         )
+    #         return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)  
 class forgotpasswordotpverification(APIView):
     permission_classes = (AllowAny,)
     serializer_class = forgotverifyserializer
@@ -159,6 +200,7 @@ class forgotpasswordotpverification(APIView):
         one_time = request.data['otp']
         password=request.data['password2']
         password2 = handler.hash(password)
+        
         print('one_time_password', one_time)
         one = verifyOTP(one_time)
         print('one', one)
@@ -171,9 +213,9 @@ class forgotpasswordotpverification(APIView):
 
 class ResetPasswordView(APIView):
     serializer_class = ResetPasswordSerializer
-
+    permission_classes = (AllowAny,)
     def post(self, request):
-        token1 = request.META['HTTP_AUTHORIZATION']
+        token1 = request.META["HTTP_AUTHORIZATION"]
         token = token1.split(' ')[1]
         data = {'token': token}
         payload_decoded = jwt.decode(token, settings.SECRET_KEY)
@@ -183,7 +225,6 @@ class ResetPasswordView(APIView):
             self.request.user = user_id
         except jwt.ExpiredSignatureError:
             return Response(status=440)
-
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
             new_password = request.data['new_password']
@@ -201,17 +242,18 @@ class ResetPasswordView(APIView):
         else:
             return Response({'msg': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
 
-
+from rest_framework_simplejwt.tokens import RefreshToken
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
-
+    
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         email = request.data['email']
         print('email', email)
         filter_data = User.objects.filter(email=email).values('is_active')
         print('filter_data', filter_data)
+     
         if filter_data.exists():
             val = filter_data[0]['is_active']
         else:
@@ -222,12 +264,24 @@ class LoginAPIView(APIView):
                 user = authenticate(
                     username=request.data['email'], password=request.data['password'])
                 update_last_login(None, user)
+                # @classmethod
+                # def get_token(cls, user):
+                #     return RefreshToken.for_user(user)
+                
                 if user is not None and user.is_confirmed and user.is_active:  # change according to yourself
                     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
                     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
                     payload = jwt_payload_handler(user)
                     token = jwt_encode_handler(payload)
-                    return Response({'msg': 'Login successful', 'is_confirmed': user.is_confirmed, 'token': token,
+                    # payload = jwt_payload_handler(user)
+                    # token1 = jwt.encode(payload, settings.SECRET_KEY)
+                    
+                    refresh1 = RefreshToken.for_user(user)
+                    refresh_token=str(refresh1)
+                    token2=str(refresh1.access_token)
+                    print(refresh_token)
+                    print(token2)
+                    return Response({'msg': 'Login successful', 'is_confirmed': user.is_confirmed, 'access token': token2,"refresh token":refresh_token,
                                      }, status=status.HTTP_200_OK)
                 else:
                     return Response({'msg': 'Account not approved or wrong Password.'}, status=status.HTTP_409_CONFLICT)
@@ -236,3 +290,10 @@ class LoginAPIView(APIView):
 
         else:
             return Response({'Error': 'Not a valid user'}, status=status.HTTP_401_UNAUTHORIZED)
+from rest_framework import generics
+
+class ChangePasswordView(generics.UpdateAPIView):
+
+    queryset = User.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ChangePasswordSerializer

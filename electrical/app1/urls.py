@@ -81,10 +81,12 @@ urlpatterns = [
     
     
     
-    path('register1', RegistrationAPIView.as_view()), #Registeration
-    path('login1', LoginAPIView.as_view()), #Login after otp verification
-    path('verify1', emailverify.as_view()), #otp Verify
-    path('forgot1', ForgotPasswordView.as_view(), name='forgot-password'), #forgot Password
-    path('reset1', ResetPasswordView.as_view(), name='reset-password'), #Resetting the Password after Login
-    path('forgotverify1',forgotpasswordotpverification.as_view(),name='forgot-verify'),
+    path('register1/', RegistrationAPIView.as_view()), #Registeration
+    path('login1/', LoginAPIView.as_view()), #Login after otp verification
+    path('verify1/', emailverify.as_view()), #otp Verify
+    path('forgot1/', ForgotPasswordView.as_view(), name='forgot-password'), #forgot Password
+    path('reset1/', ResetPasswordView.as_view(), name='reset-password'), #Resetting the Password after Login
+    path('forgotverify1/',forgotpasswordotpverification.as_view(),name='forgot-verify'),
+    path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='auth_change_password'),
+    path('resend',resendotp.as_view(),name='resend')
 ]

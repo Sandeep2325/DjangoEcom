@@ -596,7 +596,7 @@ class customer_messageAdmin(admin.ModelAdmin):
                 email_html_template=select_template(html_tpl_path).render(context_data)
                 email = i.Email
                 message = "Hi {},\nyour message was recieved\nthank you ".format(i.first_name)
-                a = send_mail('Prakash Electrical', email_html_template, 'gowdasandeep8105@gmail.com', [
+                a = send_mail('Prakash Electrical', email_html_template, settings.EMAIL_HOST_USER, [
                                 email], fail_silently=False,),messages.success(request, "Successfully sent to {}".format(email))
                 print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
     # actions = ["send_message"]
@@ -725,7 +725,7 @@ admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
 # admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
-    list_display = ['id','username', 'email','is_staff', 'phone_no', 'action_btn','is_confirmed','is_staff']
+    list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn']
     list_editable=['is_confirmed']
     #actions = ['action_btn',]
     def action_btn(self, obj):
