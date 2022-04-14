@@ -88,5 +88,5 @@ urlpatterns = [
     path('reset1/', ResetPasswordView.as_view(), name='reset-password'), #Resetting the Password after Login
     path('forgotverify1/',forgotpasswordotpverification.as_view(),name='forgot-verify'),
     path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='auth_change_password'),
-    path('resend',resendotp.as_view(),name='resend')
+#     path('resend',resendotp.as_view(),name='resend')
 ]

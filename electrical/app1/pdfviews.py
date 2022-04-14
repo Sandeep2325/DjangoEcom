@@ -41,8 +41,6 @@
 #             return response
         
 #         return HttpResponse("Not found")
-    
-    
 # import io
 # from django.http import FileResponse
 # from reportlab.pdfgen import canvas

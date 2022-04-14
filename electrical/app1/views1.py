@@ -1,9 +1,11 @@
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import pyotp
 import random
 import jwt
+import hashlib
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import User
@@ -131,29 +133,35 @@ class ForgotPasswordView(APIView):
             # password2 = handler.hash(password)
             # print(email)
             # User.objects.filter(email=email).update(password=password2)
+            a=[]
+            for i in User.objects.all():
+                a.append(i.email)
+            print(a)
+            if email not in a:
+                return Response({'msg': 'Email not registered'}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                subject = 'Forgot Password OTP'
+                message = 'Your password change OTP is ' + generateOTP()
+                email_from = settings.EMAIL_HOST_USER
+                recipient_list = [email]
 
-            subject = 'Forgot Password OTP'
-            message = 'Your password change OTP is ' + generateOTP()
-            email_from = settings.EMAIL_HOST_USER
-            recipient_list = [email]
-
-            send_mail(
-                subject,
-                message,
-                email_from,
-                recipient_list,
-                fail_silently=False,
-            )
-            return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
+                send_mail(
+                    subject,
+                    message,
+                    email_from,
+                    recipient_list,
+                    fail_silently=False,
+                )
+                return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
         else:
-            return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST) 
+            return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
 class resendotp(APIView):
     serializer_class = ForgotPasswordSerializer
     permission_classes = (AllowAny,)  
-    subject = 'Forgot Password OTP'
-    message = 'Your password change OTP is ' + generateOTP()
+    subject = 'Resent OTP'
+    message = 'Resent OTP' + generateOTP()
     email_from = settings.EMAIL_HOST_USER
-    recipient_list = ['sandeep.nexevo@gmail.com']
+    recipient_list = ['']
 
     send_mail(
                 subject,
@@ -189,7 +197,8 @@ class resendotp(APIView):
     #         )
     #         return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
     #     else:
-    #         return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)  
+    #         return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
+      
 class forgotpasswordotpverification(APIView):
     permission_classes = (AllowAny,)
     serializer_class = forgotverifyserializer
@@ -200,7 +209,6 @@ class forgotpasswordotpverification(APIView):
         one_time = request.data['otp']
         password=request.data['password2']
         password2 = handler.hash(password)
-        
         print('one_time_password', one_time)
         one = verifyOTP(one_time)
         print('one', one)
@@ -291,7 +299,6 @@ class LoginAPIView(APIView):
         else:
             return Response({'Error': 'Not a valid user'}, status=status.HTTP_401_UNAUTHORIZED)
 from rest_framework import generics
-
 class ChangePasswordView(generics.UpdateAPIView):
 
     queryset = User.objects.all()

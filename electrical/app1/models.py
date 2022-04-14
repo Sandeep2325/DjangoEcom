@@ -238,7 +238,6 @@ class Product(models.Model):
 
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
-
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date")
     updated_at = models.DateTimeField(
