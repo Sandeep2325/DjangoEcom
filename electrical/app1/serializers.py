@@ -250,7 +250,6 @@ class cartcreateserializer(serializers.ModelSerializer):
         fields=('id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at')
         model=Cart
 class cartserializer(serializers.ModelSerializer):
-    
     product=productSerializer(read_only=True)
     attributes=attributesSerializer(read_only=True)
     class Meta:
@@ -378,7 +377,6 @@ class ffaqSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("id", 'Question', 'Answer', 'created_date', 'updated_at')
         model = FAQ
-
 class ratingSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("user", "product", "Reviews", "Rating")
@@ -408,7 +406,6 @@ class customermessageSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = customer_message
-
     def validate_first_name(self, value):
         if value == "":
             raise serializers.ValidationError("Please provide first name")

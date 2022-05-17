@@ -3,7 +3,6 @@ from django.contrib.auth import authenticate
 from .models import User
 from django.contrib.auth.password_validation import validate_password
 class RegistrationSerializer(serializers.ModelSerializer):
-    
     password = serializers.CharField(
         write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
@@ -23,9 +22,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
-
 class VerifyOTPSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = User
         fields = ['email','otp']
@@ -49,19 +46,17 @@ class ForgotPasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email',)
-
-
+        
 class ResetPasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
     old_password = serializers.CharField(max_length=255)
     new_password = serializers.CharField(max_length=255)
     confirm_password = serializers.CharField(max_length=255)
-
     class Meta:
         model = User
         fields = ('email', 'old_password', 'new_password', 'confirm_password')
         
-
+class loginserializer(serializers.ModelSerializer):...      
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
     # username = serializers.CharField(max_length=255, read_only=True)
@@ -83,8 +78,7 @@ class LoginSerializer(serializers.Serializer):
     #     if password is None:
     #         raise serializers.ValidationError(
     #             'A password is required to log in.'
-    #         )
-
+    #         ) 
     #     user = authenticate(username=email, password=password)
 
     #     # if not user.is_active:

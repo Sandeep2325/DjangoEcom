@@ -7,9 +7,9 @@ from app1.views1 import *
 from rest_framework_simplejwt.views import TokenRefreshView
 urlpatterns = [
     path('current-user/', CurrentUserViewSet.as_view(), name="current_user"),
-    path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
-    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', RegisterView.as_view(), name='auth_register'),
+#     path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
+#     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+#     path('register/', RegisterView.as_view(), name='auth_register'),
     path('myaccount/',
          listmyaccount.as_view({'get': 'list'}), name="myaccount"),
     path('myaccount/create/', myaccountCreateView.as_view(),
@@ -21,7 +21,9 @@ urlpatterns = [
     path('categories/<int:pk>/', detailcategory.as_view(), name="single_category"),
     path('brands/',
          listbrand.as_view({'get': 'list'}), name="Brands"),
+    path('brands1/', brandproductlist1.as_view(), name='brand1'),
     path('brands/<int:pk>/', detailbrand.as_view(), name="single_brand"),
+    path('brand/', brandproductlist.as_view({'get': 'list'}), name="brand_product"),
     path('product/', Productlist.as_view({'get': 'list'}), name="product"),
     path('product/<int:pk>/', Productdetail.as_view(), name="single_product"),
     path('latest-product/', latestproductlist.as_view({'get': 'list'}), name="latest_product"),
@@ -60,7 +62,7 @@ urlpatterns = [
     path('cart/<pk>/update/', cartupdateView.as_view(), name='cart-update'),
     path('checkout/', checkoutlist.as_view({'get': 'list'}), name="checkout"),
     path('checkout/create/', checkoutCreateView.as_view(), name='checkout-create'),
-#     path('checkout-coupon/create/', checkoutcouponcreate.as_view(), name='checkoutcoupon-create'),
+    #     path('checkout-coupon/create/', checkoutcouponcreate.as_view(), name='checkoutcoupon-create'),
     path('orders/', orderslist.as_view({'get': 'list'}), name="orders"),
     path('orders/<int:pk>/', ordersdetail.as_view(), name="single_orders"),
     path('orders/create/', ordersCreateView.as_view(), name='orders-create'),
@@ -68,20 +70,15 @@ urlpatterns = [
          ordersDeleteView.as_view(), name='orders-delete'),
     path('orders/<pk>/cancel/', ordercancelview.as_view(), name='order-cancel'),
     path('redeem_coupon/',couponredeemview.as_view(),name="coupon-redeem"),
-    path('newsletter/', newsletterCreateView.as_view(),
-         name='newscreate'),
+    path('newsletter/', newsletterCreateView.as_view(),name='newscreate'),
     path('notification/', notificationlist.as_view({'get': 'list'}), name="notification"),
     path('notification/<pk>/delete/',
          deletenotification.as_view(), name='notification-delete'),
     path('unotification/', universalnotificationlist.as_view({'get': 'list'}), name="notification"),
-
     path('faq_enquiry/', enquiryCreateView.as_view(),
          name='faq_enquiry'),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),
-    
-    
-    
-    path('register1/', RegistrationAPIView.as_view()), #Registeration
+    path('register1/', RegistrationAPIView.as_view()), #Registration
     path('login1/', LoginAPIView.as_view()), #Login after otp verification
     path('verify1/', emailverify.as_view()), #otp Verify
     path('forgot1/', ForgotPasswordView.as_view(), name='forgot-password'), #forgot Password

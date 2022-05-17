@@ -201,6 +201,9 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+]
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
@@ -220,16 +223,16 @@ JWT_AUTH_COOKIE = 'my-app-auth'
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'users.serializers.CustomUserDetailsSerializer',
 }
-# REST_FRAMEWORK = {
-#     'DEFAULT_PERMISSION_CLASSES':
-#         ('rest_framework.permissions.IsAuthenticated',),
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES':
+        ('rest_framework.permissions.IsAuthenticated',),
 
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
 
-#     ),
+    # ),
 
-# }
+}
 # JSONWebToken Settings
 JWT_AUTH = {
     'JWT_ENCODE_HANDLER':
@@ -285,8 +288,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
-
 SITE_ID = 1
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #BOOTSTRAP_ADMIN_SIDEBAR_MENU = False

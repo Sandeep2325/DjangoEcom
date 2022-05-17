@@ -13,7 +13,7 @@
 # from django.http import Http404
 # from django.core.exceptions import ObjectDoesNotExist
 # from rest_framework.mixins import ListModelMixin
-# from re import U
+from re import U
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 from django.shortcuts import render, redirect
@@ -27,7 +27,6 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.core.mail import send_mail, BadHeaderError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
-
 from app1.admin import cartadmin
 from .serializers import MyTokenObtainPairSerializer
 from rest_framework import generics
@@ -47,7 +46,6 @@ from django.shortcuts import render
 from app1.forms import *
 from rest_framework.pagination import PageNumberPagination
 #from app1 import views
-
 """ class RegisterApi(generics.GenericAPIView):
     serializer_class = RegisterSerializer
     def post(self, request, *args,  **kwargs):
@@ -75,7 +73,7 @@ class listmyaccount(viewsets.ModelViewSet):
         user = self.request.user
         return my_account.objects.filter(user=user)  
 class myaccountCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    # permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
    
@@ -119,6 +117,8 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
 class listbrand(viewsets.ModelViewSet):
     queryset=Brand.objects.all()
     serializer_class=brandserializer
+    
+
 class detailbrand(RetrieveAPIView):
     queryset=Brand.objects.all()
     serializer_class=brandserializer
@@ -136,10 +136,9 @@ class detailbrand(RetrieveAPIView):
 #         serializer = productSerializer(item)
 #         return Response(serializer.data)
 
-
 class Productlist(viewsets.ModelViewSet):
     # permission_classes = (IsAuthenticated, )
-    queryset = Product.objects.filter(is_active=True)
+    queryset = Product.objects.filter(is_active=True).order_by('id')
     # product_detail = Product.objects.get(id=id)
     # review = Rating.objects.filter(product = product_detail)
     serializer_class = productSerializer
@@ -148,7 +147,19 @@ class Productlist(viewsets.ModelViewSet):
         'category',
         'brand',
     )
+class brandproductlist(viewsets.ModelViewSet):
+    queryset = Product.objects.filter(brand=2)
+    serializer_class = productSerializer
 
+class brandproductlist1(ListAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = productSerializer
+
+    def get_queryset(self):
+        brand = self.request.brand
+        print("----------------------------------------------",brand)
+        return Address.objects.filter(brand=brand)
+    
 class Productdetail(generics.RetrieveAPIView):
     queryset = Product.objects.filter(is_active=True)
     serializer_class = productSerializer
@@ -193,7 +204,7 @@ class attributelist(viewsets.ModelViewSet):
 class attributedetail(generics.RetrieveAPIView):
     queryset = Attributes.objects.all()
     serializer_class = attributesSerializer
-      
+   
 # class orderlist(APIView):
 #     permission_classes = (IsAuthenticated, )
 #     def get(self, request):
@@ -231,7 +242,6 @@ class orderdetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = ordersSerializer
 
-
 class orderCreateView(CreateAPIView):
     # permission_classes = (IsAuthenticated, )
     serializer_class = ordersSerializer
@@ -249,12 +259,10 @@ class AddressCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
-
 class AddressUpdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
-
 class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Address.objects.all()
@@ -262,22 +270,15 @@ class newsletterCreateView(CreateAPIView):
     # permission_classes = (IsAuthenticated, )
     serializer_class = newsletterserializer
     queryset = newsletter.objects.all()
-
 class Listbanner(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
     serializer_class = bannerSerializer
-
-
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
-
-
 class Listfaq(viewsets.ModelViewSet):
     queryset = FAQ.objects.filter(status="p")
     serializer_class = ffaqSerializer
-
-
 class faqCreateView(CreateAPIView):
     # queryset=FAQ.objects.filter(Status="Approved")
     permission_classes = (IsAuthenticated, )
@@ -346,14 +347,11 @@ class CouponViewSet(viewsets.ModelViewSet):
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
-
+    
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
-   ######## 
-
-
 class cartlist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = cartserializer

@@ -31,7 +31,6 @@ from embed_video.fields import EmbedVideoField
 from django.db.models import Avg, Count
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
-
 class User(AbstractUser,PermissionsMixin):
     username = models.CharField(
         max_length=50, blank=False, null=True, unique=True,verbose_name="Full name")
@@ -344,7 +343,6 @@ class Cart(models.Model):
     @property
     def Total_amount(self): 
         try:
-            
             if self.product.discounted_price is None:
                 try:  
                     total_amount=(self.quantity*self.product.price)
@@ -417,7 +415,7 @@ class Cart(models.Model):
             return self.price-self.Total_amount
         except:
             pass
-       
+        
     class Meta:
         verbose_name_plural = "Carts"
     def __str__(self):
@@ -427,7 +425,7 @@ class checkout(models.Model):
     cart=models.ManyToManyField(Cart)
     Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
     Coupon=models.CharField(max_length=100,null=True,blank=True)
-    
+
     def products(self):
         return ",".join([str(p) for p in self.cart.all()])
     def No_of_items_to_checkout(self):
@@ -453,23 +451,20 @@ class checkout(models.Model):
                 print(coupons_list)
                 try: 
                     for i in range(len(coupons_list)):
-                        print("---------------------------",coupons_list[i],"=",i)
+                        # print("---------------------------",coupons_list[i],"=",i)
                         print(self.Coupon,"==",coupons_list[i])
-
                         if self.Coupon==coupons_list[i]:
                             coupon_price=coupons_discount[i]
                             multiplier=coupon_price/100
                             old_price=total
                             newprice=ceil(old_price-(old_price*multiplier))
                             price=newprice
-                            # continue
                         else:
                             price=total
                     return price
-                                
                 except Exception as e:
                     print(e)
-        except :
+        except:
             # print(e)
             total=0
             for i in self.cart.all():
@@ -483,6 +478,7 @@ class redeemed_coupon(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)    
     def __str__(self):
         return self.coupon
+    
 STATUS_CHOICES = (
     ('ordered','ordered'),
     ('Pending', 'Pending'),
@@ -510,7 +506,7 @@ class Orders(models.Model):
         return super().save(*args, **kwargs)
     def __str__(self):
         return (str(self.checkout_product))
-    
+
 class Coupon(models.Model):
     coupon = models.CharField(
         verbose_name="Coupon_code", max_length=200, null=True, unique=True)
@@ -538,6 +534,7 @@ STATUS_CHOICES = (
     ('Delivered', 'Delivered'),
     ('Cancelled', 'Cancelled'),
 )
+
 class Order(models.Model):
     user = models.ForeignKey(User, verbose_name="User",
                              on_delete=models.CASCADE)
@@ -722,7 +719,6 @@ class customer_message(models.Model):
 
 
 class Banner(models.Model):
-
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to="Banner", blank=True, null=True,)
     uploaded_date = models.DateField(auto_now_add=True)
@@ -778,8 +774,6 @@ class MailText(models.Model):
             
         self.status="s"    
         return savee
-
-            
     class Meta:
         verbose_name = "Email marketing"
         verbose_name_plural = "Email marketing"
@@ -806,7 +800,7 @@ class most_selled_products(models.Model):
     #         return count
     #     except:
     #         pass
-        
+
     class Meta:
         verbose_name_plural = "Most selled products"
 class newsletter(models.Model):
@@ -830,13 +824,10 @@ class enquiryform(models.Model):
         auto_now=True, verbose_name="Updated Date", null=True)
     class Meta:
         verbose_name_plural="FAQ Enquiry"
-        
 class socialmedialinks(models.Model):
     social_media=models.CharField(max_length=100,null=True,blank=True,verbose_name="social media")
     links=models.URLField(null=True,blank=True,verbose_name="link")
-    
     def __str__(self):
         return self.social_media
     class Meta:
-        verbose_name_plural="Social media links"    
-            
+        verbose_name_plural="Social media links"

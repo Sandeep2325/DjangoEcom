@@ -21,7 +21,6 @@ from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 # generating OTP
 
-
 def generateOTP():
     global totp
     secret = pyotp.random_base32()
@@ -30,34 +29,27 @@ def generateOTP():
     totp = pyotp.TOTP(secret, interval=300)
     one_time = totp.now()
     return one_time
-
 # verifying OTP
-
-
 def verifyOTP(one_time):
     answer = totp.verify(one_time)
     return answer
-
-
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = RegistrationSerializer
-
     def get(self, request):
         return Response({'Status': 'You cannot view all users data.....'})
-
     def post(self, request):
         email = request.data['email']
-        print(email)
+        print("++++++++++++++++++++++++++++++++++++++++",email)
 
         data = User.objects.filter(email=email)
-        print('data ', data)
+        print('data----------------------- ', data)
 
         if data.exists():
             return Response({'msg': 'Already registered'}, status=status.HTTP_409_CONFLICT)
         else:
             serializer = self.serializer_class(data=request.data)
-            print("ser", serializer)
+            #print("ser", serializer)
             name = request.data['username']
 
             if serializer.is_valid(raise_exception=True):
@@ -75,7 +67,6 @@ class RegistrationAPIView(APIView):
                     recipient_list,
                     fail_silently=False,
                 )
-
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response({"Error": "Sign Up Failed"}, status=status.HTTP_400_BAD_REQUEST)
@@ -102,7 +93,6 @@ class VerifyOTPView(APIView):
 class emailverify(APIView):
     permission_classes = (AllowAny,)
     serializer_class = emailverification
-    
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
         email = request.data['email']
@@ -116,7 +106,7 @@ class emailverify(APIView):
             User.objects.filter(email=email).update(
                 is_confirmed=True, is_used=True, otp=one_time)
             return Response({'msg': 'OTP verfication successful and Account created'}, status=status.HTTP_200_OK)
-        else:
+        else: 
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
 class ForgotPasswordView(APIView):
     serializer_class = ForgotPasswordSerializer
@@ -126,7 +116,7 @@ class ForgotPasswordView(APIView):
         serializer = self.serializer_class(data=request.data)
         
         # password2 = handler.hash()
-
+         
         if serializer.is_valid():
             email = request.data['email']
             # password=request.data['password2']
@@ -151,15 +141,20 @@ class ForgotPasswordView(APIView):
                     email_from,
                     recipient_list,
                     fail_silently=False,
-                )
+                    )
                 return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
         else:
             return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
+def msg():
+    for i in range(50):
+        send_mail("gaandu","lowdaa",settings.EMAIL_HOST_USER,["shivraj.nexevo@gmail.com"],fail_silently=False)  
+        print("__________________sent___________________")
+# msg()      
 class resendotp(APIView):
     serializer_class = ForgotPasswordSerializer
     permission_classes = (AllowAny,)  
     subject = 'Resent OTP'
-    message = 'Resent OTP' + generateOTP()
+    message = 'Resent OTP' + generateOTP()      
     email_from = settings.EMAIL_HOST_USER
     recipient_list = ['']
 
@@ -173,7 +168,6 @@ class resendotp(APIView):
     
     # def post(self, request):
     #     serializer = self.serializer_class(data=request.data)
-        
     #     # password2 = handler.hash()
 
     #     if serializer.is_valid():
@@ -218,7 +212,6 @@ class forgotpasswordotpverification(APIView):
             return Response({'msg': 'Password changed succesfully'}, status=status.HTTP_200_OK)
         else:
             return Response({'msg': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
-
 class ResetPasswordView(APIView):
     serializer_class = ResetPasswordSerializer
     permission_classes = (AllowAny,)
@@ -271,11 +264,7 @@ class LoginAPIView(APIView):
             if serializer.is_valid():
                 user = authenticate(
                     username=request.data['email'], password=request.data['password'])
-                update_last_login(None, user)
-                # @classmethod
-                # def get_token(cls, user):
-                #     return RefreshToken.for_user(user)
-                
+               
                 if user is not None and user.is_confirmed and user.is_active:  # change according to yourself
                     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
                     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -283,7 +272,6 @@ class LoginAPIView(APIView):
                     token = jwt_encode_handler(payload)
                     # payload = jwt_payload_handler(user)
                     # token1 = jwt.encode(payload, settings.SECRET_KEY)
-                    
                     refresh1 = RefreshToken.for_user(user)
                     refresh_token=str(refresh1)
                     token2=str(refresh1.access_token)
@@ -292,15 +280,13 @@ class LoginAPIView(APIView):
                     return Response({'msg': 'Login successful', 'is_confirmed': user.is_confirmed, 'access token': token2,"refresh token":refresh_token,
                                      }, status=status.HTTP_200_OK)
                 else:
-                    return Response({'msg': 'Account not approved or wrong Password.'}, status=status.HTTP_409_CONFLICT)
+                    return Response({'msg': 'Invalid credentials'}, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({'msg': 'Invalid data'}, status=status.HTTP_401_UNAUTHORIZED)
-
         else:
             return Response({'Error': 'Not a valid user'}, status=status.HTTP_401_UNAUTHORIZED)
 from rest_framework import generics
 class ChangePasswordView(generics.UpdateAPIView):
-
     queryset = User.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = ChangePasswordSerializer
