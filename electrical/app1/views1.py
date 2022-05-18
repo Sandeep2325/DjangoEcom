@@ -212,6 +212,7 @@ class forgotpasswordotpverification(APIView):
             return Response({'msg': 'Password changed succesfully'}, status=status.HTTP_200_OK)
         else:
             return Response({'msg': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+        
 class ResetPasswordView(APIView):
     serializer_class = ResetPasswordSerializer
     permission_classes = (AllowAny,)
@@ -230,7 +231,6 @@ class ResetPasswordView(APIView):
         if serializer.is_valid():
             new_password = request.data['new_password']
             confirm_password = request.data['confirm_password']
-
             if new_password == confirm_password:
                 password = handler.hash(new_password)
                 email = request.data['email']
@@ -244,6 +244,7 @@ class ResetPasswordView(APIView):
             return Response({'msg': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
 
 from rest_framework_simplejwt.tokens import RefreshToken
+
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
@@ -254,12 +255,10 @@ class LoginAPIView(APIView):
         print('email', email)
         filter_data = User.objects.filter(email=email).values('is_active')
         print('filter_data', filter_data)
-     
         if filter_data.exists():
             val = filter_data[0]['is_active']
         else:
             return Response("Email is not Registered", status=status.HTTP_400_BAD_REQUEST)
-
         if val:
             if serializer.is_valid():
                 user = authenticate(
