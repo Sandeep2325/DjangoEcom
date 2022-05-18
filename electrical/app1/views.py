@@ -73,7 +73,7 @@ class listmyaccount(viewsets.ModelViewSet):
         user = self.request.user
         return my_account.objects.filter(user=user)  
 class myaccountCreateView(CreateAPIView):
-    # permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
    
@@ -137,7 +137,7 @@ class detailbrand(RetrieveAPIView):
 #         return Response(serializer.data)
 
 class Productlist(viewsets.ModelViewSet):
-    # permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, )
     queryset = Product.objects.filter(is_active=True).order_by('id')
     # product_detail = Product.objects.get(id=id)
     # review = Rating.objects.filter(product = product_detail)

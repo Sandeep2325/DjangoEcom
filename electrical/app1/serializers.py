@@ -49,7 +49,7 @@ class myaccountlistserializer(serializers.ModelSerializer):
         model=my_account
         
 class myaccountserializers(serializers.ModelSerializer):
-    user=userserializer(read_only=True)
+    # user=userserializer(read_only=True)
     class Meta:
         fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
         model=my_account

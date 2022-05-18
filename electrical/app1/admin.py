@@ -672,6 +672,10 @@ class newsletterproductadmin(admin.ModelAdmin):
     list_display=['id','Email','subscribed_date']
     # list_editable=['']
     search_fields = ['Email']
+class myaccount(admin.ModelAdmin):
+    list_display=['id','user']
+    # list_editable=['']
+    # search_fields = ['Email']
 class socialmedialinksadmin(admin.ModelAdmin):
     list_display=['id','social_media','links','action_btnn']
     list_editable=['links']
@@ -723,6 +727,7 @@ admin.site.register(MailText, mailadmin)
 admin.site.unregister(get_attachment_model())
 admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
+admin.site.register(my_account,myaccount)
 # admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
     list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn']
