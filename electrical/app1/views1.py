@@ -20,7 +20,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 # generating OTP
-
 def generateOTP():
     global totp
     secret = pyotp.random_base32()
@@ -41,7 +40,6 @@ class RegistrationAPIView(APIView):
     def post(self, request):
         email = request.data['email']
         print("++++++++++++++++++++++++++++++++++++++++",email)
-
         data = User.objects.filter(email=email)
         print('data----------------------- ', data)
 
@@ -212,7 +210,7 @@ class forgotpasswordotpverification(APIView):
             return Response({'msg': 'Password changed succesfully'}, status=status.HTTP_200_OK)
         else:
             return Response({'msg': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
 class ResetPasswordView(APIView):
     serializer_class = ResetPasswordSerializer
     permission_classes = (AllowAny,)

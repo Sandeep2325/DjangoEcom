@@ -27,8 +27,10 @@ from rest_framework_simplejwt.views import TokenVerifyView
 from django.conf.urls import handler404
 import regex
 from django.contrib.auth import views as auth_views
+from app1 import urls
 # handler404 = views.error_404_view
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(urls.urlpatterns)
+# print(urls.urlpatterns)
 handler404 = views.handler404
 urlpatterns = [
 

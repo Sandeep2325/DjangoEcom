@@ -218,10 +218,9 @@ class Product(models.Model):
             raise ValidationError(
                 "Max file size is 900*900 or should be less than 2mb")
     title = models.CharField(max_length=150, verbose_name="Product Title")
-   
     sku = models.CharField(max_length=255, unique=True,
                            verbose_name="Unique Product ID (SKU)")
-    short_description = RichTextField(verbose_name="Short Description")
+    short_description = models.TextField(verbose_name="Short Description")
     detail_description = models.TextField(
         blank=True, null=True, verbose_name="Detail Description")
     image = models.ManyToManyField(image, blank=True)
@@ -649,9 +648,10 @@ class Blog(models.Model):
     #     megabyte_limit = 2.0
     #     if filesize > size:
     #         raise ValidationError("Max file size is 900*900 or should be less than 2MB")
-    title = models.CharField(max_length=120)
+    title = models.TextField(null=True, blank=True)
     author = models.CharField(max_length=100, null=True)
-    description = models.TextField()
+    # description = models.TextField()
+    detail_description=models.TextField(null=True, blank=True)
     url = EmbedVideoField(max_length=200, null=True, blank=True)
     images = models.ImageField(upload_to="blog", null=True)
     image = models.ManyToManyField(image, blank=True)
@@ -790,7 +790,7 @@ class latest_product(models.Model):
         
 class most_selled_products(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True)
-    orders=models.ForeignKey(Orders,on_delete=models.CASCADE,null=True)
+    # orders=models.ForeignKey(Orders,on_delete=models.CASCADE,null=True)
     created_date = models.DateTimeField(
         auto_now_add=True, verbose_name="created date", null=True)
     # @property

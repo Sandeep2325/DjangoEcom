@@ -360,7 +360,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                 created.image.add(imagess)
                                 created.save()
                                 print("saved")
-
                         except IndexError:
                             pass
 
@@ -523,7 +522,7 @@ class BlogAdmin(AdminVideoMixin, SummernoteModelAdmin):
             # return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description = 'video'
-        list_display = ['id', 'title', 'description', 'image_tag',
+        list_display = ['id', 'title', 'detail_description', 'image_tag',
                         'imagee', 'video_url', 'author', 'uploaded_date', 'action_btn']
         search_fields = ['title']
         summernote_fields = ('description', )

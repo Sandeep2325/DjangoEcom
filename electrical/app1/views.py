@@ -45,6 +45,9 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.shortcuts import render
 from app1.forms import *
 from rest_framework.pagination import PageNumberPagination
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.viewsets import ViewSet
 #from app1 import views
 """ class RegisterApi(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -64,7 +67,59 @@ def countt(request):
                'ordercount': ordercount}
     return render(request, "admin/index.html", context)
 
+class productview(ViewSet):
 
+    # queryset = Product.objects.all()
+    queryset = Product.objects.filter(is_active=True).order_by('id')
+    def list(self, request,):
+        
+        serializer = productSerializer(self.queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        item = Product.objects.filter(brand_id=pk)
+        serializer = productSerializer(item,many=True)
+        return Response(serializer.data)
+    
+class categoryview(ViewSet):
+    
+       queryset = Product.objects.filter(is_active=True).order_by('id')
+       def list(self, request,):
+           serializer = productSerializer(self.queryset, many=True)
+           return Response(serializer.data)
+
+       def retrieve(self, request, pk=None):
+           item = Product.objects.filter(category_id=pk)
+           serializer = productSerializer(item,many=True)
+           return Response(serializer.data)
+class latestview(ViewSet):
+    
+       queryset = latest_product.objects.all().order_by('id')
+       def list(self, request,):
+           serializer = latestproductserializer(self.queryset, many=True)
+           return Response(serializer.data)
+
+       def retrieve(self, request, pk=None):
+           item = latest_product.objects.filter(id=pk)
+           serializer = latestproductserializer(item,many=True)
+           return Response(serializer.data) 
+       
+class blogview(ViewSet):
+       queryset = Blog.objects.all().order_by('id')
+       def list(self, request,):
+           serializer = blogSerializer(self.queryset, many=True)
+           return Response(serializer.data)
+
+       def retrieve(self, request, pk=None):
+           print(pk)
+           item = Blog.objects.filter(id=pk)
+           print(item)
+           serializer = blogSerializer(item,many=True)
+           return Response(serializer.data) 
+       
+class Listblog(viewsets.ModelViewSet):
+    queryset = Blog.objects.all()
+    serializer_class = blogSerializer
 class listmyaccount(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -137,7 +192,7 @@ class detailbrand(RetrieveAPIView):
 #         return Response(serializer.data)
 
 class Productlist(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, )
+    # permission_classes = (IsAuthenticated, )
     queryset = Product.objects.filter(is_active=True).order_by('id')
     # product_detail = Product.objects.get(id=id)
     # review = Rating.objects.filter(product = product_detail)
@@ -276,6 +331,10 @@ class Listbanner(viewsets.ModelViewSet):
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
+class blogdetail(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = (IsAuthenticated, )
+    queryset = Blog.objects.all()
+    serializer_class = blogSerializer
 class Listfaq(viewsets.ModelViewSet):
     queryset = FAQ.objects.filter(status="p")
     serializer_class = ffaqSerializer
@@ -316,7 +375,7 @@ class customermsgCreateView(CreateAPIView):
     queryset = customer_message.objects.all()
     
 class enquiryCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    # permission_classes = (IsAuthenticated, )
     serializer_class = faq_enquirySerializer
     queryset = enquiryform.objects.all()
     

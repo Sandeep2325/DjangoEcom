@@ -49,9 +49,10 @@ class myaccountlistserializer(serializers.ModelSerializer):
         model=my_account
         
 class myaccountserializers(serializers.ModelSerializer):
-    # user=userserializer(read_only=True)
+    user=userserializer(read_only=True)
     class Meta:
-        fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
+        # fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
+        fields="__all__"
         model=my_account
     
     def validate_first_name(self, value):
@@ -153,8 +154,8 @@ class productSerializer(serializers.HyperlinkedModelSerializer):
     brand=brandserializer(read_only=True)
     image=imageserializer(many=True,read_only=True)
     class Meta:
-        fields = ("id", "title", "discounted_price", "category","brand","sku", "short_description", "detail_description", "image", "product_image", "price",
-                 "is_active", "created_at", "updated_at", "average_rating", "count_review", "reviews")
+        fields = ("id","title", "discounted_price", "category","brand","sku", "short_description", "detail_description", "image","price",
+                 "is_active", "created_at", "updated_at")
         model = Product
 
     # def to_representation(self, instance):
@@ -205,7 +206,6 @@ class productSerializer(serializers.HyperlinkedModelSerializer):
         # for review in reviews:
         #     return review
         # reviews
-
 class productdetailserializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
@@ -366,8 +366,10 @@ class bannerSerializer(serializers.ModelSerializer):
         fields = "__all__"
         model = Banner
 class blogSerializer(serializers.ModelSerializer):
+    image=imageserializer(many=True,read_only=True)
     class Meta:
         fields = "__all__"
+        fields = ("id", 'title', 'image',"detail_description")
         model = Blog
 class faqSerializer(serializers.ModelSerializer):
     class Meta:
