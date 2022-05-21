@@ -223,7 +223,7 @@ class ResetPasswordView(APIView):
             valid_data = VerifyJSONWebTokenSerializer().validate(data)
             user_id = valid_data['user']
             self.request.user = user_id
-        except jwt.ExpiredSignatureError:
+        except :
             return Response(status=440)
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
