@@ -9,10 +9,10 @@ from rest_framework import routers
 from django.conf.urls.static import static
 from django.conf import settings 
 router = routers.DefaultRouter()
-router.register('products', productview)
-router.register('category',categoryview)
+router.register('products-brand', productview)
+router.register('products-category',categoryview)
 router.register('latest-product', latestview)
-router.register("blog",blogview)
+router.register("blogg",blogview)
 # router.register('addresses', AddressListView)
 
 urlpatterns = [
@@ -55,8 +55,8 @@ urlpatterns = [
     path('addresses/<pk>/delete/',
          AddressDeleteView.as_view(), name='address-delete'),
     path('banner/', Listbanner.as_view({'get': 'list'}), name="banner"),
-    path('blogg/', Listblog.as_view({'get': 'list'}), name="blog"),
-#     path('blog/<int:pk>/', blogdetail.as_view(), name="single_blog"),
+    path('blog/', Listblog.as_view({'get': 'list'}), name="blog"),
+    path('blog/<int:pk>/', blogdetail.as_view(), name="single_blog"),
     path('faq/', Listfaq.as_view({'get': 'list'}), name="faq"),
     path('rating/', Listrating.as_view({'get': 'list'}), name="rating"),
     path('rating/create/', ratingCreateView.as_view(), name='rating-create'),

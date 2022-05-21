@@ -49,7 +49,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 class MyPaginator(PageNumberPagination):
-    page_size = 4
+    page_size = 2
     page_size_query_param = 'page_size'
     max_page_size = 1000
 #from app1 import views
@@ -75,7 +75,8 @@ class productview(ViewSet):
     # queryset = Product.objects.all()
     queryset = Product.objects.filter(is_active=True).order_by('id')
     pagination_class = MyPaginator
-    
+    search_fields = ['title','brand','category']
+    filter_backends = (filters.SearchFilter,)
     def list(self, request,):
         # page = self.paginate_queryset(self.queryset)
         serializer = productSerializer(self.queryset, many=True)
@@ -85,6 +86,12 @@ class productview(ViewSet):
         serializer = productSerializer(item,many=True)
         return Response(serializer.data)
     
+# class QuestionsAPIView(generics.ListCreateAPIView):
+#     search_fields = ['title','brand','category']
+#     filter_backends = (filters.SearchFilter,)
+#     queryset = Product.objects.all()
+#     serializer_class = productSerializer  
+      
 class Productlist(viewsets.ModelViewSet):
     # permission_classes = (IsAuthenticated, )
     queryset = Product.objects.filter(is_active=True).order_by('id')
@@ -109,7 +116,7 @@ class categoryview(ViewSet):
        
 class latestview(ViewSet):
        queryset1 = latest_product.objects.all().order_by('id')
-       queryset=Product.objects.all().order_by('-created_at')[:10]
+       queryset=Product.objects.filter(is_active=True).order_by('-created_at')[:10]
     #    print(queryset1)
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
@@ -148,7 +155,6 @@ class myaccountCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
-   
 class myaccountupdateview(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
@@ -324,9 +330,7 @@ class AddressListView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-
         return Address.objects.filter(user=user)
-
 class AddressCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = CustomerAddressSerializers
@@ -348,8 +352,8 @@ class Listbanner(viewsets.ModelViewSet):
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
-    # pagination_class = MyPaginator
-class blogdetail(generics.RetrieveUpdateDestroyAPIView):
+    pagination_class = MyPaginator
+class blogdetail(generics.RetrieveAPIView):
     # permission_classes = (IsAuthenticated, )
     queryset = Blog.objects.all()
     serializer_class = blogSerializer

@@ -247,8 +247,8 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
         image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True
-        list_display = ['id', 'title', 'category', 'brand','image_tag2', 'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
-                        'updated_at', 'average_rating', 'count_review','created_at','action_btn']  # ,'is_active','is_featured'
+        list_display = ['id', 'title', 'category', 'brand','imagee', 'price', 'discounted_price','available_stocks', 'is_active',
+                        'updated_at','created_at','action_btn']  # ,'is_active','is_featured'
         list_editable = ('category', 'is_active','brand','available_stocks')
         list_filter = ('category', 'is_active', 'updated_at')
         list_per_page = 20

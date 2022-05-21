@@ -322,7 +322,7 @@ class Cart(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True,verbose_name="Product")
     attributes = models.ForeignKey(
         Attributes, verbose_name=" Product Attributes", on_delete=models.SET_NULL, null=True, blank=True)
-    quantity = models.PositiveIntegerField(verbose_name="Quantity",null=True)
+    quantity = models.PositiveIntegerField(verbose_name="Quantity",default=1)
     date = models.DateTimeField(auto_now_add=True,verbose_name="Date",null=True)
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date", null=True)
