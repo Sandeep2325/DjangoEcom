@@ -31,7 +31,7 @@ from django.contrib import messages
 from import_export.admin import ExportActionMixin
 from django_summernote.admin import SummernoteModelAdmin
 from django_summernote.utils import get_attachment_model
-from embed_video.admin import AdminVideoMixin
+# from embed_video.admin import AdminVideoMixin
 # import pdfkit
 import tempfile
 import zipfile
@@ -490,7 +490,7 @@ class RatingAdmin(admin.ModelAdmin):
     def rejected_status(self, request, queryset):
         queryset.update(Status='Rejected')
 
-class BlogAdmin(AdminVideoMixin, SummernoteModelAdmin):
+class BlogAdmin(SummernoteModelAdmin):
     try:
         """ def dummy(self,obj):
             html="<object style='height: 100px; width: 100%'><param name='movie' value='https://youtu.be/HYOvEIimVzI'>"
