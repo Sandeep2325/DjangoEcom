@@ -155,7 +155,7 @@ class productSerializer(serializers.HyperlinkedModelSerializer):
     image=imageserializer(many=True,read_only=True)
     class Meta:
         fields = ("id","title", "discounted_price", "category","brand","sku", "short_description", "detail_description", "image","price",
-                 "is_active", "created_at", "updated_at")
+                 "is_active","available_stocks", "created_at", "updated_at")
         model = Product
 
     # def to_representation(self, instance):
@@ -369,7 +369,7 @@ class blogSerializer(serializers.ModelSerializer):
     image=imageserializer(many=True,read_only=True)
     class Meta:
         fields = "__all__"
-        fields = ("id", 'title', 'image',"detail_description")
+        fields = ("id", 'title', 'image',"detail_description",'location',"facebook","twitter","instagram","linkdin","uploaded_date")
         model = Blog
 class faqSerializer(serializers.ModelSerializer):
     class Meta:

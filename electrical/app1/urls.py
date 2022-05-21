@@ -14,6 +14,7 @@ router.register('category',categoryview)
 router.register('latest-product', latestview)
 router.register("blog",blogview)
 # router.register('addresses', AddressListView)
+
 urlpatterns = [
     path('', include(router.urls)),
     path('current-user/', CurrentUserViewSet.as_view(), name="current_user"),
@@ -54,7 +55,7 @@ urlpatterns = [
     path('addresses/<pk>/delete/',
          AddressDeleteView.as_view(), name='address-delete'),
     path('banner/', Listbanner.as_view({'get': 'list'}), name="banner"),
-#     path('blog/', Listblog.as_view({'get': 'list'}), name="blog"),
+    path('blogg/', Listblog.as_view({'get': 'list'}), name="blog"),
 #     path('blog/<int:pk>/', blogdetail.as_view(), name="single_blog"),
     path('faq/', Listfaq.as_view({'get': 'list'}), name="faq"),
     path('rating/', Listrating.as_view({'get': 'list'}), name="rating"),

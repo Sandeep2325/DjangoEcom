@@ -27,7 +27,7 @@ from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from datetime import date
 from django.db.models import Avg
-from embed_video.fields import EmbedVideoField
+# from embed_video.fields import EmbedVideoField
 from django.db.models import Avg, Count
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
@@ -235,6 +235,7 @@ class Product(models.Model):
         Category, verbose_name="Product category", on_delete=models.SET_NULL, null=True)
 
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
+    available_stocks=models.CharField(max_length=10,null=True,blank=True)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date")
@@ -649,26 +650,30 @@ class Blog(models.Model):
     #     if filesize > size:
     #         raise ValidationError("Max file size is 900*900 or should be less than 2MB")
     title = models.TextField(null=True, blank=True)
-    author = models.CharField(max_length=100, null=True)
+    # author = models.CharField(max_length=100, null=True)
     # description = models.TextField()
     detail_description=models.TextField(null=True, blank=True)
-    url = EmbedVideoField(max_length=200, null=True, blank=True)
-    images = models.ImageField(upload_to="blog", null=True)
+    # url = EmbedVideoField(max_length=200, null=True, blank=True)
+    # images = models.ImageField(upload_to="blog", null=True)
     image = models.ManyToManyField(image, blank=True)
     #category=models.ForeignKey(BlogCategory, on_delete=models.CASCADE)
     uploaded_date = models.DateField(auto_now_add=True)
-
+    location=models.CharField(max_length=50,null=True,blank=True)
+    facebook=models.URLField(null=True)
+    instagram=models.URLField(null=True)
+    twitter=models.URLField(null=True)
+    linkdin=models.URLField(null=True)
     ###auto resizing function###
-    def save(self):
-        super().save()  # saving image first
-        try:
-            img = Image.open(self.image.path)  # Open image using self
-            if img.height > 700 or img.width > 700:
-                new_img = (500, 500)
-                img.thumbnail(new_img)
-                img.save(self.image.path)
-        except:
-            pass
+    # def save(self):
+    #     super().save()  # saving image first
+    #     try:
+    #         img = Image.open(self.image.path)  # Open image using self
+    #         if img.height > 700 or img.width > 700:
+    #             new_img = (500, 500)
+    #             img.thumbnail(new_img)
+    #             img.save(self.image.path)
+    #     except:
+    #         pass
 
     def __unicode__(self):
         return self.url
@@ -721,19 +726,20 @@ class customer_message(models.Model):
 class Banner(models.Model):
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to="Banner", blank=True, null=True,)
+    is_active = models.BooleanField(default=True)
     uploaded_date = models.DateField(auto_now_add=True)
 
-    def save(self):
-        super().save()  # saving image first
-        try:
-            img = Image.open(self.image.path)  # Open image using self
+    # def save(self):
+    #     super().save()  # saving image first
+    #     try:
+    #         img = Image.open(self.image.path)  # Open image using self
 
-            if img.height > 700 or img.width > 700:
-                new_img = (500, 500)
-                img.thumbnail(new_img)
-                img.save(self.image.path)
-        except:
-            pass
+    #         if img.height > 700 or img.width > 700:
+    #             new_img = (500, 500)
+    #             img.thumbnail(new_img)
+    #             img.save(self.image.path)
+    #     except:
+    #         pass
 
     def __str__(self):
         return str(self.title,)

@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-2x+5j9-5@8^tvzl-l--2%k_m!1ne!okdey#_rp8&v!@f=n0gf)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1',"0288-60-243-239-38.in.ngrok.io",'localhost:3000']
+ALLOWED_HOSTS = ['localhost','127.0.0.1',"c911-27-7-177-73.in.ngrok.io",'localhost:3000']
 
 
 # Application definition
@@ -56,14 +56,15 @@ INSTALLED_APPS = [
     'rest_auth.registration',
     'ckeditor',
     'django_summernote',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.facebook',
     # 'allauth.socialaccount.providers.github',
     # 'allauth.socialaccount.providers.twitter',
 
 ]
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -71,14 +72,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-
+    
 ]
 
 CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:8000',"https://0288-60-243-239-38.in.ngrok.io",'http://localhost:3000',
+    'http://127.0.0.1:8000',"https://c911-27-7-177-73.in.ngrok.io",'http://localhost:3000',
 ]
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000','https://0288-60-243-239-38.in.ngrok.io','http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000','https://c911-27-7-177-73.in.ngrok.io','http://localhost:3000']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -156,9 +156,9 @@ AUTHENTICATION_BACKEND = [
 
     'allauth.account.auth_backends.AuthenticationBackend',
 
-    'django_facebook.auth_backends.FacebookBackend',
+    # 'django_facebook.auth_backends.FacebookBackend',
 
-    'social_core.backends.facebook.FacebookOAuth2',
+    # 'social_core.backends.facebook.FacebookOAuth2',
 
 ]
 # ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -227,7 +227,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-REST_FRAMEWORK = {
+# REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     # 'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -236,10 +236,15 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
     #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     # ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 4,
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 1,
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #     'dj_rest_auth.jwt_auth.JWTCookieAuthentication',),
+# }
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
 }
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = 'my-app-auth'
@@ -310,7 +315,7 @@ EMAIL_HOST_PASSWORD = 'ydloxmbucvkocxpw'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
-SITE_ID = 1
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
+# SITE_ID = 1
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #BOOTSTRAP_ADMIN_SIDEBAR_MENU = False

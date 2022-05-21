@@ -32,7 +32,7 @@ from import_export.admin import ExportActionMixin
 from django_summernote.admin import SummernoteModelAdmin
 from django_summernote.utils import get_attachment_model
 from embed_video.admin import AdminVideoMixin
-import pdfkit
+# import pdfkit
 import tempfile
 import zipfile
 import csv
@@ -247,9 +247,9 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
         image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True
-        list_display = ['id', 'title', 'category', 'brand','image_tag2', 'imagee', 'price', 'discounted_price', 'is_active',
+        list_display = ['id', 'title', 'category', 'brand','image_tag2', 'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
                         'updated_at', 'average_rating', 'count_review','created_at','action_btn']  # ,'is_active','is_featured'
-        list_editable = ('category', 'is_active','brand')
+        list_editable = ('category', 'is_active','brand','available_stocks')
         list_filter = ('category', 'is_active', 'updated_at')
         list_per_page = 20
         #inlines = [ImagemInline]
@@ -522,16 +522,19 @@ class BlogAdmin(AdminVideoMixin, SummernoteModelAdmin):
             # return format_html('<a class="fa fa-play fa-2x" href="%s"></a>' % (obj.url))
         video_url.allow_tags = True
         video_url.short_description = 'video'
-        list_display = ['id', 'title', 'detail_description', 'image_tag',
-                        'imagee', 'video_url', 'author', 'uploaded_date', 'action_btn']
+        list_display = ['id', 'title', 'detail_description',
+                        'imagee','location','uploaded_date',"facebook","twitter","instagram","linkdin",'action_btn']
         search_fields = ['title']
         summernote_fields = ('description', )
 
         def action_btn(self, obj):
             html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/blog/" + \
                 str(obj.id)+"/change/'></a><br></br>"
-            html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/blog/" + \
-                str(obj.id)+"/change/'></a><br></br>"
+            # html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/blog/" + \
+            #     str(obj.id)+"/change/'></a><br></br>"
+          
+            html += "<a class='text-success fa fa-eye ml-2' href='{}'></a><br></br>".format(
+                    obj.image.first().image.url, "100", "100")
             html += "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/blog/" + \
                 str(obj.id)+"/delete/'></a></div>"
             return format_html(html)
@@ -562,13 +565,16 @@ class BannerAdmin(admin.ModelAdmin):
             #message=messages.warning('Something went wrong! check your file again \n 1.Upload correct file \n 2.Check you data once')
     image_tag.short_description = 'Image'
     image_tag.allow_tags = True
-    list_display = ['id', 'title', 'image_tag','uploaded_date', 'action_btn']
+    list_display = ['id', 'title', 'image_tag','is_active','uploaded_date', 'action_btn']
+    list_editable=['is_active']
     search_fields = ['title']
     def action_btn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/banner/" + \
             str(obj.id)+"/change/'></a><br></br>"
-        html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/banner/" + \
-            str(obj.id)+"/change/'></a><br></br>"
+        # html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/banner/" + \
+        #     str(obj.id)+"/change/'></a><br></br>"
+        html += "<a class='text-success fa fa-eye ml-2' href='{}'></a><br></br>".format(
+                    obj.image.url, "100", "100")    
         html += "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/banner/" + \
             str(obj.id)+"/delete/'></a></div>"
         return format_html(html)

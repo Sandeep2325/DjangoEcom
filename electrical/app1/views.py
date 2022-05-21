@@ -48,6 +48,10 @@ from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+class MyPaginator(PageNumberPagination):
+    page_size = 4
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 #from app1 import views
 """ class RegisterApi(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -68,44 +72,57 @@ def countt(request):
     return render(request, "admin/index.html", context)
 
 class productview(ViewSet):
-
     # queryset = Product.objects.all()
     queryset = Product.objects.filter(is_active=True).order_by('id')
+    pagination_class = MyPaginator
+    
     def list(self, request,):
-        
+        # page = self.paginate_queryset(self.queryset)
         serializer = productSerializer(self.queryset, many=True)
         return Response(serializer.data)
-
     def retrieve(self, request, pk=None):
         item = Product.objects.filter(brand_id=pk)
         serializer = productSerializer(item,many=True)
         return Response(serializer.data)
     
+class Productlist(viewsets.ModelViewSet):
+    # permission_classes = (IsAuthenticated, )
+    queryset = Product.objects.filter(is_active=True).order_by('id')
+    # product_detail = Product.objects.get(id=id)
+    # review = Rating.objects.filter(product = product_detail)
+    serializer_class = productSerializer
+    # pagination_class = PageNumberPagination
+    pagination_class = MyPaginator
+    filter_fields = (
+        'category',
+        'brand',
+    )   
 class categoryview(ViewSet):
-    
        queryset = Product.objects.filter(is_active=True).order_by('id')
+       def list(self, request,):
+           serializer = productSerializer(self.queryset, many=True)
+           return Response(serializer.data)
+       def retrieve(self, request, pk=None):
+           item = Product.objects.filter(category_id=pk)
+           serializer = productSerializer(item,many=True)
+           return Response(serializer.data)
+       
+class latestview(ViewSet):
+       queryset1 = latest_product.objects.all().order_by('id')
+       queryset=Product.objects.all().order_by('created_at')[:10]
+    #    print(queryset1)
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
 
        def retrieve(self, request, pk=None):
-           item = Product.objects.filter(category_id=pk)
+           item = Product.objects.filter(id=pk)
            serializer = productSerializer(item,many=True)
-           return Response(serializer.data)
-class latestview(ViewSet):
-    
-       queryset = latest_product.objects.all().order_by('id')
-       def list(self, request,):
-           serializer = latestproductserializer(self.queryset, many=True)
-           return Response(serializer.data)
-
-       def retrieve(self, request, pk=None):
-           item = latest_product.objects.filter(id=pk)
-           serializer = latestproductserializer(item,many=True)
            return Response(serializer.data) 
        
 class blogview(ViewSet):
-       queryset = Blog.objects.all().order_by('id')
+       queryset = Blog.objects.all().order_by('id')[0:4]
+       pagination_class = PageNumberPagination
        def list(self, request,):
            serializer = blogSerializer(self.queryset, many=True)
            return Response(serializer.data)
@@ -113,10 +130,10 @@ class blogview(ViewSet):
        def retrieve(self, request, pk=None):
            print(pk)
            item = Blog.objects.filter(id=pk)
-           print(item)
+        #    print(item)
            serializer = blogSerializer(item,many=True)
+        #    pagination_class = PageNumberPagination
            return Response(serializer.data) 
-       
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
@@ -155,6 +172,7 @@ class universalnotificationlist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = unotificationserializer
     queryset = notification.objects.all()
+    
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = categorySerializer
@@ -172,7 +190,6 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
 class listbrand(viewsets.ModelViewSet):
     queryset=Brand.objects.all()
     serializer_class=brandserializer
-    
 
 class detailbrand(RetrieveAPIView):
     queryset=Brand.objects.all()
@@ -197,7 +214,8 @@ class Productlist(viewsets.ModelViewSet):
     # product_detail = Product.objects.get(id=id)
     # review = Rating.objects.filter(product = product_detail)
     serializer_class = productSerializer
-    pagination_class = PageNumberPagination
+    # pagination_class = PageNumberPagination
+    pagination_class = MyPaginator
     filter_fields = (
         'category',
         'brand',
@@ -218,7 +236,7 @@ class brandproductlist1(ListAPIView):
 class Productdetail(generics.RetrieveAPIView):
     queryset = Product.objects.filter(is_active=True)
     serializer_class = productSerializer
-
+    
 class latestproductlist(viewsets.ModelViewSet):
     queryset = latest_product.objects.all()
     serializer_class = latestproductserializer
@@ -254,7 +272,6 @@ class attributelist(viewsets.ModelViewSet):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = attributesSerializer(item)
         return Response(serializer.data)
-
 
 class attributedetail(generics.RetrieveAPIView):
     queryset = Attributes.objects.all()
@@ -331,6 +348,7 @@ class Listbanner(viewsets.ModelViewSet):
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
+    # pagination_class = MyPaginator
 class blogdetail(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = (IsAuthenticated, )
     queryset = Blog.objects.all()
@@ -513,7 +531,7 @@ class socialmedialist(viewsets.ModelViewSet):
     # review = Rating.objects.filter(product = product_detail)
     serializer_class = sociallinkserializer
     pagination_class = PageNumberPagination
-    
+  
 def password_reset_request(request):
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
