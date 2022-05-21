@@ -23,12 +23,12 @@ django-ckeditor==6.2.0
 django-compressor==3.1
 django-contrib-comments==2.2.0
 django-cors-headers==3.11.0
-django-embed-video==1.4.4
+# django-embed-video==1.4.4
 django-facebook==6.0.3
 django-filter==21.1
 django-import-export==2.7.1
 django-jazzmin==2.4.9
-django-jet-reboot==1.2.0
+# django-jet-reboot==1.2.0
 django-js-asset==2.0.0
 django-libsass==0.9
 django-rest-auth==0.9.5
@@ -38,7 +38,7 @@ django-summernote==0.8.20.0
 django-tagging==0.5.0
 django-wpadmin==1.8.0
 djangorestframework==3.13.1
-djangorestframework-jwt==1.11.0
+djangorestframework-jwt
 djangorestframework-simplejwt==5.0.0
 durationpy==0.5
 et-xmlfile==1.1.0
@@ -56,7 +56,7 @@ jmespath==1.0.0
 kappa==0.6.0
 MarkupPy==1.14
 mysql-connector-python==8.0.28
-mysqlclient==2.1.0
+# mysqlclient==2.1.0
 oauth2==1.9.0.post1
 oauthlib==3.2.0
 odfpy==1.4.1
@@ -64,10 +64,10 @@ openpyxl==3.0.9
 passlib==1.7.4
 Pillow==9.0.1
 placebo==0.9.0
-psycopg2==2.9.3
-psycopg2-binary==2.9.3
+# psycopg2==2.9.3
+# psycopg2-binary==2.9.3
 pycparser==2.21
-PyJWT==2.4.0
+# PyJWT==2.4.0
 PyMySQL==1.0.2
 pyotp==2.3.0
 pyparsing==3.0.7
