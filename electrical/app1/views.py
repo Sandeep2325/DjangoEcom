@@ -109,7 +109,7 @@ class categoryview(ViewSet):
        
 class latestview(ViewSet):
        queryset1 = latest_product.objects.all().order_by('id')
-       queryset=Product.objects.all().order_by('created_at')[:10]
+       queryset=Product.objects.all().order_by('-created_at')[:10]
     #    print(queryset1)
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)

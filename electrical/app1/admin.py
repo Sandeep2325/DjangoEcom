@@ -523,7 +523,7 @@ class BlogAdmin(AdminVideoMixin, SummernoteModelAdmin):
         video_url.allow_tags = True
         video_url.short_description = 'video'
         list_display = ['id', 'title', 'detail_description',
-                        'imagee','location','uploaded_date',"facebook","twitter","instagram","linkdin",'action_btn']
+                        'imagee','location','uploaded_date','action_btn']
         search_fields = ['title']
         summernote_fields = ('description', )
 

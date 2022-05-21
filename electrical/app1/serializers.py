@@ -154,7 +154,7 @@ class productSerializer(serializers.HyperlinkedModelSerializer):
     brand=brandserializer(read_only=True)
     image=imageserializer(many=True,read_only=True)
     class Meta:
-        fields = ("id","title", "discounted_price", "category","brand","sku", "short_description", "detail_description", "image","price",
+        fields = ("id","title", "discounted_price", "category","brand","sku", "short_description", "detail_description","specification", "image","price",
                  "is_active","available_stocks", "created_at", "updated_at")
         model = Product
 

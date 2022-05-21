@@ -223,6 +223,7 @@ class Product(models.Model):
     short_description = models.TextField(verbose_name="Short Description")
     detail_description = models.TextField(
         blank=True, null=True, verbose_name="Detail Description")
+    specification=models.TextField(verbose_name="Specification",null=True,blank=True,)
     image = models.ManyToManyField(image, blank=True)
     product_image = models.ImageField(
         upload_to='product', verbose_name="Product Thumbnail", blank=True, null=True, max_length=500)
