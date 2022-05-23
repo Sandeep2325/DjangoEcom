@@ -243,7 +243,6 @@ class ResetPasswordView(APIView):
             return Response({'msg': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
 
 from rest_framework_simplejwt.tokens import RefreshToken
-
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer

@@ -339,6 +339,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                 price=fields[6],
                                 category=Category.objects.get(pk=(fields[5])),
                                 brand=Brand.objects.get(pk=(fields[7])),
+                                specification=fields[9],
                             )
                             n = str(x)
                             l = n.split('"')
