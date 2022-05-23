@@ -14,7 +14,7 @@ from .serializers1 import *
 from django.contrib.auth import authenticate
 from passlib.hash import django_bcrypt_sha256 as handler
 # from passlib.hash import django_pbkdf2_sha256 as handler
-from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
+# from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from django.core.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_jwt.settings import api_settings
@@ -218,7 +218,7 @@ class ResetPasswordView(APIView):
         data = {'token': token}
         payload_decoded = jwt.decode(token, settings.SECRET_KEY)
         try:
-            valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            # valid_data = VerifyJSONWebTokenSerializer().validate(data)
             valid_data=""
             user_id = valid_data['user']
             self.request.user = user_id
