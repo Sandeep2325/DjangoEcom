@@ -14,7 +14,7 @@ from .serializers1 import *
 from django.contrib.auth import authenticate
 from passlib.hash import django_bcrypt_sha256 as handler
 # from passlib.hash import django_pbkdf2_sha256 as handler
-# from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
+from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from django.core.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_jwt.settings import api_settings
@@ -28,7 +28,7 @@ def generateOTP():
     totp = pyotp.TOTP(secret, interval=300)
     one_time = totp.now()
     return one_time
-# verifying OTP
+# verifying OTP 
 def verifyOTP(one_time):
     answer = totp.verify(one_time)
     return answer
@@ -42,7 +42,6 @@ class RegistrationAPIView(APIView):
         print("++++++++++++++++++++++++++++++++++++++++",email)
         data = User.objects.filter(email=email)
         print('data----------------------- ', data)
-
         if data.exists():
             return Response({'msg': 'Already registered'}, status=status.HTTP_409_CONFLICT)
         else:
@@ -68,11 +67,10 @@ class RegistrationAPIView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response({"Error": "Sign Up Failed"}, status=status.HTTP_400_BAD_REQUEST)
-
+            
 class VerifyOTPView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = VerifyOTPSerializer
-
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
         email = request.data['email']
@@ -220,7 +218,7 @@ class ResetPasswordView(APIView):
         data = {'token': token}
         payload_decoded = jwt.decode(token, settings.SECRET_KEY)
         try:
-            # valid_data = VerifyJSONWebTokenSerializer().validate(data)
+            valid_data = VerifyJSONWebTokenSerializer().validate(data)
             valid_data=""
             user_id = valid_data['user']
             self.request.user = user_id
@@ -241,7 +239,7 @@ class ResetPasswordView(APIView):
                 return Response({'msg': 'New Password and Confirm Password does not match, please enter again'}, status=status.HTTP_409_CONFLICT)
         else:
             return Response({'msg': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
-
+        
 from rest_framework_simplejwt.tokens import RefreshToken
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)

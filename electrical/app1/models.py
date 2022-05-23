@@ -64,7 +64,7 @@ class my_account(models.Model):
     def __str__(self):
         return self.first_name    
 
-    def save(self):
+    def save(self,*args, **kwargs):
         super().save()  # saving image first
         try:
             img = Image.open(self.photo.path)  # Open image using self

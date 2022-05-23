@@ -18,6 +18,7 @@ router.register('high-to-low',productHitoLo)
 router.register('low-to-high',productLotoHi)
 router.register('newest',newest)
 router.register('discount',discount)
+# router.register('myaccount',listmyaccount, basename='MyModel')
 # router.register('addresses', AddressListView)
 
 urlpatterns = [

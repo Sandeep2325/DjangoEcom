@@ -144,7 +144,10 @@ class discount(ViewSet):
                 serializer = productSerializer(queryset, many=True)
                 return Response(serializer.data)
             else:
-                pass
+                queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('discounted_price') 
+                queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
+                serializer = productSerializer(queryset, many=True)
+                return Response(serializer.data)
             
         def retrieve(self, request, pk=None):
             if self.i.discounted_price is not None:
@@ -152,8 +155,9 @@ class discount(ViewSet):
                 serializer = productSerializer(item,many=True)
                 return Response(serializer.data)
             else:
-                pass
-        
+                item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('price')
+                serializer = productSerializer(item,many=True)
+                return Response(serializer.data)
 
 class categoryview(ViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('id')
@@ -195,17 +199,20 @@ class blogview(ViewSet):
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
+    
 class listmyaccount(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = myaccountlistserializer
     def get_queryset(self):
         user = self.request.user
-        return my_account.objects.filter(user=user)  
+        return my_account.objects.filter(user=user)
+      
 class myaccountCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, )                      
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
+    
 class myaccountupdateview(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = myaccountserializers
@@ -507,6 +514,7 @@ class cartCreateView(CreateAPIView):
 class cartDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     queryset = Cart.objects.all()
+    
 class cartdetail(generics.RetrieveUpdateDestroyAPIView):
     # queryset = Cart.objects.all()
     serializer_class = cartserializer
