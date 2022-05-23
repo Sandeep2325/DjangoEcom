@@ -116,7 +116,7 @@ class categoryview(ViewSet):
        
 class latestview(ViewSet):
        queryset1 = latest_product.objects.all().order_by('id')
-       queryset=Product.objects.filter(is_active=True)
+       queryset=Product.objects.filter(is_active=True)[:10]
     
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
