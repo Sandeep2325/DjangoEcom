@@ -13,6 +13,11 @@ router.register('products-brand', productview)
 router.register('products-category',categoryview)
 router.register('latest-product', latestview)
 router.register("blogg",blogview)
+#filter
+router.register('high-to-low',productHitoLo)
+router.register('low-to-high',productLotoHi)
+router.register('newest',newest)
+router.register('discount',discount)
 # router.register('addresses', AddressListView)
 
 urlpatterns = [
@@ -37,6 +42,7 @@ urlpatterns = [
     path('brand/', brandproductlist.as_view({'get': 'list'}), name="brand_product"),
     path('product/', Productlist.as_view({'get': 'list'}), name="product"),
     path('product/<int:pk>/', Productdetail.as_view(), name="single_product"),
+#     path('newest/', newest.as_view({'get': 'list'}), name="newset"),
 #     path('latest-product/', latestproductlist.as_view({'get': 'list'}), name="latest_product"),
 #     path('latest-product/<int:pk>/', latestproductdetail.as_view(), name="latestdetail_product"),
     path('mostselled-product/', mostselledproductlist.as_view({'get': 'list'}), name="mostselled_product"),

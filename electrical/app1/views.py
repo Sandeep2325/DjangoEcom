@@ -82,7 +82,7 @@ class productview(ViewSet):
         serializer = productSerializer(self.queryset, many=True)
         return Response(serializer.data)
     def retrieve(self, request, pk=None):
-        item = Product.objects.filter(brand_id=pk)
+        item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
         serializer = productSerializer(item,many=True)
         return Response(serializer.data)
     
@@ -104,6 +104,57 @@ class Productlist(viewsets.ModelViewSet):
         'category',
         'brand',
     )   
+class productHitoLo(ViewSet):
+       queryset = Product.objects.filter(is_active=True).order_by('-price')
+       def list(self, request,):
+           serializer = productSerializer(self.queryset, many=True)
+           return Response(serializer.data)
+       def retrieve(self, request, pk=None):
+           item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('-price')
+           serializer = productSerializer(item,many=True)
+           return Response(serializer.data)
+class productLotoHi(ViewSet):
+       queryset = Product.objects.filter(is_active=True).order_by('price')
+       def list(self, request,):
+           serializer = productSerializer(self.queryset, many=True)
+           return Response(serializer.data)
+       def retrieve(self, request, pk=None):
+           item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('price')
+           serializer = productSerializer(item,many=True)
+           return Response(serializer.data)
+       
+class newest(ViewSet):
+       queryset = Product.objects.filter(is_active=True).order_by('-created_at')
+       def list(self, request,):
+           serializer = productSerializer(self.queryset, many=True)
+           return Response(serializer.data)
+       def retrieve(self, request, pk=None):
+           item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('price')
+           serializer = productSerializer(item,many=True)
+           return Response(serializer.data)  
+       
+class discount(ViewSet):
+    queryset=Product.objects.filter(is_active=True).order_by('discounted_price')    
+    for i in queryset: 
+        def list(self,request,):
+            # try:
+            if self.i.discounted_price is not None:
+                queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('discounted_price') 
+                queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
+                serializer = productSerializer(queryset, many=True)
+                return Response(serializer.data)
+            else:
+                pass
+            
+        def retrieve(self, request, pk=None):
+            if self.i.discounted_price is not None:
+                item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('price')
+                serializer = productSerializer(item,many=True)
+                return Response(serializer.data)
+            else:
+                pass
+        
+
 class categoryview(ViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('id')
        def list(self, request,):
@@ -116,7 +167,7 @@ class categoryview(ViewSet):
        
 class latestview(ViewSet):
        queryset1 = latest_product.objects.all().order_by('id')
-       queryset=Product.objects.filter(is_active=True)[:10]
+       queryset=Product.objects.filter(is_active=True).order_by('-created_at')[:10]
     
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
