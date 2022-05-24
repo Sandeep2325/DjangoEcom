@@ -25,7 +25,7 @@ def generateOTP():
     secret = pyotp.random_base32()
     # set interval(time of the otp expiration) according to your need in seconds.
     # global totp,one_time
-    totp = pyotp.TOTP(secret, interval=300)
+    totp = pyotp.TOTP(secret, interval=1000)
     one_time = totp.now()
     return one_time
 # verifying OTP 
@@ -265,13 +265,14 @@ class LoginAPIView(APIView):
                     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
                     payload = jwt_payload_handler(user)
                     token = jwt_encode_handler(payload)
-                    # payload = jwt_payload_handler(user)
-                    # token1 = jwt.encode(payload, settings.SECRET_KEY)
+                    payload = jwt_payload_handler(user)
+                    token1 = jwt.encode(payload, settings.SECRET_KEY)
                     refresh1 = RefreshToken.for_user(user)
                     refresh_token=str(refresh1)
                     token2=str(refresh1.access_token)
                     print(refresh_token)
                     print(token2)
+                    print(token1)
                     return Response({'msg': 'Login successful', 'is_confirmed': user.is_confirmed, 'access token': token2,"refresh token":refresh_token,
                                      }, status=status.HTTP_200_OK)
                 else:

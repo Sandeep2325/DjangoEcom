@@ -10,7 +10,7 @@ from django.conf.urls.static import static
 from django.conf import settings 
 router = routers.DefaultRouter()
 router.register('products-brand', productview)
-router.register('products-category',categoryview)
+router.register('products-category',most_categoryview)
 router.register('latest-product', latestview)
 router.register("blogg",blogview)
 #filter
@@ -18,8 +18,7 @@ router.register('high-to-low',productHitoLo)
 router.register('low-to-high',productLotoHi)
 router.register('newest',newest)
 router.register('discount',discount)
-# router.register('myaccount',listmyaccount, basename='MyModel')
-# router.register('addresses', AddressListView)
+
 
 urlpatterns = [
     path('', include(router.urls)),
