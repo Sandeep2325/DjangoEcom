@@ -49,6 +49,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
 class MyPaginator(PageNumberPagination):
     page_size = 2
     page_size_query_param = 'page_size'
@@ -86,20 +87,13 @@ class productview(ViewSet):
         item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
         serializer = productSerializer(item,many=True)
         return Response(serializer.data)
-    
-# class QuestionsAPIView(generics.ListCreateAPIView):
-#     search_fields = ['title','brand','category']
-#     filter_backends = (filters.SearchFilter,)
-#     queryset = Product.objects.all()
-#     serializer_class = productSerializer  
+
       
 class Productlist(viewsets.ModelViewSet):
-    # permission_classes = (IsAuthenticated, )
+   
     queryset = Product.objects.filter(is_active=True).order_by('id')
-    # product_detail = Product.objects.get(id=id)
-    # review = Rating.objects.filter(product = product_detail)
+
     serializer_class = productSerializer
-    # pagination_class = PageNumberPagination
     pagination_class = MyPaginator
     filter_fields = (
         'category',
@@ -221,6 +215,7 @@ class myaccountupdateview(UpdateAPIView):
     authentication_classes = [JWTAuthentication,]
     serializer_class = myaccountserializers
     queryset = my_account.objects.all() 
+    
 class notificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -230,6 +225,7 @@ class notificationlist(viewsets.ModelViewSet):
         user = self.request.user
         # return notification.objects.all()
         return notification.objects.filter(user=user)
+    
 class deletenotification(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -237,6 +233,7 @@ class deletenotification(DestroyAPIView):
         user = self.request.user
         # return notification.objects.all()
         return notification.objects.filter(user=user)
+    
 class universalnotificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -259,6 +256,7 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = categorySerializer(item)
         return Response(serializer.data)
+    
 class listbrand(viewsets.ModelViewSet):
     queryset=Brand.objects.all()
     serializer_class=brandserializer
@@ -266,25 +264,9 @@ class listbrand(viewsets.ModelViewSet):
 class detailbrand(RetrieveAPIView):
     queryset=Brand.objects.all()
     serializer_class=brandserializer
-# class Productlist(viewsets.ModelViewSet):
-#     queryset = Product.objects.all()
-#     serializer_class=productSerializer
-#     pagination_class = PageNumberPagination
-#     def list(self, request):
-#         """ if not request.user.is_authenticated():
-#             return Response({'error': 'Please Authenticate to continue'}, status=405) """
-#         serializer = productSerializer(self.queryset, many=True)
-#         return Response(serializer.data)
-#     def retrieve(self, request, pk=None):
-#         item = get_object_or_404(self.queryset, pk=pk)
-#         serializer = productSerializer(item)
-#         return Response(serializer.data)
 
 class Productlist(viewsets.ModelViewSet):
-    # permission_classes = (IsAuthenticated, )
     queryset = Product.objects.filter(is_active=True).order_by('id')
-    # product_detail = Product.objects.get(id=id)
-    # review = Rating.objects.filter(product = product_detail)
     serializer_class = productSerializer
     # pagination_class = PageNumberPagination
     pagination_class = MyPaginator
@@ -315,11 +297,6 @@ class latestproductlist(viewsets.ModelViewSet):
     serializer_class = latestproductserializer
     pagination_class = PageNumberPagination
     
-# class latestproductlist(viewsets.ModelViewSet):
-#     # queryset=Product.objects.order_by('+id')[10]
-#     queryset = latest_product.objects.all()
-#     serializer_class = latestproductserializer
-#     pagination_class = PageNumberPagination
     
 class latestproductdetail(generics.RetrieveAPIView):
     queryset = latest_product.objects.all()
@@ -350,11 +327,7 @@ class attributedetail(generics.RetrieveAPIView):
     queryset = Attributes.objects.all()
     serializer_class = attributesSerializer
    
-# class orderlist(APIView):
-#     permission_classes = (IsAuthenticated, )
-#     def get(self, request):
-#         serializer = ordersSerializer(request.user)
-#         return Response(serializer.data)
+
     
 class orderlist(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -368,6 +341,7 @@ class orderlist(viewsets.ModelViewSet):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = ordersSerializer(item)
         return Response(serializer.data)
+    
 class orderDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -385,13 +359,17 @@ class orderDeleteView(DestroyAPIView):
             raise Http404("You do not have an active order") """
 
 class orderdetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     queryset = Order.objects.all()
     serializer_class = ordersSerializer
 
 class orderCreateView(CreateAPIView):
-    # permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     serializer_class = ordersSerializer
     queryset = Order.objects.all()
+    
 class AddressListView(ListAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -400,72 +378,75 @@ class AddressListView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return Address.objects.filter(user=user)
+    
 class AddressCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
+    
 class AddressUpdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
+    
 class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     queryset = Address.objects.all()
+    
 class newsletterCreateView(CreateAPIView):
     # permission_classes = (IsAuthenticated, )
     serializer_class = newsletterserializer
     queryset = newsletter.objects.all()
+    
 class Listbanner(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
     serializer_class = bannerSerializer
+    
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
     pagination_class = MyPaginator
+    
 class blogdetail(generics.RetrieveAPIView):
     # permission_classes = (IsAuthenticated, )
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
+    
 class Listfaq(viewsets.ModelViewSet):
     queryset = FAQ.objects.filter(status="p")
     serializer_class = ffaqSerializer
+    
 class faqCreateView(CreateAPIView):
     # queryset=FAQ.objects.filter(Status="Approved")
-    permission_classes = (IsAuthenticated, )
+    # permission_classes = (IsAuthenticated, )
     serializer_class = faqSerializer
     queryset = FAQ.objects.all()
+    
 class Listrating(viewsets.ModelViewSet):
     queryset = Rating.objects.filter(Status="Approved")
     serializer_class = ratingSerializer
+    
 class ratingCreateView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
     queryset = Rating.objects.all()
+    
 class ratingupdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = ratingSerializer
     queryset = Rating.objects.all()
     
-    # queryset=Rating.objects.filter(Status="Approved")
-    # def update(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     instance.name = request.data.get("Rating")
-    #     instance.save()
-    #     serializer = self.get_serializer(instance)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_update(serializer)
-    #     return Response(serializer.data)
-    
+
 class listcustomermessage(viewsets.ModelViewSet):
     queryset = customer_message.objects.all()
     serializer_class = customermessageSerializer
 
 class customermsgCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = [JWTAuthentication,]
     serializer_class = customermessageSerializer
     queryset = customer_message.objects.all()
     
@@ -521,13 +502,14 @@ class cartlist(viewsets.ModelViewSet):
     #     item = get_object_or_404(self.queryset, pk=pk)
     #     serializer = cartserializer(item)
     #     return Response(serializer.data)
+    
 class cartCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     serializer_class = cartcreateserializer
     queryset = Cart.objects.all()  
-    # for i in queryset:
-    #     print(i.product)
+    
+    
 class cartDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -539,6 +521,7 @@ class cartdetail(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         user = self.request.user
         return Cart.objects.filter(user=user)
+    
 class cartupdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = [JWTAuthentication,]
@@ -553,6 +536,7 @@ class checkoutlist(viewsets.ModelViewSet):
         user = self.request.user
         print("qeeeeeewqeeeeeee",user)
         return checkout.objects.filter(user=user)
+    
 class checkoutCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -565,25 +549,15 @@ class checkoutcouponcreate(CreateAPIView):
     serializer_class = checkoutcouponserializer
     queryset = checkout.objects.all()
      
-##
 class orderslist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
-    # queryset = Orders.objects.all()
-
-    # def list(self, request):
-    #     serializer = orderserializer(self.queryset, many=True)
-    #     return Response(serializer.data)
-
-    # def retrieve(self, request, pk=None):
-    #     item = get_object_or_404(self.queryset, pk=pk)
-    #     serializer = orderserializer(item)
-    #     return Response(serializer.data)
     serializer_class=orderserializer
     def get_queryset(self):
         user = self.request.user
         print("qeeeeeewqeeeeeee",user)
         return Orders.objects.filter(user=user)
+    
 class ordercancel(APIView):
     pass
 class ordersDeleteView(DestroyAPIView):
@@ -616,10 +590,8 @@ class couponredeemview(CreateAPIView):
     queryset = redeemed_coupon.objects.all()
     
 class socialmedialist(viewsets.ModelViewSet):
-    # permission_classes = (IsAuthenticated, )
     queryset = socialmedialinks.objects.all()
-    # product_detail = Product.objects.get(id=id)
-    # review = Rating.objects.filter(product = product_detail)
+    
     serializer_class = sociallinkserializer
     pagination_class = PageNumberPagination
   
