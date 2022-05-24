@@ -544,11 +544,11 @@ class BlogAdmin(SummernoteModelAdmin):
         pass
 
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ['id', 'Question', 'Answer',
+    list_display = ['id','category', 'Question', 'Answer',
                     'status', 'created_date', 'updated_at']
-    search_fields = ['Question']
+    search_fields = ['category','Question']
     actions = ['make_published', 'make_withdraw']
-
+    list_editable= ['category']
     @admin.action(description='Publish')
     def make_published(modeladmin, request, queryset):
         queryset.update(status='p')

@@ -372,14 +372,18 @@ class blogSerializer(serializers.ModelSerializer):
         fields = "__all__"
         fields = ("id", 'title', 'image',"detail_description",'location',"facebook","twitter","instagram","linkdin","uploaded_date")
         model = Blog
+        
 class faqSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("Question",)
         model = FAQ
+       
 class ffaqSerializer(serializers.ModelSerializer):
+    category=categorySerializer(read_only=True)
     class Meta:
-        fields = ("id", 'Question', 'Answer', 'created_date', 'updated_at')
+        fields = ("id",'category','Question', 'Answer', 'created_date', 'updated_at')
         model = FAQ
+        
 class ratingSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("user", "product", "Reviews", "Rating")

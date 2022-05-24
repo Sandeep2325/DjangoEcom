@@ -29,6 +29,7 @@ def generateOTP():
     one_time = totp.now()
     return one_time
 # verifying OTP 
+from django.db.models.query_utils import Q
 def verifyOTP(one_time):
     answer = totp.verify(one_time)
     return answer
@@ -40,7 +41,7 @@ class RegistrationAPIView(APIView):
     def post(self, request):
         email = request.data['email']
         print("++++++++++++++++++++++++++++++++++++++++",email)
-        data = User.objects.filter(email=email)
+        data = User.objects.filter(Q(email=email)& Q(is_confirmed=True))
         print('data----------------------- ', data)
         if data.exists():
             return Response({'msg': 'Already registered'}, status=status.HTTP_409_CONFLICT)

@@ -1,18 +1,4 @@
-# from urllib import response
-# from rest_framework import permissions
-# from rest_framework.authtoken.serializers import AuthTokenSerializer
-# from django.contrib.auth import login
-# from app1.models import User
-# from django.shortcuts import render
-# from html5lib import serialize
-# from django_filters.rest_framework import DjangoFilterBackend
-# from django.conf import settings
-# from .filters import CouponFilter
-# from django.utils.decorators import method_decorator
-# from django.contrib.auth.decorators import user_passes_test
-# from django.http import Http404
-# from django.core.exceptions import ObjectDoesNotExist
-# from rest_framework.mixins import ListModelMixin
+
 from re import U
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
@@ -48,22 +34,52 @@ from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ModelViewSet
+
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class MyPaginator(PageNumberPagination):
-    page_size = 2
+    
+    page_size = 4
     page_size_query_param = 'page_size'
     max_page_size = 1000
-#from app1 import views
-""" class RegisterApi(generics.GenericAPIView):
-    serializer_class = RegisterSerializer
-    def post(self, request, *args,  **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) """
 
+class productview1(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = productSerializer
+    pagination_class = MyPaginator
+    @property
+    def paginator(self):
+        """The paginator instance associated with the view, or `None`."""
+        if not hasattr(self, '_paginator'):
+            if self.pagination_class is None:
+                self._paginator = None
+            else:
+                self._paginator = self.pagination_class()
+        return self._paginator
+
+    def paginate_queryset(self, queryset):
+        """Return a single page of results, or `None` if pagination is disabled."""
+        if self.paginator is None:
+            return None
+        return self.paginator.paginate_queryset(queryset, self.request, view=self)
+
+    def get_paginated_response(self, data):
+        """Return a paginated style `Response` object for the given output data."""
+        assert self.paginator is not None
+        return self.paginator.get_paginated_response(data)
+    
+    def list(self, request):
+        query_set = Product.objects.filter(is_active=True).order_by('id')
+        return self.get_paginated_response(self.serializer_class(query_set, many=True).data)
+        
+    def retrieve(self, request, pk=None):
+        
+        item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
+        page = self.paginate_queryset(item)
+        serializer = productSerializer(item,many=True)
+        return self.get_paginated_response(serializer.data)  
+    
 def countt(request):
     usercount = User.objects.all().count()
     productcount = Product.objects.all().count()
@@ -73,9 +89,10 @@ def countt(request):
                'ordercount': ordercount}
     return render(request, "admin/index.html", context)
 
-class productview(ViewSet):
-    # queryset = Product.objects.all()
+class productview(viewsets.ModelViewSet):
+    
     queryset = Product.objects.filter(is_active=True).order_by('id')
+    serializer_class = productSerializer
     pagination_class = MyPaginator
     search_fields = ['title','brand','category']
     filter_backends = (filters.SearchFilter,)
@@ -87,20 +104,10 @@ class productview(ViewSet):
         item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
         serializer = productSerializer(item,many=True)
         return Response(serializer.data)
-
-      
-class Productlist(viewsets.ModelViewSet):
-   
-    queryset = Product.objects.filter(is_active=True).order_by('id')
-
-    serializer_class = productSerializer
-    pagination_class = MyPaginator
-    filter_fields = (
-        'category',
-        'brand',
-    )   
-class productHitoLo(ViewSet):
+    
+class productHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
+       serializer_class = productSerializer
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
@@ -108,8 +115,9 @@ class productHitoLo(ViewSet):
            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('-price')
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)
-class productLotoHi(ViewSet):
+class productLotoHi(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('price')
+       serializer_class = productSerializer
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
@@ -118,8 +126,9 @@ class productLotoHi(ViewSet):
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)
        
-class newest(ViewSet):
+class newest(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-created_at')
+       serializer_class = productSerializer
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
@@ -128,8 +137,10 @@ class newest(ViewSet):
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)  
        
-class discount(ViewSet):
-    queryset=Product.objects.filter(is_active=True).order_by('discounted_price')    
+class discount(viewsets.ModelViewSet):
+    queryset=Product.objects.filter(is_active=True).order_by('discounted_price') 
+    serializer_class = productSerializer 
+    pagination_class = MyPaginator  
     for i in queryset: 
         def list(self,request,):
             # try:
@@ -154,8 +165,9 @@ class discount(ViewSet):
                 serializer = productSerializer(item,many=True)
                 return Response(serializer.data)
 
-class most_categoryview(ViewSet):
+class most_categoryview(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('id')
+       serializer_class = productSerializer 
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
@@ -164,9 +176,10 @@ class most_categoryview(ViewSet):
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)
        
-class latestview(ViewSet):
+class latestview(viewsets.ModelViewSet):
        queryset1 = latest_product.objects.all().order_by('id')
        queryset=Product.objects.filter(is_active=True).order_by('-created_at')[:10]
+       serializer_class = productSerializer 
     
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
@@ -177,6 +190,18 @@ class latestview(ViewSet):
            serializer = productSerializer(item,many=True)
            return Response(serializer.data) 
        
+class Listfaq(viewsets.ModelViewSet):
+    queryset = FAQ.objects.filter(status="p")
+    serializer_class = ffaqSerializer    
+    def list(self, request,):
+        serializer = ffaqSerializer(self.queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        item = FAQ.objects.filter(category_id=pk)
+        serializer = ffaqSerializer(item,many=True)
+        return Response(serializer.data) 
+      
 class blogview(ViewSet):
        queryset = Blog.objects.all().order_by('id')[0:4]
        pagination_class = PageNumberPagination
@@ -191,6 +216,7 @@ class blogview(ViewSet):
            serializer = blogSerializer(item,many=True)
         #    pagination_class = PageNumberPagination
            return Response(serializer.data) 
+       
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
@@ -274,6 +300,7 @@ class Productlist(viewsets.ModelViewSet):
         'category',
         'brand',
     )
+    
 class brandproductlist(viewsets.ModelViewSet):
     queryset = Product.objects.filter(brand=2)
     serializer_class = productSerializer
@@ -415,7 +442,7 @@ class blogdetail(generics.RetrieveAPIView):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
     
-class Listfaq(viewsets.ModelViewSet):
+class Listfaq1(viewsets.ModelViewSet):
     queryset = FAQ.objects.filter(status="p")
     serializer_class = ffaqSerializer
     
@@ -455,6 +482,24 @@ class enquiryCreateView(CreateAPIView):
     serializer_class = faq_enquirySerializer
     queryset = enquiryform.objects.all()
     
+class enquirycreate(ModelViewSet):
+    queryset = enquiryform.objects.all()
+    serializer_class = faq_enquirySerializer
+    # permission_classes = (IsAuthenticated,)
+    # http_method_names = ['post', ]
+
+    def create(self, request, *args, **kwargs):
+        # user = request.user
+        data = {
+            "msg": "Your response submitted succesfully",
+            }
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+          
 class AddCouponView(APIView):
     permission_classes = (IsAuthenticated, )
     def post(self, request, *args, **kwargs):

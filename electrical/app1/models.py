@@ -688,6 +688,7 @@ STATUS_CHOICES = [
     ('w', 'Withdrawn'),
 ]
 class FAQ(models.Model):
+    category=models.ForeignKey(Category,null=True,blank=True,on_delete=models.CASCADE)
     Question = models.CharField(max_length=100, null=True,)
     Answer = RichTextField(max_length=300, null=True)
     created_date = models.DateTimeField(

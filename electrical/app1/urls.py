@@ -10,15 +10,17 @@ from django.conf.urls.static import static
 from django.conf import settings 
 router = routers.DefaultRouter()
 router.register('products-brand', productview)
-router.register('products-category',most_categoryview)
-router.register('latest-product', latestview)
+router.register('products-brand1',productview1)
+router.register('products-category',most_categoryview,basename="products-category")
+router.register('latest-product', latestview,basename="latest-product")
 router.register("blogg",blogview)
 #filter
-router.register('high-to-low',productHitoLo)
-router.register('low-to-high',productLotoHi)
-router.register('newest',newest)
-router.register('discount',discount)
-
+router.register('high-to-low',productHitoLo,basename="high-to-low")
+router.register('low-to-high',productLotoHi,basename="low-to-high")
+router.register('newest',newest,basename="newest")
+router.register('discount',discount,basename="discount")
+router.register('faq',Listfaq)
+router.register('enquirycreate',enquirycreate)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -40,6 +42,7 @@ urlpatterns = [
     path('brands1/', brandproductlist1.as_view(), name='brand1'),
     path('brands/<int:pk>/', detailbrand.as_view(), name="single_brand"),
     path('brand/', brandproductlist.as_view({'get': 'list'}), name="brand_product"),
+   
     path('product/', Productlist.as_view({'get': 'list'}), name="product"),
     path('product/<int:pk>/', Productdetail.as_view(), name="single_product"),
 #     path('newest/', newest.as_view({'get': 'list'}), name="newset"),
