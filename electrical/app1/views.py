@@ -198,7 +198,7 @@ class Listblog(viewsets.ModelViewSet):
 class listmyaccount(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = myaccountlistserializer
     def get_queryset(self):
         user = self.request.user
@@ -206,20 +206,20 @@ class listmyaccount(viewsets.ModelViewSet):
       
 class myaccountCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    #                      
+    authentication_classes = [JWTAuthentication,]                      
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
     
 class myaccountupdateview(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = myaccountserializers
     queryset = my_account.objects.all() 
     
 class notificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = notificationserializer
     def get_queryset(self):
         user = self.request.user
@@ -228,7 +228,7 @@ class notificationlist(viewsets.ModelViewSet):
     
 class deletenotification(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     def get_queryset(self):
         user = self.request.user
         # return notification.objects.all()
@@ -237,7 +237,7 @@ class deletenotification(DestroyAPIView):
 class universalnotificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = unotificationserializer
     queryset = notification.objects.all()
     
@@ -280,7 +280,7 @@ class brandproductlist(viewsets.ModelViewSet):
 
 class brandproductlist1(ListAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = productSerializer
 
     def get_queryset(self):
@@ -344,7 +344,7 @@ class orderlist(viewsets.ModelViewSet):
     
 class orderDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     queryset = Order.objects.all()
 
 """ class OrderDetailView(RetrieveAPIView):
@@ -360,19 +360,19 @@ class orderDeleteView(DestroyAPIView):
 
 class orderdetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     queryset = Order.objects.all()
     serializer_class = ordersSerializer
 
 class orderCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = ordersSerializer
     queryset = Order.objects.all()
     
 class AddressListView(ListAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
 
     def get_queryset(self):
@@ -381,19 +381,19 @@ class AddressListView(ListAPIView):
     
 class AddressCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
     
 class AddressUpdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
     
 class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     queryset = Address.objects.all()
     
 class newsletterCreateView(CreateAPIView):
@@ -446,7 +446,7 @@ class listcustomermessage(viewsets.ModelViewSet):
 
 class customermsgCreateView(CreateAPIView):
     # permission_classes = (IsAuthenticated, )
-    # #
+    # authentication_classes = [JWTAuthentication,]
     serializer_class = customermessageSerializer
     queryset = customer_message.objects.all()
     
@@ -505,14 +505,14 @@ class cartlist(viewsets.ModelViewSet):
     
 class cartCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = cartcreateserializer
     queryset = Cart.objects.all()  
     
     
 class cartDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     queryset = Cart.objects.all()
     
 class cartdetail(generics.RetrieveUpdateDestroyAPIView):
@@ -524,13 +524,13 @@ class cartdetail(generics.RetrieveUpdateDestroyAPIView):
     
 class cartupdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = cartcreateserializer
     queryset = Cart.objects.all()
 ##
 class checkoutlist(viewsets.ModelViewSet): 
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = checkoutserializer
     def get_queryset(self):
         user = self.request.user
@@ -539,19 +539,19 @@ class checkoutlist(viewsets.ModelViewSet):
     
 class checkoutCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = checkoutcreateserializer
     queryset=checkout.objects.all()
     
 class checkoutcouponcreate(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = checkoutcouponserializer
     queryset = checkout.objects.all()
      
 class orderslist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class=orderserializer
     def get_queryset(self):
         user = self.request.user
@@ -562,30 +562,30 @@ class ordercancel(APIView):
     pass
 class ordersDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     queryset = Orders.objects.all()
 
 class ordersdetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     queryset = Orders.objects.all()
     serializer_class = orderserializer
 
 class ordersCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = ordercreateserializer
     queryset = Orders.objects.all()
     
 class ordercancelview(UpdateAPIView):
     permission_classes= (IsAuthenticated,)
-    #
+    authentication_classes = [JWTAuthentication,]
     queryset=Orders.objects.all()
     serializer_class=orderscancelserializer
     
 class couponredeemview(CreateAPIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     serializer_class = couponserializers
     queryset = redeemed_coupon.objects.all()
     
@@ -630,7 +630,7 @@ def password_reset_request(request):
     
 class CurrentUserViewSet(APIView):
     permission_classes = (IsAuthenticated, )
-    #
+    authentication_classes = [JWTAuthentication,]
     def get(self, request):
         serializer = CurrentUserSerializer(request.user)
         return Response(serializer.data)
