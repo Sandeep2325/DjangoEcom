@@ -482,16 +482,16 @@ class faq_enquirySerializer(serializers.ModelSerializer):
                 "Please provide message/ask any questions ")
         return value
     
-    def create(self, validate_data):
-        instance = super(faq_enquirySerializer, self).create(validate_data)
-        send_mail(
-            'You have a message from {}'.format(instance.name),
-            'Name: {}\nEmail: {}\nPhone: {}\nMessage: {}'.format(instance.name,instance.Email,instance.Phone,instance.Message),
-            settings.EMAIL_HOST_USER,
-            ['sandeep.nexevo@gmail.com'],
-            fail_silently=False,
-        )
-        return instance
+    # def create(self, validate_data):
+    #     instance = super(faq_enquirySerializer, self).create(validate_data)
+    #     send_mail(
+    #         'You have a message from {}'.format(instance.name),
+    #         'Name: {}\nEmail: {}\nPhone: {}\nMessage: {}'.format(instance.name,instance.Email,instance.Phone,instance.Message),
+    #         settings.EMAIL_HOST_USER,
+    #         ['sandeep.nexevo@gmail.com'],
+    #         fail_silently=False,
+    #     )
+    #     return instance
     
 class sociallinkserializer(serializers.ModelSerializer):
     class Meta:
