@@ -724,7 +724,11 @@ class customer_message(models.Model):
     class Meta:
         verbose_name_plural = "Customer msgs/contact us"
 
-
+from PIL import Image
+from io import BytesIO
+from django.core.files import File
+import sys
+from django.core.files.uploadedfile import InMemoryUploadedFile
 class Banner(models.Model):
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to="Banner", blank=True, null=True,)
@@ -742,7 +746,25 @@ class Banner(models.Model):
     #             img.save(self.image.path)
     #     except:
     #         pass
+    def save(self):
+        # Opening the uploaded image
+        im = Image.open(self.image)
 
+        output = BytesIO()
+
+        # Resize/modify the image
+        im = im.resize((1400, 400))
+
+        # after modifications, save it to the output
+        im.save(output, format='JPEG', quality=90)
+        output.seek(0)
+
+        # change the imagefield value to be the newley modifed image value
+        self.image = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.image.name.split('.')[0], 'image/jpeg',
+                                        sys.getsizeof(output), None)
+
+        super(Banner, self).save()
+    
     def __str__(self):
         return str(self.title,)
 

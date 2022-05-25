@@ -282,8 +282,8 @@ class deletenotification(DestroyAPIView):
     
 class universalnotificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = [JWTAuthentication,]
     serializer_class = unotificationserializer
     queryset = notification.objects.all()
     
