@@ -19,8 +19,12 @@ router.register('high-to-low',productHitoLo,basename="high-to-low")
 router.register('low-to-high',productLotoHi,basename="low-to-high")
 router.register('newest',newest,basename="newest")
 router.register('discount',discount,basename="discount")
+#faq page
 router.register('faq',Listfaq)
 router.register('enquirycreate',enquirycreate)
+#my_account create 
+router.register('myaccountcreate',myaccountCreateView)
+router.register('addresscreate',AddressCreateView)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -30,8 +34,8 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='auth_register'),
     path('myaccount/',
          listmyaccount.as_view({'get': 'list'}), name="myaccount"),
-    path('myaccount/create/', myaccountCreateView.as_view(),
-         name='myaccount-create'),
+#     path('myaccount/create/', myaccountCreateView1.as_view(),
+#          name='myaccount-create'),
     path('myaccount/update/<pk>',
          myaccountupdateview.as_view(), name='myaccount-update'),
     path('categories/',
@@ -58,7 +62,7 @@ urlpatterns = [
 #     path('order/create/', orderCreateView.as_view(), name='order-create'),
 #     path('order/<pk>/delete/',orderDeleteView.as_view(), name='order-delete'),
     path('addresses/', AddressListView.as_view(), name='address-list'),
-    path('addresses/create/', AddressCreateView.as_view(), name='address-create'),
+    path('addresses/create/', AddressCreateView1.as_view(), name='address-create'),
     path('addresses/update/<pk>',
          AddressUpdateView.as_view(), name='address-update'),
     path('addresses/<pk>/delete/',
@@ -99,6 +103,7 @@ urlpatterns = [
     path('faq_enquiry/', enquiryCreateView.as_view(),
          name='faq_enquiry'),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),
+    
     path('register1/', RegistrationAPIView.as_view()), #Registration
     path('login1/', LoginAPIView.as_view()), #Login after otp verification
     path('verify1/', emailverify.as_view()), #otp Verify

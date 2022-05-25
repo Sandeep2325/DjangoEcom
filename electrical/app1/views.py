@@ -230,12 +230,32 @@ class listmyaccount(viewsets.ModelViewSet):
         user = self.request.user
         return my_account.objects.filter(user=user)
       
-class myaccountCreateView(CreateAPIView):
+class myaccountCreateView1(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]                      
     serializer_class = myaccountserializers
     queryset = my_account.objects.all()
     
+class myaccountCreateView(ModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    queryset = my_account.objects.all()
+    serializer_class = myaccountserializers
+    http_method_names = ['post', ]
+
+    def create(self, request, *args, **kwargs):
+        # user = request.user
+        data = {
+            "msg": "Your account created Successfully",
+            }
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
+    
+               
 class myaccountupdateview(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -406,12 +426,31 @@ class AddressListView(ListAPIView):
         user = self.request.user
         return Address.objects.filter(user=user)
     
-class AddressCreateView(CreateAPIView):
+class AddressCreateView1(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
     
+class AddressCreateView(ModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    serializer_class = CustomerAddressSerializers
+    queryset = Address.objects.all()
+    http_method_names = ['post', ]
+
+    def create(self, request, *args, **kwargs):
+        # user = request.user
+        data = {
+            "msg": "Your address created Successfully",
+            }
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+             
 class AddressUpdateView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -491,13 +530,12 @@ class enquirycreate(ModelViewSet):
     def create(self, request, *args, **kwargs):
         # user = request.user
         data = {
-            "msg": "Your response submitted succesfully",
+            "msg": "Your Enquiry has been Submitted Successfully",
             }
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            print(serializer.data)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
           
