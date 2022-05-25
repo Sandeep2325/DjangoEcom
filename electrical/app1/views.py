@@ -486,16 +486,17 @@ class enquirycreate(ModelViewSet):
     queryset = enquiryform.objects.all()
     serializer_class = faq_enquirySerializer
     # permission_classes = (IsAuthenticated,)
-    # http_method_names = ['post', ]
+    http_method_names = ['post', ]
 
     def create(self, request, *args, **kwargs):
         # user = request.user
         data = {
             "msg": "Your response submitted succesfully",
             }
-        serializer = self.serializer_class(data=data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            print(serializer.data)
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
