@@ -392,6 +392,12 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 messages.error(request, e)
     except exception:
         pass
+class subcategoryadmin(admin.ModelAdmin):
+    list_display = ['id','sub_category', 'categoryy',]
+    # search_fields = ['category','Question']
+    # actions = ['make_published', 'make_withdraw']
+    list_editable= ['sub_category']
+    
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'address', 'product', 'quantity', 'pricee','offer_price','Total_amount',
                     'coupon', 'attributes', 'status', 'ordered_date', 'updated_at', 'action_btn')
@@ -632,7 +638,7 @@ class cartadmin(ExportActionMixin,admin.ModelAdmin):
     list_editable = ['product','attributes','quantity']   
     search_fields = ['user__username','product__title']
 class checkoutadmin(admin.ModelAdmin):
-    list_display=['id','user','products',"Shipping_address"]
+    list_display=['id','user','cart_products',"Shipping_address"]
     # def get_products(self, obj):
     # return "\n".join([p.product for p in obj.cart.all()])     
 class ordersadmin(admin.ModelAdmin):
@@ -734,9 +740,10 @@ admin.site.unregister(get_attachment_model())
 admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
 admin.site.register(my_account,myaccount)
+admin.site.register(subcategory,subcategoryadmin)
 # admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
-    list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn']
+    list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn','last_login','date_joined']
     list_editable=['is_confirmed']
     #actions = ['action_btn',]
     def action_btn(self, obj):

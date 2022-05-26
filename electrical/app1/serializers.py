@@ -226,21 +226,31 @@ class attributesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Attributes
+from django.template.loader import render_to_string
 class newsletterserializer(serializers.ModelSerializer):
     class Meta:
         fields=("Email",)
         model=newsletter       
-        
+    template_name = 'app1/email.html'    
     def validate_Email(self,value):
         if value == "":
             raise serializers.ValidationError("Please provide email")
         return value
-    
+    # def validate_Email(self,value):
+    #     for i in newsletter.objects.all():
+    #         print(i.Email,'=',value)
+    #         if i.Email == value:
+    #             raise serializers.ValidationError("you have already subscribed") 
+        
+    # def validate(self, attrs):
+    #     if attrs['Email']
+    #         raise serializers.ValidationError({"password": "Password fields didn't match."})
+    #     return attrs
     def create(self, validate_data):
         instance = super(newsletterserializer, self).create(validate_data)
         send_mail(
             'Prakash Electricals',
-            'Thank you for subscribing our Newsletter',
+            render_to_string(self.template_name),
             settings.EMAIL_HOST_USER,
             [instance.Email],
             fail_silently=False,
@@ -281,6 +291,13 @@ class checkoutcreateserializer(serializers.ModelSerializer):
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
         return value 
+    
+class subcategoryserializer(serializers.ModelSerializer):
+    category=categorySerializer(many=True,read_only=True)
+    class Meta:
+        model=subcategory
+        fields=("sub_category","category")
+        
 class checkoutserializer(serializers.ModelSerializer):
     cart=cartserializer(many=True,read_only=True)
     Shipping_address=CustomerAddressSerializers(read_only=True)

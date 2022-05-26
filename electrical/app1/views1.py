@@ -19,20 +19,23 @@ from django.core.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
+from django.db.models.query_utils import Q
+from rest_framework import generics
 # generating OTP
 def generateOTP():
     global totp
     secret = pyotp.random_base32()
     # set interval(time of the otp expiration) according to your need in seconds.
     # global totp,one_time
-    totp = pyotp.TOTP(secret, interval=1000)
+    totp = pyotp.TOTP(secret, interval=10000)
     one_time = totp.now()
     return one_time
 # verifying OTP 
-from django.db.models.query_utils import Q
+
 def verifyOTP(one_time):
     answer = totp.verify(one_time)
     return answer
+
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = RegistrationSerializer
@@ -40,9 +43,7 @@ class RegistrationAPIView(APIView):
         return Response({'Status': 'You cannot view all users data.....'})
     def post(self, request):
         email = request.data['email']
-        print("++++++++++++++++++++++++++++++++++++++++",email)
         data = User.objects.filter(Q(email=email)& Q(is_confirmed=True))
-        print('data----------------------- ', data)
         if data.exists():
             return Response({'msg': 'Already registered'}, status=status.HTTP_409_CONFLICT)
         else:
@@ -65,7 +66,7 @@ class RegistrationAPIView(APIView):
                     recipient_list,
                     fail_silently=False,
                 )
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response({'msg':"OTP sent to "+email}, status=status.HTTP_201_CREATED)
             else:
                 return Response({"Error": "Sign Up Failed"}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -105,6 +106,8 @@ class emailverify(APIView):
             return Response({'msg': 'OTP verfication successful and Account created'}, status=status.HTTP_200_OK)
         else: 
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
+class resend(APIView):
+    ...
 class ForgotPasswordView(APIView):
     serializer_class = ForgotPasswordSerializer
     permission_classes = (AllowAny,)
@@ -120,13 +123,10 @@ class ForgotPasswordView(APIView):
             # password2 = handler.hash(password)
             # print(email)
             # User.objects.filter(email=email).update(password=password2)
-            a=[]
-            for i in User.objects.all():
-                a.append(i.email)
-            print(a)
-            if email not in a:
-                return Response({'msg': 'Email not registered'}, status=status.HTTP_404_NOT_FOUND)
-            else:
+            # a=[]
+            data= User.objects.filter(email=email)
+                # a.append(i.email)
+            if data.exists():
                 subject = 'Forgot Password OTP'
                 message = 'Your password change OTP is ' + generateOTP()
                 email_from = settings.EMAIL_HOST_USER
@@ -140,13 +140,12 @@ class ForgotPasswordView(APIView):
                     fail_silently=False,
                     )
                 return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'msg': 'Email not registered'}, status=status.HTTP_404_NOT_FOUND)
+                
         else:
             return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
-def msg():
-    for i in range(50):
-        send_mail("gaandu","lowdaa",settings.EMAIL_HOST_USER,["shivraj.nexevo@gmail.com"],fail_silently=False)  
-        print("__________________sent___________________")
-# msg()      
+   
 class resendotp(APIView):
     serializer_class = ForgotPasswordSerializer
     permission_classes = (AllowAny,)  
@@ -255,7 +254,7 @@ class LoginAPIView(APIView):
         if filter_data.exists():
             val = filter_data[0]['is_active']
         else:
-            return Response("Email is not Registered", status=status.HTTP_400_BAD_REQUEST)
+            return Response({"msg":"Email is not Registered"}, status=status.HTTP_400_BAD_REQUEST)
         if val:
             if serializer.is_valid():
                 user = authenticate(
@@ -271,18 +270,19 @@ class LoginAPIView(APIView):
                     refresh1 = RefreshToken.for_user(user)
                     refresh_token=str(refresh1)
                     token2=str(refresh1.access_token)
-                    print(refresh_token)
-                    print(token2)
-                    print(token1)
+                    # print(refresh_token)
+                    # print(token2)
+                    # print(token1)
                     return Response({'msg': 'Login successful', 'is_confirmed': user.is_confirmed, 'access token': token2,"refresh token":refresh_token,
                                      }, status=status.HTTP_200_OK)
+                
                 else:
                     return Response({'msg': 'Invalid credentials'}, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({'msg': 'Invalid data'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'Error': 'Not a valid user'}, status=status.HTTP_401_UNAUTHORIZED)
-from rest_framework import generics
+
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = User.objects.all()
     permission_classes = (IsAuthenticated,)

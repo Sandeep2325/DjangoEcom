@@ -22,16 +22,17 @@ router.register('discount',discount,basename="discount")
 #faq page
 router.register('faq',Listfaq)
 router.register('enquirycreate',enquirycreate)
-#my_account create 
+ 
 router.register('myaccountcreate',myaccountCreateView)
 router.register('addresscreate',AddressCreateView)
-
+router.register("subcategory",subcategoryview)
+router.register('newsletter',newsletterCreateView)
 urlpatterns = [
     path('', include(router.urls)),
     path('current-user/', CurrentUserViewSet.as_view(), name="current_user"),
-    path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
-    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', RegisterView.as_view(), name='auth_register'),
+#     path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
+#     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+#     path('register/', RegisterView.as_view(), name='auth_register'),
     path('myaccount/',
          listmyaccount.as_view({'get': 'list'}), name="myaccount"),
 #     path('myaccount/create/', myaccountCreateView1.as_view(),
@@ -95,7 +96,6 @@ urlpatterns = [
          ordersDeleteView.as_view(), name='orders-delete'),
     path('orders/<pk>/cancel/', ordercancelview.as_view(), name='order-cancel'),
     path('redeem_coupon/',couponredeemview.as_view(),name="coupon-redeem"),
-    path('newsletter/', newsletterCreateView.as_view(),name='newscreate'),
     path('notification/', notificationlist.as_view({'get': 'list'}), name="notification"),
     path('notification/<pk>/delete/',
          deletenotification.as_view(), name='notification-delete'),
@@ -103,10 +103,9 @@ urlpatterns = [
     path('faq_enquiry/', enquiryCreateView.as_view(),
          name='faq_enquiry'),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),
-    
-    path('register1/', RegistrationAPIView.as_view()), #Registration
-    path('login1/', LoginAPIView.as_view()), #Login after otp verification
-    path('verify1/', emailverify.as_view()), #otp Verify
+    path('register1/', RegistrationAPIView.as_view(),name="register"), #Registration
+    path('login1/', LoginAPIView.as_view(),name="login"), #Login after otp verification
+    path('verify1/', emailverify.as_view(),name="verify"), #otp Verify
     path('forgot1/', ForgotPasswordView.as_view(), name='forgot-password'), #forgot Password
     path('reset1/', ResetPasswordView.as_view(), name='reset-password'), #Resetting the Password after Login
     path('forgotverify1/',forgotpasswordotpverification.as_view(),name='forgot-verify'),

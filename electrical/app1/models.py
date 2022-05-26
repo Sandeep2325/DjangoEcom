@@ -31,9 +31,10 @@ from django.db.models import Avg
 from django.db.models import Avg, Count
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from django.utils.text import slugify
 class User(AbstractUser,PermissionsMixin):
     username = models.CharField(
-        max_length=50, blank=False, null=True, unique=True,verbose_name="Full name")
+        max_length=50, blank=False, null=True,verbose_name="Full name")
     email = models.EmailField(_('email address'), unique=True)
     # first_name=models.CharField(max_length=50,blank=False,null=True)
     # last_name=models.CharField(max_length=50,blank=False,null=True)
@@ -44,9 +45,10 @@ class User(AbstractUser,PermissionsMixin):
     phone_no = models.CharField(max_length=10, null=True, unique=True)
     otp = models.IntegerField(default=False)
     is_used = models.BooleanField(default=False)
+    # last_login=models.CharField(max_length=255,blank=True,null=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name','phone_no']
-
+     
     def __str__(self):
         return "{}".format(str(self.username))
 
@@ -208,7 +210,18 @@ class image(models.Model):
             new_img = (500, 500)
             img.thumbnail(new_img)
             img.save(self.image.path) """
-
+##
+class subcategory(models.Model):
+    sub_category=models.CharField(max_length=255,null=True,blank=True)
+    category=models.ManyToManyField(Category,blank=True)
+    
+    def categoryy(self):
+        return ",".join([str(p) for p in self.category.all()])
+    
+    def __str__(self):
+        template = '{0.sub_category}'
+        return template.format(self)
+    
 class Product(models.Model):
     def validate_image(fieldfile_obj):
         filesize = fieldfile_obj.file.size
@@ -234,7 +247,7 @@ class Product(models.Model):
         max_digits=8, decimal_places=2, verbose_name="Offer Price(₹)", null=True, blank=True)
     category = models.ForeignKey(
         Category, verbose_name="Product category", on_delete=models.SET_NULL, null=True)
-
+    subcategory=...
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
     available_stocks=models.CharField(max_length=10,null=True,blank=True)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
@@ -305,6 +318,7 @@ class Product(models.Model):
     def __str__(self):
         template = '{0.title}/{0.category}/{0.brand}'
         return template.format(self)
+
 ##
 class Attributes(models.Model):
     Product = models.ForeignKey(
@@ -427,7 +441,7 @@ class checkout(models.Model):
     Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
     Coupon=models.CharField(max_length=100,null=True,blank=True)
 
-    def products(self):
+    def cart_products(self):
         return ",".join([str(p) for p in self.cart.all()])
     def No_of_items_to_checkout(self):
         return self.cart.all().count()

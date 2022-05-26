@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import User
 from django.contrib.auth.password_validation import validate_password
+
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True, required=True, validators=[validate_password])
@@ -10,7 +11,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id','username', 'password', 'password2', 'email',
                  'phone_no')
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
 
+        return attrs
+    
     def create(self, validated_data):
         user,k = User.objects.update_or_create(
             username=validated_data['username'],

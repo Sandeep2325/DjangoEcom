@@ -216,7 +216,10 @@ class blogview(ViewSet):
            serializer = blogSerializer(item,many=True)
         #    pagination_class = PageNumberPagination
            return Response(serializer.data) 
-       
+class subcategoryview(viewsets.ModelViewSet):
+    queryset = subcategory.objects.all()
+    serializer_class = subcategoryserializer   
+     
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = blogSerializer
@@ -461,12 +464,31 @@ class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     queryset = Address.objects.all()
-    
-class newsletterCreateView(CreateAPIView):
-    # permission_classes = (IsAuthenticated, )
+
+class newsletterCreateView(ModelViewSet):
     serializer_class = newsletterserializer
     queryset = newsletter.objects.all()
-    
+    http_method_names = ['post', ]
+    def create(self, request, *args, **kwargs):
+        # user = request.user
+        data = {
+            "msg": "Thank you for subscribing our newsletter",
+            }
+        email = request.data['Email']
+        print(email)
+        serializer = self.serializer_class(data=request.data)
+       
+        data1 = newsletter.objects.filter(Q(Email=email))
+        if serializer.is_valid():
+            if data1.exists():
+                return Response({"msg":"You have already Subscribed our newletter"},status=status.HTTP_409_CONFLICT)
+            else:
+                serializer.save()
+                return Response(data, status=status.HTTP_201_CREATED)
+            # serializer.save()
+            # return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
 class Listbanner(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
     serializer_class = bannerSerializer
