@@ -227,6 +227,7 @@ class attributesSerializer(serializers.ModelSerializer):
         fields = "__all__"
         model = Attributes
 from django.template.loader import render_to_string
+
 class newsletterserializer(serializers.ModelSerializer):
     class Meta:
         fields=("Email",)
@@ -614,3 +615,18 @@ class LoginSerializer(serializers.Serializer):
         return {'user': user}
 
 
+class GlobalSearchSerializer(serializers.ModelSerializer):
+
+   class Meta:
+      model = Product
+      fields="__all__"
+   def to_native(self, obj):
+       if isinstance(obj, Product): 
+           serializer = productSerializer(obj)
+       elif isinstance(obj, Category):
+           serializer = categorySerializer(obj)
+       elif isinstance(obj, Brand):
+           serializer = brandserializer(obj)
+       else:
+         raise Exception("Neither a Snippet nor User instance!")
+       return serializer.data

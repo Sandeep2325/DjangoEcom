@@ -743,3 +743,19 @@ class CurrentUserViewSet(APIView):
 
 def handler404(request,exception):
     return render(request, '404.html', status=404)
+
+def chain(*iterables):
+     for it in iterables:
+       for each in it:
+           yield each
+class GlobalSearchList(generics.ListAPIView):
+   serializer_class = GlobalSearchSerializer
+    
+   def get_queryset(self):
+      query = self.request.query_params.get('query',default="")
+    #   Products = Product.objects.filter(Q(title__icontains=query) | Q(category__icontains=query) | Q(brand__icontains=query))
+      Products = Product.objects.filter(title__icontains=query)
+      category = Category.objects.filter(Q(category__icontains=query) | Q(description__icontains=query))
+      all_results = list(chain(Products,category)) 
+      all_results.sort(key=lambda x: x.created_at)
+      return all_results

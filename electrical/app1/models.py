@@ -120,7 +120,8 @@ class notification(models.Model):
         return a
     # def __str__(self):
     #     return self.action_notifications
-    
+    class Meta:
+        verbose_name_plural = "Notification"
 class sales(models.Model):
     campaign_name = models.CharField(
         verbose_name="Campaign name", max_length=200, null=True)
