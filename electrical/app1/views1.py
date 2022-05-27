@@ -39,11 +39,15 @@ def verifyOTP(one_time):
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = RegistrationSerializer
-    def get(self, request):
-        return Response({'Status': 'You cannot view all users data.....'})
+    # def get(self, request):
+    #     return Response({'Status': 'You cannot view all users data.....'})
     def post(self, request):
         email = request.data['email']
+        phone_no=request.data['phone_no']
         data = User.objects.filter(Q(email=email)& Q(is_confirmed=True))
+        data1=User.objects.filter(phone_no=phone_no)
+        if data1.exists():
+            return Response ({'msg':"Phone number already exists"},status=status.HTTP_409_CONFLICT)
         if data.exists():
             return Response({'msg': 'Already registered'}, status=status.HTTP_409_CONFLICT)
         else:
@@ -66,7 +70,7 @@ class RegistrationAPIView(APIView):
                     recipient_list,
                     fail_silently=False,
                 )
-                return Response({'msg':"OTP sent to "+email}, status=status.HTTP_201_CREATED)
+                return Response({'msg':"OTP sent to your Email"}, status=status.HTTP_201_CREATED)
             else:
                 return Response({"Error": "Sign Up Failed"}, status=status.HTTP_400_BAD_REQUEST)
             
