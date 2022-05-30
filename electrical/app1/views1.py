@@ -21,21 +21,25 @@ from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.db.models.query_utils import Q
 from rest_framework import generics
+from rest_framework import permissions
+from django.shortcuts import render
 # generating OTP
 def generateOTP():
     global totp
     secret = pyotp.random_base32()
     # set interval(time of the otp expiration) according to your need in seconds.
     # global totp,one_time
-    totp = pyotp.TOTP(secret, interval=10000)
+    totp = pyotp.TOTP(secret, interval=3000)
     one_time = totp.now()
     return one_time
 # verifying OTP 
 
 def verifyOTP(one_time):
-    answer = totp.verify(one_time)
+    try:
+        answer = totp.verify(one_time)
+    except NameError:
+        return({'msg':"OTP already used"})
     return answer
-
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = RegistrationSerializer
@@ -54,7 +58,6 @@ class RegistrationAPIView(APIView):
             serializer = self.serializer_class(data=request.data)
             #print("ser", serializer)
             name = request.data['username']
-
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 message = f'Welcome {name} Your OTP is : ' + \
@@ -110,8 +113,8 @@ class emailverify(APIView):
             return Response({'msg': 'OTP verfication successful and Account created'}, status=status.HTTP_200_OK)
         else: 
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
-class resend(APIView):
-    ...
+
+
 class ForgotPasswordView(APIView):
     serializer_class = ForgotPasswordSerializer
     permission_classes = (AllowAny,)
@@ -150,49 +153,7 @@ class ForgotPasswordView(APIView):
         else:
             return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
    
-class resendotp(APIView):
-    serializer_class = ForgotPasswordSerializer
-    permission_classes = (AllowAny,)  
-    subject = 'Resent OTP'
-    message = 'Resent OTP' + generateOTP()      
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = ['']
-
-    send_mail(
-                subject,
-                message,
-                email_from,
-                recipient_list,
-                fail_silently=False,
-            )
-    
-    # def post(self, request):
-    #     serializer = self.serializer_class(data=request.data)
-    #     # password2 = handler.hash()
-
-    #     if serializer.is_valid():
-    #         email = request.data['email']
-    #         # password=request.data['password2']
-    #         # password2 = handler.hash(password)
-    #         # print(email)
-    #         # User.objects.filter(email=email).update(password=password2)
-
-    #         subject = 'Forgot Password OTP'
-    #         message = 'Your password change OTP is ' + generateOTP()
-    #         email_from = settings.EMAIL_HOST_USER
-    #         recipient_list = [a]
-
-    #         send_mail(
-    #             subject,
-    #             message,
-    #             email_from,
-    #             recipient_list,
-    #             fail_silently=False,
-    #         )
-    #         return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
-      
+from hashlib import sha1     
 class forgotpasswordotpverification(APIView):
     permission_classes = (AllowAny,)
     serializer_class = forgotverifyserializer
@@ -206,10 +167,16 @@ class forgotpasswordotpverification(APIView):
         print('one_time_password', one_time)
         one = verifyOTP(one_time)
         print('one', one)
+        data = User.objects.filter(Q(email=email)& Q(is_confirmed=True))
+        # print("-----present password-----",present_password)
+        # print("-----entered password-----",password2)
         if one:
-            User.objects.filter(email=email).update(
-                password=password2, is_used=True, otp=one_time)
-            return Response({'msg': 'Password changed succesfully'}, status=status.HTTP_200_OK)
+            if data.exists():
+                User.objects.filter(email=email).update(
+                    password=password2, is_used=True, otp=one_time)
+                return Response({'msg': 'Password changed succesfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'msg':'Entered Email id is not registered'},status=status.HTTP_409_CONFLICT)
         else:
             return Response({'msg': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -244,11 +211,10 @@ class ResetPasswordView(APIView):
         else:
             return Response({'msg': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
         
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken,AccessToken
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
-    
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         email = request.data['email']
@@ -274,6 +240,10 @@ class LoginAPIView(APIView):
                     refresh1 = RefreshToken.for_user(user)
                     refresh_token=str(refresh1)
                     token2=str(refresh1.access_token)
+                    token3=AccessToken.for_user(user)
+                    print("......",token3)
+                    print("......",token2)
+                    # token2=str(AccessToken.for_user(user))
                     # print(refresh_token)
                     # print(token2)
                     # print(token1)
@@ -291,3 +261,66 @@ class ChangePasswordView(generics.UpdateAPIView):
     queryset = User.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = ChangePasswordSerializer
+    
+class resend(APIView):
+    serializer_class = resendserializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        
+        # password2 = handler.hash()
+         
+        if serializer.is_valid():
+            email = request.data['email']
+            data= User.objects.filter(email=email)
+            if data.exists():
+                subject = 'Resend OTP'
+                message = 'Your resend OTP ' + generateOTP()
+                email_from = settings.EMAIL_HOST_USER
+                recipient_list = [email]
+
+                send_mail(
+                    subject,
+                    message,
+                    email_from,
+                    recipient_list,
+                    fail_silently=False,
+                    )
+                return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'msg': 'Email not registered'}, status=status.HTTP_404_NOT_FOUND)
+                
+        else:
+            return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
+# from common.helper import CommonHelper
+
+# class Resent1(generics.CreateAPIView):
+#     """
+#     Resent OTP
+#     """
+#     # model = models.User
+#     permission_classes = (permissions.AllowAny,)
+#     serializer_class =ResentSerializer
+
+#     def post(self, request, *args, **kwargs):
+#         """
+#         Resent OTP on mail and email. OTP valid for 15 min only.
+#         :param request:
+#         :param args:
+#         :param kwargs:
+#         :return:
+#         """
+#         serializer = self.get_serializer(data=request.data)
+#         if not serializer.is_valid():
+#             raise serializers.ValidationError(serializer.errors, code=status.HTTP_200_OK)
+#         try:
+#             kwargs = User.email(serializer.initial_data["device"])
+#             user = User.email_exists(**kwargs)
+#             if not user:
+#                 return Response(render(False, None, "User not exists", status.HTTP_200_OK))
+#             user.verification.generate_otp()
+#             message = f"Verification OTP sent to {user.mobile} and {user.email}"
+#         except Exception as ex:
+#             return Response(render(False, None, ex.args, status.HTTP_200_OK))
+#         return Response(render(True, None, message, status.HTTP_201_CREATED))

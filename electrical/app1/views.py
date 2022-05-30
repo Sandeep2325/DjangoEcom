@@ -748,6 +748,7 @@ def chain(*iterables):
      for it in iterables:
        for each in it:
            yield each
+           
 class GlobalSearchList(generics.ListAPIView):
    serializer_class = GlobalSearchSerializer
     

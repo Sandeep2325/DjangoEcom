@@ -52,6 +52,14 @@ class ForgotPasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email',)
+class resendserializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255)
+    # password = serializers.CharField(
+    #     write_only=True, required=True, validators=[validate_password])
+    # password2 = serializers.CharField(write_only=True, required=True)
+    class Meta:
+        model = User
+        fields = ('email',)
         
 class ResetPasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
@@ -123,3 +131,10 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+    
+class ResentSerializer(serializers.ModelSerializer):
+    device = serializers.CharField(help_text=("Email Or Mobile"), required=True)
+
+    class Meta:
+        model = User
+        fields = ('device',)
