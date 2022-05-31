@@ -27,6 +27,8 @@ router.register('myaccountcreate',myaccountCreateView)
 router.register('addresscreate',AddressCreateView)
 router.register("subcategory",subcategoryview)
 router.register('newsletter',newsletterCreateView)
+router.register('products',productsearch)
+router.register('orderss',orderss)
 # router.register('resendd',Resent1,basename="resendd")
 urlpatterns = [
     path('', include(router.urls)),
@@ -109,8 +111,8 @@ urlpatterns = [
     path('verify1/', emailverify.as_view(),name="verify"), #otp Verify
     path('forgot1/', ForgotPasswordView.as_view(), name='forgot-password'), #forgot Password
     path('resend1/', resend.as_view(), name='resend'),
+    path('accountverify1/', accountverifyview.as_view(), name='resend'),
     path('reset1/', ResetPasswordView.as_view(), name='reset-password'), #Resetting the Password after Login
     path('forgotverify1/',forgotpasswordotpverification.as_view(),name='forgot-verify'),
     path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='auth_change_password'),
-    path('search/', GlobalSearchList.as_view(), name="search"),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

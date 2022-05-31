@@ -74,11 +74,10 @@ class productview1(viewsets.ModelViewSet):
         return self.get_paginated_response(self.serializer_class(query_set, many=True).data)
         
     def retrieve(self, request, pk=None):
-        
         item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
         page = self.paginate_queryset(item)
         serializer = productSerializer(item,many=True)
-        return self.get_paginated_response(serializer.data)  
+        return self.get_paginated_response(serializer.data)
     
 def countt(request):
     usercount = User.objects.all().count()
@@ -89,13 +88,26 @@ def countt(request):
                'ordercount': ordercount}
     return render(request, "admin/index.html", context)
 
-class productview(viewsets.ModelViewSet):
-    
+class productsearch(viewsets.ModelViewSet):
     queryset = Product.objects.filter(is_active=True).order_by('id')
     serializer_class = productSerializer
     pagination_class = MyPaginator
-    search_fields = ['title','brand','category']
-    filter_backends = (filters.SearchFilter,)
+    search_fields = ['title','category__category','brand__brand_name']
+    filter_backends = (filters.SearchFilter,filters.OrderingFilter)
+    # def list(self, request,):
+    #     # page = self.paginate_queryset(self.queryset)
+    #     serializer = productSerializer(self.queryset, many=True)
+    #     return Response(serializer.data)
+    # def retrieve(self, request, pk=None):
+    #     item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
+    #     serializer = productSerializer(item,many=True)
+    #     return Response(serializer.data)
+class productview(viewsets.ModelViewSet):
+    queryset = Product.objects.filter(is_active=True).order_by('id')
+    serializer_class = productSerializer
+    pagination_class = MyPaginator
+    search_fields = ['title','category__category','brand__brand_name']
+    filter_backends = (filters.SearchFilter,filters.OrderingFilter)
     def list(self, request,):
         # page = self.paginate_queryset(self.queryset)
         serializer = productSerializer(self.queryset, many=True)
@@ -118,6 +130,8 @@ class productHitoLo(viewsets.ModelViewSet):
 class productLotoHi(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('price')
        serializer_class = productSerializer
+       search_fields = ['title','category__category','brand__brand_name']
+       filter_backends = (filters.SearchFilter,filters.OrderingFilter)
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
@@ -129,6 +143,8 @@ class productLotoHi(viewsets.ModelViewSet):
 class newest(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-created_at')
        serializer_class = productSerializer
+       search_fields = ['title','category__category','brand__brand_name']
+       filter_backends = (filters.SearchFilter,filters.OrderingFilter)
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
@@ -141,6 +157,8 @@ class discount(viewsets.ModelViewSet):
     queryset=Product.objects.filter(is_active=True).order_by('discounted_price') 
     serializer_class = productSerializer 
     pagination_class = MyPaginator  
+    search_fields = ['title','category__category','brand__brand_name']
+    filter_backends = (filters.SearchFilter,filters.OrderingFilter)
     for i in queryset: 
         def list(self,request,):
             # try:
@@ -180,6 +198,8 @@ class latestview(viewsets.ModelViewSet):
        queryset1 = latest_product.objects.all().order_by('id')
        queryset=Product.objects.filter(is_active=True).order_by('-created_at')[:10]
        serializer_class = productSerializer 
+       search_fields = ['title','category__category','brand__brand_name']
+       filter_backends = (filters.SearchFilter,filters.OrderingFilter)
     
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
@@ -189,7 +209,20 @@ class latestview(viewsets.ModelViewSet):
            item = Product.objects.filter(id=pk)
            serializer = productSerializer(item,many=True)
            return Response(serializer.data) 
-       
+class orderss(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    queryset = Orders.objects.all()
+    serializer_class =orderserializer   
+    def list(self, request,):
+        queryset = Orders.objects.filter(user=self.request.user)
+        serializer = orderserializer(queryset, many=True)
+        return Response(serializer.data)
+    def retrieve(self, request, pk=None):
+        item = Orders.objects.filter(checkout_product_id=pk)
+        serializer = orderserializer(item,many=True)
+        return Response(serializer.data)   
+           
 class Listfaq(viewsets.ModelViewSet):
     queryset = FAQ.objects.filter(status="p")
     serializer_class = ffaqSerializer    
@@ -256,9 +289,7 @@ class myaccountCreateView(ModelViewSet):
             serializer.save()
             return Response(data, status=status.HTTP_201_CREATED)
         else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
-    
-               
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class myaccountupdateview(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -376,8 +407,6 @@ class attributelist(viewsets.ModelViewSet):
 class attributedetail(generics.RetrieveAPIView):
     queryset = Attributes.objects.all()
     serializer_class = attributesSerializer
-   
-
     
 class orderlist(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -656,24 +685,21 @@ class checkoutcouponcreate(CreateAPIView):
     queryset = checkout.objects.all()
      
 class orderslist(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = [JWTAuthentication,]
     serializer_class=orderserializer
     def get_queryset(self):
         user = self.request.user
         print("qeeeeeewqeeeeeee",user)
         return Orders.objects.filter(user=user)
-    
-class ordercancel(APIView):
-    pass
 class ordersDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     queryset = Orders.objects.all()
 
 class ordersdetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = [JWTAuthentication,]
     queryset = Orders.objects.all()
     serializer_class = orderserializer
 
@@ -697,7 +723,6 @@ class couponredeemview(CreateAPIView):
     
 class socialmedialist(viewsets.ModelViewSet):
     queryset = socialmedialinks.objects.all()
-    
     serializer_class = sociallinkserializer
     pagination_class = PageNumberPagination
   
@@ -744,19 +769,3 @@ class CurrentUserViewSet(APIView):
 def handler404(request,exception):
     return render(request, '404.html', status=404)
 
-def chain(*iterables):
-     for it in iterables:
-       for each in it:
-           yield each
-           
-class GlobalSearchList(generics.ListAPIView):
-   serializer_class = GlobalSearchSerializer
-    
-   def get_queryset(self):
-      query = self.request.query_params.get('query',default="")
-    #   Products = Product.objects.filter(Q(title__icontains=query) | Q(category__icontains=query) | Q(brand__icontains=query))
-      Products = Product.objects.filter(title__icontains=query)
-      category = Category.objects.filter(Q(category__icontains=query) | Q(description__icontains=query))
-      all_results = list(chain(Products,category)) 
-      all_results.sort(key=lambda x: x.created_at)
-      return all_results

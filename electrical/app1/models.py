@@ -222,7 +222,6 @@ class subcategory(models.Model):
     def __str__(self):
         template = '{0.sub_category}'
         return template.format(self)
-    
 class Product(models.Model):
     def validate_image(fieldfile_obj):
         filesize = fieldfile_obj.file.size
@@ -459,6 +458,7 @@ class checkout(models.Model):
             if self.Coupon !=None:
                 coupons_list=[]
                 coupons_discount=[]
+                data=Coupon.objects.filter(Coupon=self.Coupon)
                 for a in Coupon.objects.all():
                         coupon_=a.coupon
                         coupons_list.append(coupon_)
@@ -467,7 +467,6 @@ class checkout(models.Model):
                 print(coupons_list)
                 try: 
                     for i in range(len(coupons_list)):
-                        # print("---------------------------",coupons_list[i],"=",i)
                         print(self.Coupon,"==",coupons_list[i])
                         if self.Coupon==coupons_list[i]:
                             coupon_price=coupons_discount[i]
@@ -480,6 +479,7 @@ class checkout(models.Model):
                     return price
                 except Exception as e:
                     print(e)
+            return total
         except:
             # print(e)
             total=0

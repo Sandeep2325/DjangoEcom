@@ -60,6 +60,14 @@ class resendserializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email',)
+class accountverify(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255)
+    # password = serializers.CharField(
+    #     write_only=True, required=True, validators=[validate_password])
+    # password2 = serializers.CharField(write_only=True, required=True)
+    class Meta:
+        model = User
+        fields = ('email',)
         
 class ResetPasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)

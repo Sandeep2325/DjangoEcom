@@ -638,7 +638,7 @@ class cartadmin(ExportActionMixin,admin.ModelAdmin):
     list_editable = ['product','attributes','quantity']   
     search_fields = ['user__username','product__title']
 class checkoutadmin(admin.ModelAdmin):
-    list_display=['id','user','cart_products',"Shipping_address"]
+    list_display=['id','user','cart_products',"Shipping_address","checkout_amount"]
     # def get_products(self, obj):
     # return "\n".join([p.product for p in obj.cart.all()])     
 class ordersadmin(admin.ModelAdmin):
