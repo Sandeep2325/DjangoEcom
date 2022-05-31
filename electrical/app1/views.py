@@ -57,22 +57,22 @@ class productview1(viewsets.ModelViewSet):
             else:
                 self._paginator = self.pagination_class()
         return self._paginator
-
+    @property
     def paginate_queryset(self, queryset):
         """Return a single page of results, or `None` if pagination is disabled."""
         if self.paginator is None:
             return None
         return self.paginator.paginate_queryset(queryset, self.request, view=self)
-
+    @property
     def get_paginated_response(self, data):
         """Return a paginated style `Response` object for the given output data."""
         assert self.paginator is not None
         return self.paginator.get_paginated_response(data)
-    
+    @property
     def list(self, request):
         query_set = Product.objects.filter(is_active=True).order_by('id')
         return self.get_paginated_response(self.serializer_class(query_set, many=True).data)
-        
+    @property   
     def retrieve(self, request, pk=None):
         item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
         page = self.paginate_queryset(item)
@@ -92,7 +92,7 @@ class productsearch(viewsets.ModelViewSet):
     queryset = Product.objects.filter(is_active=True).order_by('id')
     serializer_class = productSerializer
     pagination_class = MyPaginator
-    search_fields = ['title','category__category','brand__brand_name']
+    search_fields = ['$title','$category__category','$brand__brand_name']
     filter_backends = (filters.SearchFilter,filters.OrderingFilter)
     # def list(self, request,):
     #     # page = self.paginate_queryset(self.queryset)
@@ -152,37 +152,35 @@ class newest(viewsets.ModelViewSet):
            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('price')
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)  
-       
+            
 class discount(viewsets.ModelViewSet):
     queryset=Product.objects.filter(is_active=True).order_by('discounted_price') 
     serializer_class = productSerializer 
     pagination_class = MyPaginator  
     search_fields = ['title','category__category','brand__brand_name']
     filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-    for i in queryset: 
-        def list(self,request,):
-            # try:
-            if self.i.discounted_price is not None:
-                queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('discounted_price') 
-                queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
-                serializer = productSerializer(queryset, many=True)
-                return Response(serializer.data)
-            else:
-                queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('discounted_price') 
-                queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
-                serializer = productSerializer(queryset, many=True)
-                return Response(serializer.data)
+    data=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False))
+    def list(self,request,):
+        if self.data.exists():
+            queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('discounted_price') 
+            queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
+            serializer = productSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('discounted_price') 
+            queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
+            serializer = productSerializer(queryset, many=True)
+            return Response(serializer.data)
             
-        def retrieve(self, request, pk=None):
-            if self.i.discounted_price is not None:
-                item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('price')
-                serializer = productSerializer(item,many=True)
-                return Response(serializer.data)
-            else:
-                item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('price')
-                serializer = productSerializer(item,many=True)
-                return Response(serializer.data)
-
+    def retrieve(self, request, pk=None):
+        if self.data.exists():
+            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('price')
+            serializer = productSerializer(item,many=True)
+            return Response(serializer.data)
+        else:
+            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('price')
+            serializer = productSerializer(item,many=True)
+            return Response(serializer.data)
 class most_categoryview(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('id')
        serializer_class = productSerializer 
@@ -273,8 +271,8 @@ class myaccountCreateView1(CreateAPIView):
     queryset = my_account.objects.all()
     
 class myaccountCreateView(ModelViewSet):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = [JWTAuthentication,]
     queryset = my_account.objects.all()
     serializer_class = myaccountserializers
     http_method_names = ['post', ]

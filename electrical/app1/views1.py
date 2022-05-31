@@ -81,7 +81,6 @@ class RegistrationAPIView(APIView):
                 return Response({'msg':"OTP sent to your Email"}, status=status.HTTP_201_CREATED)
             else:
                 return Response({"Error": "Sign Up Failed"}, status=status.HTTP_400_BAD_REQUEST)
-            
 class VerifyOTPView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = VerifyOTPSerializer
@@ -170,8 +169,6 @@ class forgotpasswordotpverification(APIView):
         one = verifyOTP(one_time)
         print('one', one)
         data = User.objects.filter(Q(email=email)& Q(is_confirmed=True))
-        # print("-----present password-----",present_password)
-        # print("-----entered password-----",password2)
         if one:
             if data.exists():
                 User.objects.filter(email=email).update(

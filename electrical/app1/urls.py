@@ -19,10 +19,10 @@ router.register('high-to-low',productHitoLo,basename="high-to-low")
 router.register('low-to-high',productLotoHi,basename="low-to-high")
 router.register('newest',newest,basename="newest")
 router.register('discount',discount,basename="discount")
+# router.register('discount1',discount1)
 #faq page
 router.register('faq',Listfaq)
 router.register('enquirycreate',enquirycreate)
- 
 router.register('myaccountcreate',myaccountCreateView)
 router.register('addresscreate',AddressCreateView)
 router.register("subcategory",subcategoryview)
