@@ -40,7 +40,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class MyPaginator(PageNumberPagination):
     
-    page_size = 4
+    page_size = 12
     page_size_query_param = 'page_size'
     max_page_size = 1000
 
@@ -102,6 +102,29 @@ class productsearch(viewsets.ModelViewSet):
     #     item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
     #     serializer = productSerializer(item,many=True)
     #     return Response(serializer.data)
+"""Serch functionality filters"""
+class searchproductHitoLo(viewsets.ModelViewSet):
+       queryset = Product.objects.filter(is_active=True).order_by('-price')
+       serializer_class = productSerializer
+       search_fields = ['title','category__category','brand__brand_name']
+       filter_backends = (filters.SearchFilter,filters.OrderingFilter) 
+class searchproductLotoHi(viewsets.ModelViewSet):
+       queryset = Product.objects.filter(is_active=True).order_by('price')
+       serializer_class = productSerializer
+       search_fields = ['title','category__category','brand__brand_name']
+       filter_backends = (filters.SearchFilter,filters.OrderingFilter)  
+class searchnewest(viewsets.ModelViewSet):
+       queryset = Product.objects.filter(is_active=True).order_by('-created_at')
+       serializer_class = productSerializer
+       search_fields = ['title','category__category','brand__brand_name']
+       filter_backends = (filters.SearchFilter,filters.OrderingFilter)   
+class searchdiscount(viewsets.ModelViewSet):
+    queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('discounted_price') 
+    serializer_class = productSerializer 
+    pagination_class = MyPaginator  
+    search_fields = ['title','category__category','brand__brand_name']
+    filter_backends = (filters.SearchFilter,filters.OrderingFilter) 
+    """end"""
 class productview(viewsets.ModelViewSet):
     queryset = Product.objects.filter(is_active=True).order_by('id')
     serializer_class = productSerializer
@@ -120,6 +143,8 @@ class productview(viewsets.ModelViewSet):
 class productHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
        serializer_class = productSerializer
+       search_fields = ['title','category__category','brand__brand_name']
+       filter_backends = (filters.SearchFilter,filters.OrderingFilter)
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
@@ -127,6 +152,7 @@ class productHitoLo(viewsets.ModelViewSet):
            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('-price')
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)
+         
 class productLotoHi(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('price')
        serializer_class = productSerializer
@@ -140,6 +166,7 @@ class productLotoHi(viewsets.ModelViewSet):
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)
        
+            
 class newest(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-created_at')
        serializer_class = productSerializer
@@ -152,7 +179,7 @@ class newest(viewsets.ModelViewSet):
            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('price')
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)  
-            
+             
 class discount(viewsets.ModelViewSet):
     queryset=Product.objects.filter(is_active=True).order_by('discounted_price') 
     serializer_class = productSerializer 
@@ -181,6 +208,7 @@ class discount(viewsets.ModelViewSet):
             item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('price')
             serializer = productSerializer(item,many=True)
             return Response(serializer.data)
+
 class most_categoryview(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('id')
        serializer_class = productSerializer 

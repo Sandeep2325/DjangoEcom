@@ -19,6 +19,11 @@ router.register('high-to-low',productHitoLo,basename="high-to-low")
 router.register('low-to-high',productLotoHi,basename="low-to-high")
 router.register('newest',newest,basename="newest")
 router.register('discount',discount,basename="discount")
+#search functionality filters
+router.register('search-high-to-low',searchproductHitoLo,basename="search-high-to-low")
+router.register('search-low-to-high',searchproductLotoHi,basename="search-low-to-high")
+router.register('search-newest',searchnewest,basename="search-newest")
+router.register('search-discount',searchdiscount,basename="search-discount")
 # router.register('discount1',discount1)
 #faq page
 router.register('faq',Listfaq)
