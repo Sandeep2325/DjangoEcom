@@ -710,7 +710,7 @@ class faq_enquiryAdmin(admin.ModelAdmin):
         return format_html(html)
     action_btn.short_description = "Action"
 class notificationadmin(admin.ModelAdmin):
-    list_display=["id",'checkout_product','status','user','user_notifications','coupons','sales','created_date',]
+    list_display=["id",'checkout_product','status','user','user_notifications','coupons','sales','created_date']
 class userphotoadmin(admin.ModelAdmin):
     list_display=['id','user','photo']
 admin.site.register(userphoto,userphotoadmin)
