@@ -711,6 +711,9 @@ class faq_enquiryAdmin(admin.ModelAdmin):
     action_btn.short_description = "Action"
 class notificationadmin(admin.ModelAdmin):
     list_display=["id",'checkout_product','status','user','user_notifications','coupons','sales','created_date',]
+class userphotoadmin(admin.ModelAdmin):
+    list_display=['id','user','photo']
+admin.site.register(userphoto,userphotoadmin)
 admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
 admin.site.register(socialmedialinks,socialmedialinksadmin)

@@ -46,14 +46,21 @@ class myaccountlistserializer(serializers.ModelSerializer):
     user=userserializer(read_only=True)
     class Meta:
         fields="__all__"
+        read_only_fields = ("user",) 
         # fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
         model=my_account
-        
+class userphotoserializer(serializers.ModelSerializer):
+    class Meta:
+        fields="__all__"  
+        read_only_fields = ("user",) 
+        model=userphoto     
 class myaccountserializers(serializers.ModelSerializer):
     # user=userserializer(read_only=True)
     class Meta:
-        # fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
+        # fields=('id','user','first_name','last_name','phone_number','email','address','city','state','postal_pin')
         fields="__all__"
+        read_only_fields = ("user",) 
+        
         model=my_account
     
     def validate_first_name(self, value):
@@ -101,7 +108,8 @@ class customerlistserializer(serializers.ModelSerializer):
         model=Address    
 class CustomerAddressSerializers(serializers.ModelSerializer):
     class Meta:
-        fields = ("id","user","fullname","phone","locality","state","city","pincode","address","home","work")
+        fields = ("id","fullname","phone","locality","state","city","pincode","address","home","work")
+        read_only_fields = ("user",)
         model = Address
     def validate_fullname(self, value):
         if value == "":

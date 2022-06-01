@@ -51,10 +51,13 @@ class User(AbstractUser,PermissionsMixin):
      
     def __str__(self):
         return "{}".format(str(self.username))
-
+class userphoto(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    photo=models.ImageField(upload_to='profile', verbose_name="Profle photo", null=True, blank=True)
+    
 class my_account(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    photo=models.ImageField(upload_to='profile', verbose_name="Profle photo", null=True, blank=True, max_length=500)
+    # photo=models.ImageField(upload_to='profile', verbose_name="Profle photo", null=True, blank=True, max_length=500)
     first_name=models.CharField(max_length=50,null=True,verbose_name="First Name")
     last_name=models.CharField(max_length=50,null=True,verbose_name="last Name")
     phone_number=models.BigIntegerField(null=True,verbose_name="Phone number")

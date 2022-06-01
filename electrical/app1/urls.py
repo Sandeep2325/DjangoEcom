@@ -24,11 +24,11 @@ router.register('search-high-to-low',searchproductHitoLo,basename="search-high-t
 router.register('search-low-to-high',searchproductLotoHi,basename="search-low-to-high")
 router.register('search-newest',searchnewest,basename="search-newest")
 router.register('search-discount',searchdiscount,basename="search-discount")
-# router.register('discount1',discount1)
 #faq page
 router.register('faq',Listfaq)
 router.register('enquirycreate',enquirycreate)
 router.register('myaccountcreate',myaccountCreateView)
+router.register('userphotocreate',userphotocreate)
 router.register('addresscreate',AddressCreateView)
 router.register("subcategory",subcategoryview)
 router.register('newsletter',newsletterCreateView)

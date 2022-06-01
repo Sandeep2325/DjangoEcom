@@ -312,13 +312,44 @@ class myaccountCreateView(ModelViewSet):
             }
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            print("--------------------------------",self.request.user)
+            serializer.save(user=self.request.user)
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-class myaccountupdateview(UpdateAPIView):
+    def update(self,request):
+        data = {
+            "msg": "Your account created Successfully",
+            }
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            print("--------------------------------",self.request.user)
+            serializer.save(user=self.request.user)
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class userphotocreate(ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
+    queryset = userphoto.objects.all()
+    serializer_class = userphotoserializer
+    http_method_names = ['post', ]
+
+    def create(self, request, *args, **kwargs):
+        # user = request.user
+        data = {
+            "msg": "Profile photo updated successfully",
+            }
+        serializer = self.serializer_class(data=request.data)
+        # serializer.save(user=self.request.user)
+        if serializer.is_valid():
+            print("--------------------------------",self.request.user)
+            serializer.save(user=self.request.user)
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class myaccountupdateview(UpdateAPIView):
     serializer_class = myaccountserializers
     queryset = my_account.objects.all() 
     
