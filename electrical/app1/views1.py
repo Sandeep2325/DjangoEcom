@@ -8,7 +8,7 @@ import jwt
 import hashlib
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import User
+from .models import User, my_account
 from .serializers1 import LoginSerializer, RegistrationSerializer, VerifyOTPSerializer, ForgotPasswordSerializer, ResetPasswordSerializer
 from .serializers1 import *
 from django.contrib.auth import authenticate
@@ -65,6 +65,8 @@ class RegistrationAPIView(APIView):
             name = request.data['username']
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
+                my_account.objects.create(user=self.request.user,email=email,phone_number=phone_no).save()
+                
                 message = f'Welcome {name} Your OTP is : ' + \
                     generateOTP()
                 email_from = settings.EMAIL_HOST_USER
@@ -81,6 +83,7 @@ class RegistrationAPIView(APIView):
                 return Response({'msg':"OTP sent to your Email"}, status=status.HTTP_201_CREATED)
             else:
                 return Response({"Error": "Sign Up Failed"}, status=status.HTTP_400_BAD_REQUEST)
+            
 class VerifyOTPView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = VerifyOTPSerializer
@@ -94,10 +97,11 @@ class VerifyOTPView(APIView):
         if one:
             User.objects.filter(email=email).update(
                 is_confirmed=True, is_used=True, otp=one_time)
+            # my_account.objects.create(user=self.request.user,email=email).save()
             return Response({'msg': 'OTP verfication successful'}, status=status.HTTP_200_OK)
         else:
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
-
+        
 # it will send the mail with changed password which is generated randomly
 class emailverify(APIView):
     permission_classes = (AllowAny,)

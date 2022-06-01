@@ -321,18 +321,8 @@ class myaccountCreateView(ModelViewSet):
                 return Response(data, status=status.HTTP_201_CREATED)
             else:
                 return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-    def put(self,request):
-        data = {
-            "msg": "Your account created Successfully",
-            }
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            print("--------------------------------",self.request.user)
-            serializer.save(user=self.request.user)
-            return Response(data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+           
+            
 class userphotocreate(ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -363,6 +353,8 @@ class userphoto1(viewsets.ModelViewSet):
         user = self.request.user
         return userphoto.objects.filter(user=user)     
 class myaccountupdateview(UpdateAPIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     serializer_class = myaccountserializers
     queryset = my_account.objects.all() 
     

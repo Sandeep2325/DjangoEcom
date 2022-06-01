@@ -58,7 +58,7 @@ class userphoto(models.Model):
 class my_account(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     # photo=models.ImageField(upload_to='profile', verbose_name="Profle photo", null=True, blank=True, max_length=500)
-    first_name=models.CharField(max_length=50,null=True,verbose_name="First Name")
+    first_name=models.CharField(max_length=50,null=True,verbose_name="First Name",default="Your first name")
     last_name=models.CharField(max_length=50,null=True,verbose_name="last Name")
     phone_number=models.BigIntegerField(null=True,verbose_name="Phone number")
     email=models.EmailField(max_length=255,null=True,verbose_name="Email")
@@ -66,8 +66,8 @@ class my_account(models.Model):
     city=models.CharField(max_length=100,null=True,verbose_name="City")
     state=models.CharField(max_length=50,null=True,verbose_name="State")
     postal_pin=models.BigIntegerField(null=True,verbose_name="Postal address")
-    def __str__(self):
-        return self.first_name    
+    # def __str__(self):
+    #     return self.first_name    
 
     def save(self,*args, **kwargs):
         super().save()  # saving image first
