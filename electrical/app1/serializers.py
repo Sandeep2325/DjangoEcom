@@ -43,7 +43,7 @@ class userserializer(serializers.ModelSerializer):
         fields="__all__"
         model=User
 class myaccountlistserializer(serializers.ModelSerializer):
-    user=userserializer(read_only=True)
+    # user=userserializer(read_only=True)
     class Meta:
         fields="__all__"
         read_only_fields = ("user",) 

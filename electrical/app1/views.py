@@ -299,8 +299,8 @@ class myaccountCreateView1(CreateAPIView):
     queryset = my_account.objects.all()
     
 class myaccountCreateView(ModelViewSet):
-    # permission_classes = (IsAuthenticated, )
-    # authentication_classes = [JWTAuthentication,]
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     queryset = my_account.objects.all()
     serializer_class = myaccountserializers
     http_method_names = ['post', ]
@@ -310,14 +310,19 @@ class myaccountCreateView(ModelViewSet):
         data = {
             "msg": "Your account created Successfully",
             }
+        data=my_account.objects.filter(user=self.request.user)
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            print("--------------------------------",self.request.user)
-            serializer.save(user=self.request.user)
-            return Response(data, status=status.HTTP_201_CREATED)
+        if data.exists():
+            return Response({'msg':'user information already exists'},status=status.HTTP_409_CONFLICT)
         else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def update(self,request):
+            if serializer.is_valid():
+                print("--------------------------------",self.request.user)
+                serializer.save(user=self.request.user)
+                return Response(data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self,request):
         data = {
             "msg": "Your account created Successfully",
             }
