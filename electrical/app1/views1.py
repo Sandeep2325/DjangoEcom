@@ -65,8 +65,8 @@ class RegistrationAPIView(APIView):
             name = request.data['username']
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
-                my_account.objects.create(user=self.request.user,email=email,phone_number=phone_no).save()
-                
+                print("----------------------------",self.request.user)
+                # my_account.objects.create(user=self.request.user,email=email,phone_number=phone_no).save()
                 message = f'Welcome {name} Your OTP is : ' + \
                     generateOTP()
                 email_from = settings.EMAIL_HOST_USER
@@ -91,13 +91,17 @@ class VerifyOTPView(APIView):
         serializer = VerifyOTPSerializer(data=request.data)
         email = request.data['email']
         one_time = request.data['otp']
+        data=User.objects.filter(email=email)
+        if data.exists():
+            for i in data:
+                print("-------------------------------",i.phone_no)
         print('one_time_password', one_time)
         one = verifyOTP(one_time)
         print('one', one)
         if one:
             User.objects.filter(email=email).update(
                 is_confirmed=True, is_used=True, otp=one_time)
-            # my_account.objects.create(user=self.request.user,email=email).save()
+            my_account.objects.create(user=self.request.user,email=email).save()
             return Response({'msg': 'OTP verfication successful'}, status=status.HTTP_200_OK)
         else:
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
@@ -112,12 +116,21 @@ class emailverify(APIView):
         one_time = request.data['otp']
         # password=request.data['password2']
         # password2 = handler.hash(password)
+        data=User.objects.filter(email=email)
+        if data.exists():
+            for i in data:
+                ...
+                # print("-------------------------------",i.id)
         print('one_time_password', one_time)
         one = verifyOTP(one_time)
         print('one', one)
+        user=User.objects.get(pk=i.id)
+        print("-------------------",user.phone_no)
+        my_account.objects.create(user=user,email=email,phone_number=user.phone_no).save()
         if one:
             User.objects.filter(email=email).update(
                 is_confirmed=True, is_used=True, otp=one_time)
+            
             return Response({'msg': 'OTP verfication successful and Account created'}, status=status.HTTP_200_OK)
         else: 
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
