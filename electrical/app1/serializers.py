@@ -379,11 +379,13 @@ class ordersSerializer(serializers.ModelSerializer):
         return response
 class notificationserializer(serializers.ModelSerializer):
     class Meta:
-        fields=('user_notifications','created_date')
+        fields=('user','user_notifications','created_date')
+        read_only_fields = ("user",)
         model=notification
 class unotificationserializer(serializers.ModelSerializer):
     class Meta:
-        fields=("sales","coupons")
+        fields=('user',"sales","coupons")
+        read_only_fields = ("user",)
         model=notification    
     def to_representation(self, instance):
         result = super(unotificationserializer, self).to_representation(instance)
