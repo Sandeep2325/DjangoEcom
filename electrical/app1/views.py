@@ -382,15 +382,15 @@ class cartCreateView1(ModelViewSet):
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
             
-# class userphoto1(viewsets.ModelViewSet):
-#     # queryset = my_account.objects.all()
-#     permission_classes = (IsAuthenticated, )
-#     authentication_classes = [JWTAuthentication,]
-#     serializer_class = userphotoserializer
+class userphoto1(viewsets.ModelViewSet):
+    # queryset = my_account.objects.all()
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    serializer_class = userphotoserializer
 
-#     def get_queryset(self):
-#         user = self.request.user
-#         return userphoto.objects.filter(user=user)["-id"]  
+    def get_queryset(self):
+        user = self.request.user
+        return userphoto.objects.filter(user=user)["-id"]  
 class userphoto11(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
