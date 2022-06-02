@@ -8,7 +8,7 @@ import jwt
 import hashlib
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import User, my_account
+from .models import User, my_account, userphoto
 from .serializers1 import LoginSerializer, RegistrationSerializer, VerifyOTPSerializer, ForgotPasswordSerializer, ResetPasswordSerializer
 from .serializers1 import *
 from django.contrib.auth import authenticate
@@ -133,6 +133,7 @@ class emailverify(APIView):
             user=User.objects.get(pk=i.id)
             # print("-------------------",user.phone_no)
             my_account.objects.create(user=user,email=email,phone_number=user.phone_no).save()
+            userphoto.objects.create(user=user).save()
             return Response({'msg': 'OTP verfication successful and Account created'}, status=status.HTTP_200_OK)
         else: 
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)

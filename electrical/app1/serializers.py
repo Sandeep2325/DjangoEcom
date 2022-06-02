@@ -265,9 +265,10 @@ class newsletterserializer(serializers.ModelSerializer):
             fail_silently=False,
         )
         return instance    
-class cartcreateserializer(serializers.ModelSerializer): 
+class cartcreateserializer(serializers.ModelSerializer):
     class Meta:
-        fields=('id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at')
+        fields=('id','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at')
+        read_only_fields = ("user",)
         model=Cart
 class cartserializer(serializers.ModelSerializer):
     product=productSerializer(read_only=True)
@@ -379,12 +380,12 @@ class ordersSerializer(serializers.ModelSerializer):
         return response
 class notificationserializer(serializers.ModelSerializer):
     class Meta:
-        fields=('user','user_notifications','created_date')
+        fields=('user_notifications','created_date')
         read_only_fields = ("user",)
         model=notification
 class unotificationserializer(serializers.ModelSerializer):
     class Meta:
-        fields=('user',"sales","coupons")
+        fields=("offers",)
         read_only_fields = ("user",)
         model=notification    
     def to_representation(self, instance):

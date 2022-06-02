@@ -30,13 +30,14 @@ router.register('faq',Listfaq)
 router.register('enquirycreate',enquirycreate)
 router.register('myaccountcreate',myaccountCreateView)
 router.register('userphotocreate',userphotocreate)
-router.register('userphoto1',userphoto1,basename="userphoto1")
+router.register('cartCreateView1',cartCreateView1)
+# router.register('userphoto1',userphoto11,basename="userphoto1")
 router.register('addresscreate',AddressCreateView)
 router.register("subcategory",subcategoryview)
 router.register('newsletter',newsletterCreateView)
 router.register('products',productsearch)
 router.register('orderss',orderss)
-router.register('notification',notificationlist,basename="notification")
+# router.register('notification',notificationlist,basename="notification")
 router.register('unotification',universalnotificationlist,basename="unotification")
 # router.register('resendd',Resent1,basename="resendd")
 urlpatterns = [
@@ -51,6 +52,8 @@ urlpatterns = [
 #          name='myaccount-create'),
     path('myaccount/update/<pk>',
          myaccountupdateview.as_view(), name='myaccount-update'),
+    path('userphoto/<pk>',
+         userphoto11.as_view(), name='userphoto'),
     path('categories/',
          listcategory.as_view({'get': 'list'}), name="category"),
     path('categories/<int:pk>/', detailcategory.as_view(), name="single_category"),

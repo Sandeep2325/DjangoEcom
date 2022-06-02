@@ -354,17 +354,49 @@ class userphotocreate(ModelViewSet):
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-class userphoto1(viewsets.ModelViewSet):
-    # queryset = my_account.objects.all()
+class cartCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    serializer_class = cartcreateserializer
+    queryset = Cart.objects.all()   
+class cartCreateView1(ModelViewSet):
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = [JWTAuthentication,]
+    queryset = Cart.objects.all()
+    serializer_class = cartcreateserializer
+    http_method_names = ['post', ]
+
+    def create(self, request, *args, **kwargs):
+        # user = request.user
+        data = {
+            "msg": "Added to cart succesfully",
+            }
+        serializer = self.serializer_class(data=request.data)
+        # serializer.save(user=self.request.user)
+        if serializer.is_valid():
+            # photoo=request.data['photo']
+            # print(photoo)
+            print("--------------------------------",self.request.user)
+            serializer.save(user=self.request.user)
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+            
+# class userphoto1(viewsets.ModelViewSet):
+#     # queryset = my_account.objects.all()
+#     permission_classes = (IsAuthenticated, )
+#     authentication_classes = [JWTAuthentication,]
+#     serializer_class = userphotoserializer
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         return userphoto.objects.filter(user=user)["-id"]  
+class userphoto11(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     serializer_class = userphotoserializer
-
-    def get_queryset(self):
-        user = self.request.user
-        return userphoto.objects.filter(user=user)  
-       
+    queryset = userphoto.objects.all()  
+         
 class myaccountupdateview(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -713,13 +745,7 @@ class cartlist(viewsets.ModelViewSet):
     #     serializer = cartserializer(item)
     #     return Response(serializer.data)
     
-class cartCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
-    serializer_class = cartcreateserializer
-    queryset = Cart.objects.all()  
-    
-    
+ 
 class cartDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]

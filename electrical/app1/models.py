@@ -99,32 +99,44 @@ class Address(models.Model):
     class Meta:
         verbose_name_plural = "Customer Address"
 class notification(models.Model):
-    order_no=models.IntegerField(null=True,blank=True)
-    notification=models.TextField(null=True,blank=True)
-    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+    offers=models.TextField(null=True,blank=True)
     created_date = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date", null=True)
-    # checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product",null=True,blank=True)
-    checkout_product=models.CharField(max_length=50,null=True,blank=True)
-    sales=models.TextField(null=True,blank=True)
-    product=models.CharField(max_length=100,null=True,blank=True)
-    status=models.CharField(max_length=50,null=True,blank=True)
-    coupons=models.TextField(null=True,blank=True)
-    @property
-    def user_notifications(self):
-        if self.sales is not None:
-            a="Exciting offer is waiting for you"
-        elif self.product is not None:
-            a="new product is added"
-        elif self.coupons is not None:
-            a=self.coupons
-        else:
-            a="Hi {} your product {} is {}".format(self.user.username,self.checkout_product,self.status)
-        return a
-    # def __str__(self):
-    #     return self.action_notifications
     class Meta:
         verbose_name_plural = "Notification"
+        
+# class notification1(models.Model):
+#     notification=models.TextField(null=True,blank=True)
+#     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+#     created_date = models.DateTimeField(
+#         auto_now_add=True, verbose_name="Created Date", null=True)
+#     class Meta:
+#         verbose_name_plural = "Notification1"
+        
+# class notification1(models.Model):
+#     order_no=models.IntegerField(null=True,blank=True)
+#     notification=models.TextField(null=True,blank=True)
+#     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+#     created_date = models.DateTimeField(
+#         auto_now_add=True, verbose_name="Created Date", null=True)
+#     # checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product",null=True,blank=True)
+#     checkout_product=models.CharField(max_length=50,null=True,blank=True)
+#     sales=models.TextField(null=True,blank=True)
+#     product=models.CharField(max_length=100,null=True,blank=True)
+#     status=models.CharField(max_length=50,null=True,blank=True)
+#     coupons=models.TextField(null=True,blank=True)
+#     @property
+#     def user_notifications(self):
+#         if self.sales is not None:
+#             a="Exciting offer is waiting for you"
+#         elif self.product is not None:
+#             a="new product is added"
+#         elif self.coupons is not None:
+#             a=self.coupons
+#         else:
+#             a="Hi {} your product {} is {}".format(self.user.username,self.checkout_product,self.status)
+#         return a
+       
 class sales(models.Model):
     campaign_name = models.CharField(
         verbose_name="Campaign name", max_length=200, null=True)
@@ -139,7 +151,7 @@ class sales(models.Model):
     def save(self, *args, **kwargs):
         
         a="{} sale is ON buy any product get {}% discount".format(self.campaign_name,self.sales_discount)
-        notification.objects.create(sales=a)
+        notification.objects.create(offers=a)
         return super().save(*args, **kwargs)
         
     
@@ -521,7 +533,9 @@ class Orders(models.Model):
         verbose_name_plural = "Orders"
         
     def save(self, *args, **kwargs):
-        notification.objects.create(user=self.user,checkout_product=self.checkout_product,status=self.status,order_no=self.id)
+        # a="Hi {} your product {} is {}".format(self.user.username,self.checkout_product,self.status)
+        a="Hi {} sale is ON buy any product get {}% discount".format(self.campaign_name,self.sales_discount)
+        notification.objects.create(notification=a)
         return super().save(*args, **kwargs)
     def __str__(self):
         return (str(self.checkout_product))
@@ -538,7 +552,7 @@ class Coupon(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)
     def save(self, *args, **kwargs):
         coupons="use {} coupon to get {}% discount".format(self.coupon,self.coupon_discount)
-        notification.objects.create(coupons=coupons)
+        notification.objects.create(offers=coupons)
         return super().save(*args, **kwargs)
     def __str__(self):
         return self.coupon
