@@ -122,13 +122,6 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
-                # 'django.core.context_processors.static',
-                # 'django.core.context_processors.tz',
-                # 'django.contrib.messages.context_processors.messages',
-                # 'social.apps.django_app.context_processors.backends',
-                # 'social.apps.django_app.context_processors.login_redirect',
-
-
             ],
         },
     },

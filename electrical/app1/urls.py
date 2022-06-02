@@ -11,6 +11,7 @@ from django.conf import settings
 router = routers.DefaultRouter()
 router.register('products-brand', productview)
 router.register('products-brand1',productview1)
+# router.register('productbrand',product_brand,basename="brand")
 router.register('products-category',most_categoryview,basename="products-category")
 router.register('latest-product', latestview,basename="latest-product")
 router.register("blogg",blogview)
@@ -35,6 +36,8 @@ router.register("subcategory",subcategoryview)
 router.register('newsletter',newsletterCreateView)
 router.register('products',productsearch)
 router.register('orderss',orderss)
+router.register('notification',notificationlist,basename="notification")
+router.register('unotification',universalnotificationlist,basename="unotification")
 # router.register('resendd',Resent1,basename="resendd")
 urlpatterns = [
     path('', include(router.urls)),
@@ -58,6 +61,7 @@ urlpatterns = [
     path('brand/', brandproductlist.as_view({'get': 'list'}), name="brand_product"),
    
     path('product/', Productlist.as_view({'get': 'list'}), name="product"),
+    path('product_brand/<int:pk>/',product_brand.as_view(),name="product_brand"),
     path('product/<int:pk>/', Productdetail.as_view(), name="single_product"),
 #     path('newest/', newest.as_view({'get': 'list'}), name="newset"),
 #     path('latest-product/', latestproductlist.as_view({'get': 'list'}), name="latest_product"),
@@ -105,10 +109,10 @@ urlpatterns = [
          ordersDeleteView.as_view(), name='orders-delete'),
     path('orders/<pk>/cancel/', ordercancelview.as_view(), name='order-cancel'),
     path('redeem_coupon/',couponredeemview.as_view(),name="coupon-redeem"),
-    path('notification/', notificationlist.as_view({'get': 'list'}), name="notification"),
+#     path('notification/', notificationlist.as_view({'get': 'list'}), name="notification"),
     path('notification/<pk>/delete/',
          deletenotification.as_view(), name='notification-delete'),
-    path('unotification/', universalnotificationlist.as_view({'get': 'list'}), name="notification"),
+#     path('unotification/', universalnotificationlist.as_view({'get': 'list'}), name="notification"),
     path('faq_enquiry/', enquiryCreateView.as_view(),
          name='faq_enquiry'),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),

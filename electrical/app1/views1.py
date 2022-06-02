@@ -124,13 +124,15 @@ class emailverify(APIView):
         print('one_time_password', one_time)
         one = verifyOTP(one_time)
         print('one', one)
-        user=User.objects.get(pk=i.id)
-        print("-------------------",user.phone_no)
-        my_account.objects.create(user=user,email=email,phone_number=user.phone_no).save()
+        # user=User.objects.get(pk=i.id)
+        # print("-------------------",user.phone_no)
+        # my_account.objects.create(user=user,email=email,phone_number=user.phone_no).save()
         if one:
             User.objects.filter(email=email).update(
                 is_confirmed=True, is_used=True, otp=one_time)
-            
+            user=User.objects.get(pk=i.id)
+            # print("-------------------",user.phone_no)
+            my_account.objects.create(user=user,email=email,phone_number=user.phone_no).save()
             return Response({'msg': 'OTP verfication successful and Account created'}, status=status.HTTP_200_OK)
         else: 
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
@@ -144,19 +146,12 @@ class ForgotPasswordView(APIView):
         # password2 = handler.hash()
         if serializer.is_valid():
             email = request.data['email']
-            # password=request.data['password2']
-            # password2 = handler.hash(password)
-            # print(email)
-            # User.objects.filter(email=email).update(password=password2)
-            # a=[]
             data= User.objects.filter(email=email)
-                # a.append(i.email)
             if data.exists():
                 subject = 'Forgot Password OTP'
                 message = 'Your password change OTP is ' + generateOTP()
                 email_from = settings.EMAIL_HOST_USER
                 recipient_list = [email]
-
                 send_mail(
                     subject,
                     message,
