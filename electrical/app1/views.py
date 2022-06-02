@@ -139,7 +139,16 @@ class productview(viewsets.ModelViewSet):
         item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
         serializer = productSerializer(item,many=True)
         return Response(serializer.data)
+class product_brand(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = productSerializer  
+    def get_queryset(self):
     
+        if 'pk' in self.kwargs:
+            print(self.kwargs['pk'])
+            print(Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True)))
+            queryset=Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True))
+            return queryset
 class productHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
        serializer_class = productSerializer
@@ -338,11 +347,14 @@ class userphotocreate(ModelViewSet):
         serializer = self.serializer_class(data=request.data)
         # serializer.save(user=self.request.user)
         if serializer.is_valid():
+            # photoo=request.data['photo']
+            # print(photoo)
             print("--------------------------------",self.request.user)
             serializer.save(user=self.request.user)
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 class userphoto1(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -351,7 +363,8 @@ class userphoto1(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return userphoto.objects.filter(user=user)     
+        return userphoto.objects.filter(user=user)  
+       
 class myaccountupdateview(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -378,8 +391,8 @@ class deletenotification(DestroyAPIView):
     
 class universalnotificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
-    # permission_classes = (IsAuthenticated, )
-    # authentication_classes = [JWTAuthentication,]
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     serializer_class = unotificationserializer
     queryset = notification.objects.all()
     
