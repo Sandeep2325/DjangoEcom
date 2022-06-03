@@ -53,7 +53,7 @@ class User(AbstractUser,PermissionsMixin):
         return "{}".format(str(self.username))
 class userphoto(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    photo=models.ImageField(upload_to='profile', verbose_name="Profle photo", null=True, blank=True)
+    photo=models.ImageField(upload_to='profile',max_length=500, verbose_name="Profle photo", null=True, blank=True,default="https://icon2.cleanpng.com/20180319/xrq/kisspng-neck-sitting-line-male-5ab05067ad9d95.1710165615215043597111.jpg")
     
 class my_account(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)

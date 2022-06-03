@@ -37,6 +37,7 @@ router.register("subcategory",subcategoryview)
 router.register('newsletter',newsletterCreateView)
 router.register('products',productsearch)
 router.register('orderss',orderss)
+router.register('addresses',addresslist)
 # router.register('notification',notificationlist,basename="notification")
 router.register('unotification',universalnotificationlist,basename="unotification")
 # router.register('resendd',Resent1,basename="resendd")
@@ -78,7 +79,7 @@ urlpatterns = [
 #     path('order/<int:pk>/', orderdetail.as_view(), name="single_order"),
 #     path('order/create/', orderCreateView.as_view(), name='order-create'),
 #     path('order/<pk>/delete/',orderDeleteView.as_view(), name='order-delete'),
-    path('addresses/', AddressListView.as_view(), name='address-list'),
+#     path('addresses/', AddressListView.as_view(), name='address-list'),
     path('addresses/create/', AddressCreateView1.as_view(), name='address-create'),
     path('addresses/update/<pk>',
          AddressUpdateView.as_view(), name='address-update'),

@@ -1,4 +1,5 @@
 
+from ctypes import addressof
 from re import U
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
@@ -390,7 +391,8 @@ class userphoto1(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return userphoto.objects.filter(user=user)["-id"]  
+        return userphoto.objects.filter(user=user)
+    
 class userphoto11(UpdateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -510,7 +512,31 @@ class attributelist(viewsets.ModelViewSet):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = attributesSerializer(item)
         return Response(serializer.data)
+class AddressListView(ListAPIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    serializer_class = CustomerAddressSerializers
 
+    def get_queryset(self):
+        user = self.request.user
+        return Address.objects.filter(user=user)
+    
+class addresslist(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    queryset = Address.objects.all()
+    serializer_class=CustomerAddressSerializers
+    def list(self, request):
+        queryset=Address.objects.filter(user=self.request.user)
+        serializer = CustomerAddressSerializers(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset=Address.objects.filter(user=self.request.user,id=pk)
+        print(queryset)
+        serializer = CustomerAddressSerializers(queryset,many=True)
+        return Response(serializer.data)
+    
 class attributedetail(generics.RetrieveAPIView):
     queryset = Attributes.objects.all()
     serializer_class = attributesSerializer
@@ -556,15 +582,15 @@ class orderCreateView(CreateAPIView):
     serializer_class = ordersSerializer
     queryset = Order.objects.all()
     
-class AddressListView(ListAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
-    serializer_class = CustomerAddressSerializers
 
-    def get_queryset(self):
-        user = self.request.user
-        return Address.objects.filter(user=user)
-    
+# class Addressretrieve():
+#     permission_classes = (IsAuthenticated, )
+#     authentication_classes = [JWTAuthentication,]
+#     serializer_class = CustomerAddressSerializers
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         return Address.objects.filter(user=user)    
 class AddressCreateView1(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -572,8 +598,8 @@ class AddressCreateView1(CreateAPIView):
     queryset = Address.objects.all()
     
 class AddressCreateView(ModelViewSet):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
     http_method_names = ['post', ]
@@ -585,7 +611,7 @@ class AddressCreateView(ModelViewSet):
             }
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=self.request.user)
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)

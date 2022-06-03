@@ -137,7 +137,6 @@ class emailverify(APIView):
             return Response({'msg': 'OTP verfication successful and Account created'}, status=status.HTTP_200_OK)
         else: 
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
-
 class ForgotPasswordView(APIView):
     serializer_class = ForgotPasswordSerializer
     permission_classes = (AllowAny,)

@@ -50,6 +50,7 @@ class myaccountlistserializer(serializers.ModelSerializer):
         # fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
         model=my_account
 class userphotoserializer(serializers.ModelSerializer):
+    user=userserializer(read_only=True)
     class Meta:
         fields="__all__"  
         read_only_fields = ("user",) 
