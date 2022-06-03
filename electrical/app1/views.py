@@ -140,16 +140,18 @@ class productview(viewsets.ModelViewSet):
         item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
         serializer = productSerializer(item,many=True)
         return Response(serializer.data)
+    
 class product_brand(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = productSerializer  
     def get_queryset(self):
-    
         if 'pk' in self.kwargs:
             print(self.kwargs['pk'])
             print(Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True)))
             queryset=Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True))
+            # serializer = productSerializer(queryset,many=True)
             return queryset
+        
 class productHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
        serializer_class = productSerializer
@@ -302,11 +304,11 @@ class listmyaccount(viewsets.ModelViewSet):
         user = self.request.user
         return my_account.objects.filter(user=user)
       
-class myaccountCreateView1(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]                      
-    serializer_class = myaccountserializers
-    queryset = my_account.objects.all()
+# class myaccountCreateView1(CreateAPIView):
+#     permission_classes = (IsAuthenticated, )
+#     authentication_classes = [JWTAuthentication,]                      
+#     serializer_class = myaccountserializers
+#     queryset = my_account.objects.all()
     
 class myaccountCreateView(ModelViewSet):
     permission_classes = (IsAuthenticated, )
@@ -512,14 +514,7 @@ class attributelist(viewsets.ModelViewSet):
         item = get_object_or_404(self.queryset, pk=pk)
         serializer = attributesSerializer(item)
         return Response(serializer.data)
-class AddressListView(ListAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
-    serializer_class = CustomerAddressSerializers
 
-    def get_queryset(self):
-        user = self.request.user
-        return Address.objects.filter(user=user)
     
 class addresslist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
@@ -621,7 +616,11 @@ class AddressUpdateView(UpdateAPIView):
     authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
-    
+class defaultaddress(UpdateAPIView):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    serializer_class=defaultaddressserailizer
+    queryset=Address.objects.all()    
 class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]

@@ -91,6 +91,7 @@ class Address(models.Model):
     address=models.TextField(null=True,blank=True,verbose_name="Address")
     home=models.BooleanField(default=False,verbose_name="Home")
     work=models.BooleanField(default=False,verbose_name="Work")
+    default=models.BooleanField(default=False,verbose_name="default")
 
     def __str__(self):
         template = '{0.fullname} {0.phone} {0.locality} {0.city} {0.state} '

@@ -145,7 +145,11 @@ class CustomerAddressSerializers(serializers.ModelSerializer):
     #     if value=="":
     #         raise serializers.ValidationError("Please provide address")
     #     return value
-    
+class defaultaddressserailizer(serializers.ModelSerializer):
+    class Meta:
+        fields=("default",)   
+        read_only_fields=('user',)
+        model = Address 
 
 class categorySerializer(serializers.ModelSerializer):
     class Meta:

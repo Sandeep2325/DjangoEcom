@@ -40,7 +40,6 @@ router.register('orderss',orderss)
 router.register('addresses',addresslist)
 # router.register('notification',notificationlist,basename="notification")
 router.register('unotification',universalnotificationlist,basename="unotification")
-# router.register('resendd',Resent1,basename="resendd")
 urlpatterns = [
     path('', include(router.urls)),
     path('current-user/', CurrentUserViewSet.as_view(), name="current_user"),
@@ -49,8 +48,6 @@ urlpatterns = [
 #     path('register/', RegisterView.as_view(), name='auth_register'),
     path('myaccount/',
          listmyaccount.as_view({'get': 'list'}), name="myaccount"),
-#     path('myaccount/create/', myaccountCreateView1.as_view(),
-#          name='myaccount-create'),
     path('myaccount/update/<pk>',
          myaccountupdateview.as_view(), name='myaccount-update'),
     path('userphoto/<pk>',
@@ -79,10 +76,11 @@ urlpatterns = [
 #     path('order/<int:pk>/', orderdetail.as_view(), name="single_order"),
 #     path('order/create/', orderCreateView.as_view(), name='order-create'),
 #     path('order/<pk>/delete/',orderDeleteView.as_view(), name='order-delete'),
-#     path('addresses/', AddressListView.as_view(), name='address-list'),
     path('addresses/create/', AddressCreateView1.as_view(), name='address-create'),
     path('addresses/update/<pk>',
          AddressUpdateView.as_view(), name='address-update'),
+    path('defaddress/update/<pk>',
+         defaultaddress.as_view(), name='deafult-address'),
     path('addresses/<pk>/delete/',
          AddressDeleteView.as_view(), name='address-delete'),
     path('banner/', Listbanner.as_view({'get': 'list'}), name="banner"),
