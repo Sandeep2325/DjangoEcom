@@ -103,7 +103,7 @@ class myaccountserializers(serializers.ModelSerializer):
             raise serializers.ValidationError("Please enter the postal address")
         return value
 class customerlistserializer(serializers.ModelSerializer):
-    
+    read_only_fields=('user',)
     class Meta:
         fields=("id","user","fullname","phone","locality","state","city","pincode","address","home","work")
         model=Address    

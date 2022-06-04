@@ -149,8 +149,9 @@ class product_brand(generics.RetrieveAPIView):
             print(self.kwargs['pk'])
             print(Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True)))
             queryset=Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True))
-            # serializer = productSerializer(queryset,many=True)
-            return queryset
+            serializer = productSerializer(queryset,many=True)
+            print(serializer)
+            return serializer
         
 class productHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
@@ -593,8 +594,8 @@ class AddressCreateView1(CreateAPIView):
     queryset = Address.objects.all()
     
 class AddressCreateView(ModelViewSet):
-    # permission_classes = (IsAuthenticated, )
-    # authentication_classes = [JWTAuthentication,]
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
     http_method_names = ['post', ]
@@ -616,11 +617,26 @@ class AddressUpdateView(UpdateAPIView):
     authentication_classes = [JWTAuthentication,]
     serializer_class = CustomerAddressSerializers
     queryset = Address.objects.all()
-class defaultaddress(UpdateAPIView):
+    
+# class defaultaddress1(UpdateAPIView):
+#     permission_classes=(IsAuthenticated,)
+#     authentication_classes=[JWTAuthentication,]
+#     serializer_class=defaultaddressserailizer
+#     queryset=Address.objects.all()
+    
+class defaultaddress(APIView):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]
-    serializer_class=defaultaddressserailizer
-    queryset=Address.objects.all()    
+    def put(self, request, pk, format=None):
+        item = get_object_or_404(Address.objects.all(), pk=pk)
+        serializer = defaultaddressserailizer(item, data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=self.request.user)
+            Address.objects.filter(user=self.request.user).update(default=False)
+            Address.objects.filter(user=self.request.user,id=self.kwargs['pk']).update(default=True)
+            return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
+    
 class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]

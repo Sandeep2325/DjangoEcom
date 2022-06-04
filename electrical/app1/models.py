@@ -136,8 +136,7 @@ class notification(models.Model):
 #             a=self.coupons
 #         else:
 #             a="Hi {} your product {} is {}".format(self.user.username,self.checkout_product,self.status)
-#         return a
-       
+#         return a   
 class sales(models.Model):
     campaign_name = models.CharField(
         verbose_name="Campaign name", max_length=200, null=True)

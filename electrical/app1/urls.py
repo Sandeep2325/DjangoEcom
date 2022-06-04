@@ -79,6 +79,7 @@ urlpatterns = [
     path('addresses/create/', AddressCreateView1.as_view(), name='address-create'),
     path('addresses/update/<pk>',
          AddressUpdateView.as_view(), name='address-update'),
+#     path('defaultaddress/<int:pk>/', defaultaddress1.as_view(), name='deafult-address'),
     path('defaddress/update/<pk>',
          defaultaddress.as_view(), name='deafult-address'),
     path('addresses/<pk>/delete/',
