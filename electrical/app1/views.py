@@ -533,60 +533,18 @@ class addresslist(viewsets.ModelViewSet):
         serializer = CustomerAddressSerializers(queryset,many=True)
         return Response(serializer.data)
     
-class attributedetail(generics.RetrieveAPIView):
-    queryset = Attributes.objects.all()
-    serializer_class = attributesSerializer
+class defaultaddressget(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    queryset = Address.objects.all()
+    serializer_class=defaultaddressserailizer
     
-class orderlist(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
-    # queryset= Order.objects.filter(user=2)
-    
-    def list(self, request):
-        serializer = ordersSerializer(self.queryset, many=True)
-        return Response(serializer.data)
-
     def retrieve(self, request, pk=None):
-        item = get_object_or_404(self.queryset, pk=pk)
-        serializer = ordersSerializer(item)
+        queryset=Address.objects.filter(user=self.request.user,id=pk)
+        print(queryset)
+        serializer = defaultaddressserailizer(queryset,many=True)
         return Response(serializer.data)
-    
-class orderDeleteView(DestroyAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
-    queryset = Order.objects.all()
-
-""" class OrderDetailView(RetrieveAPIView):
-    serializer_class = ordersSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_object(self):
-        try:
-            order = Order.objects.all()
-            return order
-        except ObjectDoesNotExist:
-            raise Http404("You do not have an active order") """
-
-class orderdetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
-    queryset = Order.objects.all()
-    serializer_class = ordersSerializer
-
-class orderCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
-    serializer_class = ordersSerializer
-    queryset = Order.objects.all()
-    
-
-# class Addressretrieve():
-#     permission_classes = (IsAuthenticated, )
-#     authentication_classes = [JWTAuthentication,]
-#     serializer_class = CustomerAddressSerializers
-
-#     def get_queryset(self):
-#         user = self.request.user
-#         return Address.objects.filter(user=user)    
+ 
 class AddressCreateView1(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -641,7 +599,52 @@ class AddressDeleteView(DestroyAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     queryset = Address.objects.all()
+      
+class attributedetail(generics.RetrieveAPIView):
+    queryset = Attributes.objects.all()
+    serializer_class = attributesSerializer
+    
+class orderlist(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    # queryset= Order.objects.filter(user=2)
+    
+    def list(self, request):
+        serializer = ordersSerializer(self.queryset, many=True)
+        return Response(serializer.data)
 
+    def retrieve(self, request, pk=None):
+        item = get_object_or_404(self.queryset, pk=pk)
+        serializer = ordersSerializer(item)
+        return Response(serializer.data)
+    
+class orderDeleteView(DestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    queryset = Order.objects.all()
+
+""" class OrderDetailView(RetrieveAPIView):
+    serializer_class = ordersSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        try:
+            order = Order.objects.all()
+            return order
+        except ObjectDoesNotExist:
+            raise Http404("You do not have an active order") """
+
+class orderdetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    queryset = Order.objects.all()
+    serializer_class = ordersSerializer
+
+class orderCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    serializer_class = ordersSerializer
+    queryset = Order.objects.all()
+        
 class newsletterCreateView(ModelViewSet):
     serializer_class = newsletterserializer
     queryset = newsletter.objects.all()

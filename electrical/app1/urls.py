@@ -38,6 +38,7 @@ router.register('newsletter',newsletterCreateView)
 router.register('products',productsearch)
 router.register('orderss',orderss)
 router.register('addresses',addresslist)
+router.register('defaultaddressget',defaultaddressget)
 # router.register('notification',notificationlist,basename="notification")
 router.register('unotification',universalnotificationlist,basename="unotification")
 urlpatterns = [
