@@ -106,10 +106,11 @@ class customerlistserializer(serializers.ModelSerializer):
     read_only_fields=('user',)
     class Meta:
         fields=("id","user","fullname","phone","locality","state","city","pincode","address","home","work")
+        read_only_fields = ("user",)
         model=Address    
 class CustomerAddressSerializers(serializers.ModelSerializer):
     class Meta:
-        fields = ("id","fullname","phone","locality","state","city","pincode","address","home","work")
+        fields = ("id","fullname","phone","locality","state","city","pincode","address","home","work","default")
         read_only_fields = ("user",)
         model = Address
     def validate_fullname(self, value):

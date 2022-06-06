@@ -418,7 +418,7 @@ class notificationlist(viewsets.ModelViewSet):
         # return notification.objects.all()
         return notification.objects.filter(user=user)
     
-class deletenotification(DestroyAPIView):
+class deletenotification(DestroyAPIView): 
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     def get_queryset(self):
@@ -431,7 +431,7 @@ class universalnotificationlist(viewsets.ModelViewSet):
     # permission_classes = (IsAuthenticated, )
     # authentication_classes = [JWTAuthentication,]
     serializer_class = unotificationserializer
-    queryset = notification.objects.all()
+    queryset = notification.objects.all().order_by("-id")
     
 class listcategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -523,7 +523,7 @@ class addresslist(viewsets.ModelViewSet):
     queryset = Address.objects.all()
     serializer_class=CustomerAddressSerializers
     def list(self, request):
-        queryset=Address.objects.filter(user=self.request.user)
+        queryset=Address.objects.filter(user=self.request.user).order_by("-id")
         serializer = CustomerAddressSerializers(queryset, many=True)
         return Response(serializer.data)
 
