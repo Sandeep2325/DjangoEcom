@@ -407,8 +407,15 @@ class cartCreateView1(ModelViewSet):
                 return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-             
-            
+           
+    def update(self, request, pk, format=None):
+        item = get_object_or_404(my_account.objects.all(), pk=pk)
+        serializer = myaccountserializers(item, data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=self.request.user)
+            return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+          
 class userphoto1(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
