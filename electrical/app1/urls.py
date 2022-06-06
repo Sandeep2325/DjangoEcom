@@ -53,7 +53,6 @@ urlpatterns = [
     path('myaccount/update/<pk>',
          myaccountupdateview.as_view(), name='myaccount-update'),
     path('myaccountemail/',myaccountemail.as_view(),name="myaccountemail"),
-#     path('verify1/', emailverify.as_view(),name="verify"),
     path('myaccountemailverify/',myaccountemailverify.as_view(),name="myaccountemailverify"),
     
     path('userphoto/<pk>',

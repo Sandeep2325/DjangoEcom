@@ -358,6 +358,7 @@ class Cart(models.Model):
     date = models.DateTimeField(auto_now_add=True,verbose_name="Date",null=True)
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="Updated Date", null=True)
+    p_id=models.CharField(null=True,blank=True,max_length=5)
     # coupon=models.CharField(max_length=50,null=True,blank=True)
     # coupons=models.ForeignKey("Coupon",on_delete=models.CASCADE,null=True)
 

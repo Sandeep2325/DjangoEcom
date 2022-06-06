@@ -379,10 +379,11 @@ class cartCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     serializer_class = cartcreateserializer
-    queryset = Cart.objects.all()   
+    queryset = Cart.objects.all()  
+    
 class cartCreateView1(ModelViewSet):
-    # permission_classes = (IsAuthenticated, )
-    # authentication_classes = [JWTAuthentication,]
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     queryset = Cart.objects.all()
     serializer_class = cartcreateserializer
     http_method_names = ['post', ]
@@ -392,16 +393,21 @@ class cartCreateView1(ModelViewSet):
         data = {
             "msg": "Added to cart succesfully",
             }
-        serializer = self.serializer_class(data=request.data)
-        # serializer.save(user=self.request.user)
-        if serializer.is_valid():
-            # photoo=request.data['photo']
-            # print(photoo)
-            print("--------------------------------",self.request.user)
-            serializer.save(user=self.request.user)
-            return Response(data, status=status.HTTP_201_CREATED)
+        p_id=request.data['p_id']
+        data1=Product.objects.filter(id=int(p_id))
+        productt=Product.objects.get(id=int(p_id))
+        if data1.exists():
+            serializer = self.serializer_class(data=request.data)
+            # serializer.save(user=self.request.user)
+            if serializer.is_valid():
+                print("--------------------------------",self.request.user)
+                serializer.save(user=self.request.user,product=productt)
+                return Response(data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+             
             
 class userphoto1(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()

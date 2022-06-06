@@ -1,24 +1,13 @@
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth import authenticate        
-from .validators import validate_username  
+from django.contrib.auth import authenticate         
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from dataclasses import field, fields
-import email
-from enum import unique
-from genericpath import exists
-#from types import NoneType
-from unittest.util import _MAX_LENGTH
-from django.forms import CharField
-from pyparsing import And
 from rest_framework import serializers
 import math, random
-from app1.admin import ordersadmin
 #from rest_auth.registration.serializers import RegisterSerializer
 from . models import *
 from math import ceil
 from django.utils.timezone import now
-from django.db import transaction
 import regex as re
 from collections import OrderedDict
 #from app1.models import User
@@ -47,7 +36,7 @@ class myaccountlistserializer(serializers.ModelSerializer):
     class Meta:
         # fields="__all__"
         read_only_fields = ("user",) 
-        fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin','is_confirmed')
+        fields=('id','user','first_name','last_name','phone_number','email','address','city','state','postal_pin','is_confirmed')
         model=my_account
 class myaccountemailserializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
@@ -288,10 +277,12 @@ class newsletterserializer(serializers.ModelSerializer):
         )
         return instance    
 class cartcreateserializer(serializers.ModelSerializer):
+    p_id = serializers.IntegerField()
     class Meta:
-        fields=('id','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at')
-        read_only_fields = ("user",)
+        fields=('id','p_id')
+        read_only_fields = ("user","product")
         model=Cart
+        
 class cartserializer(serializers.ModelSerializer):
     product=productSerializer(read_only=True)
     attributes=attributesSerializer(read_only=True)
