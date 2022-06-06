@@ -47,10 +47,15 @@ urlpatterns = [
 #     path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
 #     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 #     path('register/', RegisterView.as_view(), name='auth_register'),
+
     path('myaccount/',
          listmyaccount.as_view({'get': 'list'}), name="myaccount"),
     path('myaccount/update/<pk>',
          myaccountupdateview.as_view(), name='myaccount-update'),
+    path('myaccountemail/',myaccountemail.as_view(),name="myaccountemail"),
+#     path('verify1/', emailverify.as_view(),name="verify"),
+    path('myaccountemailverify/',myaccountemailverify.as_view(),name="myaccountemailverify"),
+    
     path('userphoto/<pk>',
          userphoto11.as_view(), name='userphoto'),
     path('categories/',

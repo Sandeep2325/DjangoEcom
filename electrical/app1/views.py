@@ -14,7 +14,7 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.core.mail import send_mail, BadHeaderError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
-from app1.admin import cartadmin
+from app1.admin import cartadmin, myaccount
 from .serializers import MyTokenObtainPairSerializer
 from rest_framework import generics
 from . serializers import *
@@ -36,9 +36,24 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.viewsets import ModelViewSet
-
+import pyotp
 from rest_framework_simplejwt.authentication import JWTAuthentication
+def generateOTP():
+    global totp
+    secret = pyotp.random_base32()
+    # set interval(time of the otp expiration) according to your need in seconds.
+    # global totp,one_time
+    totp = pyotp.TOTP(secret, interval=3000)
+    one_time = totp.now()
+    return one_time
+# verifying OTP 
 
+def verifyOTP(one_time):
+    try:
+        answer = totp.verify(one_time)
+    except NameError:
+        return({'msg':"OTP already used"})
+    return answer
 class MyPaginator(PageNumberPagination):
     
     page_size = 12
@@ -319,6 +334,8 @@ class myaccountCreateView(ModelViewSet):
     http_method_names = ['post', ]
 
     def create(self, request, *args, **kwargs):
+        email = request.data['email']
+        print(email)
         # user = request.user
         data = {
             "msg": "Your account created Successfully",
@@ -402,12 +419,69 @@ class userphoto11(UpdateAPIView):
     serializer_class = userphotoserializer
     queryset = userphoto.objects.all()  
          
-class myaccountupdateview(UpdateAPIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = [JWTAuthentication,]
-    serializer_class = myaccountserializers
-    queryset = my_account.objects.all() 
+# class myaccountupdateview1(UpdateAPIView):
+#     permission_classes = (IsAuthenticated, )
+#     authentication_classes = [JWTAuthentication,]
+#     serializer_class = myaccountserializers
+#     queryset = my_account.objects.all() 
     
+class myaccountupdateview(APIView):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    def put(self, request, pk, format=None):
+        item = get_object_or_404(my_account.objects.all(), pk=pk)
+        serializer = myaccountserializers(item, data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=self.request.user)
+            return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+    
+class myaccountemail(APIView):
+    serializer_class = myaccountemailserializer
+    permission_classes = (AllowAny,)
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        # password2 = handler.hash()
+        if serializer.is_valid():
+            email = request.data['email']
+            data= my_account.objects.filter(email=email)
+            if data.exists():
+                subject = 'Verification OTP'
+                message = 'Your Email verification OTP ' + generateOTP()
+                email_from = settings.EMAIL_HOST_USER
+                recipient_list = [email]
+
+                send_mail(
+                    subject,
+                    message,
+                    email_from,
+                    recipient_list,
+                    fail_silently=False,
+                    )
+                # serializer.save(user=self.request.user)
+                return Response({'msg': 'sent'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'msg': 'Email not registered'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class myaccountemailverify(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = myaccountotpsesrializer
+    def post(self, request):
+        # serializer = VerifyOTPSerializer(data=request.data)
+        email = request.data['email']
+        one_time = request.data['otp'] 
+        print('one_time_password', one_time)
+        one = verifyOTP(one_time)
+        print('one', one)
+        if one:
+            my_account.objects.filter(email=email).update(
+                is_confirmed=True, otp=one_time)
+            return Response({'msg': 'Email verified'}, status=status.HTTP_200_OK)
+        else: 
+            return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
+        
 class notificationlist(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )

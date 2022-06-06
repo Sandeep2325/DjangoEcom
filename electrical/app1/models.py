@@ -65,7 +65,10 @@ class my_account(models.Model):
     address=models.TextField(null=True,verbose_name="Address")
     city=models.CharField(max_length=100,null=True,verbose_name="City")
     state=models.CharField(max_length=50,null=True,verbose_name="State")
+    is_confirmed = models.BooleanField(default=False)
+    otp = models.IntegerField(default=False)
     postal_pin=models.BigIntegerField(null=True,verbose_name="Postal address")
+    
     # def __str__(self):
     #     return self.first_name    
 

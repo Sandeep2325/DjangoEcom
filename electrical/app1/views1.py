@@ -313,7 +313,7 @@ class accountverifyview(APIView):
             email = request.data['email']
             data= User.objects.filter(email=email)
             if data.exists():
-                subject = 'Resend OTP'
+                subject = 'Verification OTP'
                 message = 'Your OTP ' + generateOTP()
                 email_from = settings.EMAIL_HOST_USER
                 recipient_list = [email]

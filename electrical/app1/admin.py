@@ -685,8 +685,8 @@ class newsletterproductadmin(admin.ModelAdmin):
     # list_editable=['']
     search_fields = ['Email']
 class myaccount(admin.ModelAdmin):
-    list_display=['id','user']
-    # list_editable=['']
+    list_display=['id','user','is_confirmed']
+    list_editable=['is_confirmed']
     # search_fields = ['Email']
 class socialmedialinksadmin(admin.ModelAdmin):
     list_display=['id','social_media','links','action_btnn']

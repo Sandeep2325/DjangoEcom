@@ -45,10 +45,26 @@ class userserializer(serializers.ModelSerializer):
 class myaccountlistserializer(serializers.ModelSerializer):
     # user=userserializer(read_only=True)
     class Meta:
-        fields="__all__"
+        # fields="__all__"
         read_only_fields = ("user",) 
-        # fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin')
+        fields=('id','user','photo','first_name','last_name','phone_number','email','address','city','state','postal_pin','is_confirmed')
         model=my_account
+class myaccountemailserializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255)
+    # password = serializers.CharField(
+    #     write_only=True, required=True, validators=[validate_password])
+    # password2 = serializers.CharField(write_only=True, required=True)
+    class Meta:
+        model = User
+        fields = ('email',)
+class myaccountotpsesrializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255)
+    # password = serializers.CharField(
+    #     write_only=True, required=True, validators=[validate_password])
+    # password2 = serializers.CharField(write_only=True, required=True)
+    class Meta:
+        model = User
+        fields = ('email','otp')
 class userphotoserializer(serializers.ModelSerializer):
     user=userserializer(read_only=True)
     class Meta:
