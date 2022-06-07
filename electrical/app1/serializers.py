@@ -275,7 +275,8 @@ class newsletterserializer(serializers.ModelSerializer):
             [instance.Email],
             fail_silently=False,
         )
-        return instance    
+        return instance  
+      
 class cartcreateserializer(serializers.ModelSerializer):
     p_id = serializers.IntegerField()
     class Meta:
@@ -283,23 +284,33 @@ class cartcreateserializer(serializers.ModelSerializer):
         read_only_fields = ("user","product")
         model=Cart
 class cartquantityserializer(serializers.ModelSerializer):
-    p_id = serializers.IntegerField()
+    # p_id = serializers.IntegerField()
     class Meta:
-        fields=('id','quantity','p_id')
-        read_only_fields=("user","product",)
+        fields=('id','quantity')
+        read_only_fields=("user",)#"product",
         model=Cart
+class cartcategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("category",)
+        model = Category
+class cartbrandserializer(serializers.ModelSerializer):
+    class Meta:
+        fields=("brand_name",)
+        model=Brand
+        
 class cartproductSerializer(serializers.HyperlinkedModelSerializer):
-    category=categorySerializer(read_only=True)
-    brand=brandserializer(read_only=True)
+    category=cartcategorySerializer(read_only=True)
+    brand=cartbrandserializer(read_only=True)
     image=imageserializer(many=True,read_only=True)
     class Meta:
-        fields = ("id","title", "discounted_price", "category__category","brand__brand_name","sku", "image","price","created_at", "updated_at")
+        fields = ("id","title", "discounted_price", "category","brand","sku","image",)
         model = Product
+         
 class cartserializer(serializers.ModelSerializer):
-    product=productSerializer(read_only=True)
+    product=cartproductSerializer(read_only=True)
     attributes=attributesSerializer(read_only=True)
     class Meta:
-        fields=('id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at')
+        fields=('id','user','product','attributes','quantity','Total_amount','updated_at')
         model=Cart
     def validate_coupon(self,value):
         list1=[]

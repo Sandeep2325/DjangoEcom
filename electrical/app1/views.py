@@ -412,12 +412,12 @@ class cartquantityupdateView(APIView):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]
     def put(self, request, pk, format=None):
-        p_id=request.data['p_id']
-        productt=Product.objects.get(id=int(p_id))
+        # p_id=request.data['p_id']
+        # productt=Product.objects.get(id=int(p_id))
         item = get_object_or_404(Cart.objects.all(), pk=pk)
         serializer = cartquantityserializer(item, data=request.data)
         if serializer.is_valid():
-            serializer.save(user=self.request.user,product=productt)
+            serializer.save(user=self.request.user,id=pk)
             return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
@@ -449,7 +449,7 @@ class myaccountupdateview(APIView):
     def put(self, request, pk, format=None):
         email=request.data['email']
         data=my_account.objects.filter(Q(user=self.request.user)& Q(email=email))
-        data=my_account.objects.filter(email=email)
+        # data=my_account.objects.filter(email=email)
         print(data)  
         if data.exists():
             item = get_object_or_404(my_account.objects.all(), pk=pk)
