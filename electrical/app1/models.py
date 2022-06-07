@@ -264,9 +264,9 @@ class Product(models.Model):
     discounted_price = models.DecimalField(
         max_digits=8, decimal_places=2, verbose_name="Offer Price(₹)", null=True, blank=True)
     category = models.ForeignKey(
-        Category, verbose_name="Product category", on_delete=models.SET_NULL, null=True)
+        Category, verbose_name="Product category", on_delete=models.SET_NULL, null=True,blank=True)
     subcategory=models.ForeignKey(
-        subcategory, verbose_name="sub category", on_delete=models.SET_NULL, null=True)
+        subcategory, verbose_name="sub category", on_delete=models.SET_NULL, null=True,blank=True)
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
     available_stocks=models.CharField(max_length=10,null=True,blank=True)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)

@@ -287,7 +287,7 @@ class cartquantityserializer(serializers.ModelSerializer):
     # p_id = serializers.IntegerField()
     class Meta:
         fields=('id','quantity')
-        read_only_fields=("user",)#"product",
+        read_only_fields=("user",)
         model=Cart
 class cartcategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -323,6 +323,13 @@ class cartserializer(serializers.ModelSerializer):
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
         return value
+class ordersummary(serializers.Serializer):
+   """Your data serializer, define your fields here."""
+   total_items = serializers.CharField()
+   items_amount = serializers.CharField()
+   gst=serializers.CharField()
+   total_amount=serializers.CharField()
+   
 class checkoutcreateserializer(serializers.ModelSerializer):
     class Meta:
         model=checkout

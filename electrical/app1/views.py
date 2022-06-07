@@ -420,7 +420,24 @@ class cartquantityupdateView(APIView):
             serializer.save(user=self.request.user,id=pk)
             return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+    
+class ordersummaryview(APIView):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    def get(self,request):
+        data1=Cart.objects.filter(user=self.request.user)
+        items=[]
+        amount=[]
+        for i in data1:
+            items.append(int(i.quantity))
+            amount.append(int(i.Total_amount))
+        total_items=sum(items)
+        items_amount=sum(amount)
+        gst=(items_amount*0.18)
+        total_amount=(items_amount+gst)
+        data2= [{"total_items":total_items, "items_amount": items_amount,"gst":gst,"total_amount":total_amount}]
+        results = ordersummary(data2, many=True).data
+        return Response(results)
 class userphoto1(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -448,7 +465,7 @@ class myaccountupdateview(APIView):
     authentication_classes=[JWTAuthentication,]
     def put(self, request, pk, format=None):
         email=request.data['email']
-        data=my_account.objects.filter(Q(user=self.request.user)& Q(email=email))
+        data=my_account.objects.filter(Q(user=self.request.user)& Q(email=email)& Q(is_confirmed=False))
         # data=my_account.objects.filter(email=email)
         print(data)  
         if data.exists():
@@ -456,8 +473,8 @@ class myaccountupdateview(APIView):
             serializer = myaccountserializers(item, data=request.data)
             if serializer.is_valid():
                 serializer.save(user=self.request.user)
-                my_account.objects.filter(email=email).update(
-                is_confirmed=True)
+                # my_account.objects.filter(email=email).update(
+                # is_confirmed=True)
                 return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
         else:
