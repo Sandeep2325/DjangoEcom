@@ -282,7 +282,19 @@ class cartcreateserializer(serializers.ModelSerializer):
         fields=('id','p_id')
         read_only_fields = ("user","product")
         model=Cart
-        
+class cartquantityserializer(serializers.ModelSerializer):
+    p_id = serializers.IntegerField()
+    class Meta:
+        fields=('id','quantity','p_id')
+        read_only_fields=("user","product",)
+        model=Cart
+class cartproductSerializer(serializers.HyperlinkedModelSerializer):
+    category=categorySerializer(read_only=True)
+    brand=brandserializer(read_only=True)
+    image=imageserializer(many=True,read_only=True)
+    class Meta:
+        fields = ("id","title", "discounted_price", "category__category","brand__brand_name","sku", "image","price","created_at", "updated_at")
+        model = Product
 class cartserializer(serializers.ModelSerializer):
     product=productSerializer(read_only=True)
     attributes=attributesSerializer(read_only=True)

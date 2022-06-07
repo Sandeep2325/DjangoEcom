@@ -106,7 +106,7 @@ urlpatterns = [
     path('cart/create/', cartCreateView.as_view(), name='cart-create'),
     path('cart/<pk>/delete/',
          cartDeleteView.as_view(), name='cart-delete'),
-    path('cart/update/<pk>', cartupdateView.as_view(), name='cart-update'),
+    path('cartquantity/update/<pk>', cartquantityupdateView.as_view(), name='cart-update'),
     path('checkout/', checkoutlist.as_view({'get': 'list'}), name="checkout"),
     path('checkout/create/', checkoutCreateView.as_view(), name='checkout-create'),
     #     path('checkout-coupon/create/', checkoutcouponcreate.as_view(), name='checkoutcoupon-create'),

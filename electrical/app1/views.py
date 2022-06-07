@@ -408,14 +408,19 @@ class cartCreateView1(ModelViewSet):
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
            
-    def update(self, request, pk, format=None):
-        item = get_object_or_404(my_account.objects.all(), pk=pk)
-        serializer = myaccountserializers(item, data=request.data)
+class cartquantityupdateView(APIView):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    def put(self, request, pk, format=None):
+        p_id=request.data['p_id']
+        productt=Product.objects.get(id=int(p_id))
+        item = get_object_or_404(Cart.objects.all(), pk=pk)
+        serializer = cartquantityserializer(item, data=request.data)
         if serializer.is_valid():
-            serializer.save(user=self.request.user)
+            serializer.save(user=self.request.user,product=productt)
             return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
-          
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 class userphoto1(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -442,13 +447,30 @@ class myaccountupdateview(APIView):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]
     def put(self, request, pk, format=None):
-        item = get_object_or_404(my_account.objects.all(), pk=pk)
-        serializer = myaccountserializers(item, data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=self.request.user)
-            return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
-    
+        email=request.data['email']
+        data=my_account.objects.filter(Q(user=self.request.user)& Q(email=email))
+        data=my_account.objects.filter(email=email)
+        print(data)  
+        if data.exists():
+            item = get_object_or_404(my_account.objects.all(), pk=pk)
+            serializer = myaccountserializers(item, data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=self.request.user)
+                my_account.objects.filter(email=email).update(
+                is_confirmed=True)
+                return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+        else:
+            item = get_object_or_404(my_account.objects.all(), pk=pk)
+            serializer = myaccountserializers(item, data=request.data)
+            if serializer.is_valid():
+                # if data.exists():
+                #     return Response({"msg":"Entered Email id already in use"},status=status.HTTP_409_CONFLICT)
+                serializer.save(user=self.request.user)
+                my_account.objects.filter(user=self.request.user).update(is_confirmed=False)
+                return Response({"msg":"updated successfully verify your email"},status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 class myaccountemail(APIView):
     serializer_class = myaccountemailserializer
     permission_classes = (AllowAny,)
@@ -863,6 +885,7 @@ class RegisterView(generics.CreateAPIView):
 
 class cartlist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     serializer_class = cartserializer
     def get_queryset(self):
         user = self.request.user
@@ -895,6 +918,8 @@ class cartupdateView(UpdateAPIView):
     serializer_class = cartcreateserializer
     queryset = Cart.objects.all()
 ##
+
+    
 class checkoutlist(viewsets.ModelViewSet): 
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]

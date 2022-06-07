@@ -66,7 +66,7 @@ class my_account(models.Model):
     city=models.CharField(max_length=100,null=True,verbose_name="City")
     state=models.CharField(max_length=50,null=True,verbose_name="State")
     is_confirmed = models.BooleanField(default=False)
-    otp = models.IntegerField(default=False)
+    otp = models.IntegerField(default=False,null=True,blank=True)
     postal_pin=models.BigIntegerField(null=True,verbose_name="Postal address")
     
     # def __str__(self):
@@ -232,7 +232,7 @@ class image(models.Model):
 ##
 class subcategory(models.Model):
     sub_category=models.CharField(max_length=255,null=True,blank=True)
-    category=models.ManyToManyField(Category,blank=True)
+    category=models.ForeignKey(Category,blank=True,on_delete=models.CASCADE)
     
     def categoryy(self):
         return ",".join([str(p) for p in self.category.all()])
@@ -265,7 +265,8 @@ class Product(models.Model):
         max_digits=8, decimal_places=2, verbose_name="Offer Price(₹)", null=True, blank=True)
     category = models.ForeignKey(
         Category, verbose_name="Product category", on_delete=models.SET_NULL, null=True)
-    subcategory=...
+    subcategory=models.ForeignKey(
+        subcategory, verbose_name="sub category", on_delete=models.SET_NULL, null=True)
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
     available_stocks=models.CharField(max_length=10,null=True,blank=True)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
