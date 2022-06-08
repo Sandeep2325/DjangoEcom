@@ -232,7 +232,7 @@ class image(models.Model):
 ##
 class subcategory(models.Model):
     sub_category=models.CharField(max_length=255,null=True,blank=True)
-    category=models.ForeignKey(Category,blank=True,on_delete=models.CASCADE)
+    category=models.ForeignKey(Category,blank=True,on_delete=models.CASCADE,null=True)
     
     def categoryy(self):
         return ",".join([str(p) for p in self.category.all()])

@@ -399,6 +399,9 @@ class cartCreateView1(ModelViewSet):
         if data1.exists():
             serializer = self.serializer_class(data=request.data)
             # serializer.save(user=self.request.user)
+            data2=Cart.objects.filter(user=self.request.user,product=productt)
+            if data2.exists():
+                return Response({"msg":"Product already exists in cart"},status=status.HTTP_409_CONFLICT)
             if serializer.is_valid():
                 print("--------------------------------",self.request.user)
                 serializer.save(user=self.request.user,product=productt)
@@ -438,6 +441,7 @@ class ordersummaryview(APIView):
         data2= [{"total_items":total_items, "items_amount": items_amount,"gst":gst,"total_amount":total_amount}]
         results = ordersummary(data2, many=True).data
         return Response(results)
+    
 class userphoto1(viewsets.ModelViewSet):
     # queryset = my_account.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -465,7 +469,7 @@ class myaccountupdateview(APIView):
     authentication_classes=[JWTAuthentication,]
     def put(self, request, pk, format=None):
         email=request.data['email']
-        data=my_account.objects.filter(Q(user=self.request.user)& Q(email=email)& Q(is_confirmed=False))
+        data=my_account.objects.filter(Q(user=self.request.user)& Q(email=email)& Q(is_confirmed=True))
         # data=my_account.objects.filter(email=email)
         print(data)  
         if data.exists():

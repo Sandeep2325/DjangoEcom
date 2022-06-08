@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'chartjs',
     'corsheaders',
     'rest_framework',
+    'drf_yasg',
     'django_filters',
     # 'rest_framework.authtoken',
     'rest_auth',

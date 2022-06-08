@@ -28,6 +28,7 @@ from django.conf.urls import handler404
 import regex
 from django.contrib.auth import views as auth_views
 from app1 import urls
+
 # handler404 = views.error_404_view
 router = routers.DefaultRouter(urls.urlpatterns)
 # print(urls.urlpatterns)

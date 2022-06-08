@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework import routers
 from django.conf.urls.static import static
 from django.conf import settings 
+
 router = routers.DefaultRouter()
 router.register('products-brand', productview)
 router.register('products-brand1',productview1)
@@ -45,7 +46,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('current-user/', CurrentUserViewSet.as_view(), name="current_user"),
 #     path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
-#     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 #     path('register/', RegisterView.as_view(), name='auth_register'),
 
     path('myaccount/',

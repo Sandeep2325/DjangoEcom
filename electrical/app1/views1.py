@@ -243,22 +243,25 @@ class LoginAPIView(APIView):
                
                 if user is not None and user.is_confirmed and user.is_active:  # change according to yourself
                     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-                    jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+                    # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
                     payload = jwt_payload_handler(user)
-                    token = jwt_encode_handler(payload)
+                    # token = jwt_encode_handler(payload)
                     payload = jwt_payload_handler(user)
-                    token1 = jwt.encode(payload, settings.SECRET_KEY)
+                    # token1 = jwt.encode(payload, settings.SECRET_KEY)
                     refresh1 = RefreshToken.for_user(user)
                     refresh_token=str(refresh1)
-                    token2=str(refresh1.access_token)
                     token3=AccessToken.for_user(user)
+                    access_token=str(token3)
+                    
+                    # token2=str(refresh1.access_token)
+                    
                     # print("......",token3)
                     # print("......",token2)
                     # token2=str(AccessToken.for_user(user))
                     # print(refresh_token)
                     # print(token2)
                     # print(token1)
-                    return Response({'msg': 'Login successful', 'is_confirmed': user.is_confirmed, 'access_token': token2,"refresh_token":refresh_token,
+                    return Response({'msg': 'Login successful', 'is_confirmed': user.is_confirmed, 'access_token': access_token,"refresh_token":refresh_token,
                                      }, status=status.HTTP_200_OK)
                 
                 else:
