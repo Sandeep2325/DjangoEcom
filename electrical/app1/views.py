@@ -454,10 +454,11 @@ class checkoutsummaryview(APIView):
             amount.append(int(i.Total_amount))
         total_items=sum(items)
         items_amount=sum(amount)
-        price=(items_amount*0.18)
+        gst=(items_amount*0.18)
+        price=(items_amount+gst)
         delivery_charges=(price*0.04)
         total_payable=(price+delivery_charges)
-        data2=[{"total_items":total_items,"price":price,"delivery_charges":delivery_charges,"total_payable":total_payable}]
+        data2=[{"total_items":total_items,"price":price,"delivery_charges":"{:.2f}".format(delivery_charges),"total_payable":"{:.2f}".format(total_payable)}]
         results=checkoutsummary(data2,many=True).data
         return Response(results)
     
