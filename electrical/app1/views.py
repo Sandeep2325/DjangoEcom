@@ -244,7 +244,7 @@ class most_categoryview(viewsets.ModelViewSet):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
        def retrieve(self, request, pk=None):
-           item = Product.objects.filter(category_id=pk)
+           item = Product.objects.filter(category_id=pk)[:4]
            serializer = productSerializer(item,many=True)
            return Response(serializer.data)
        
@@ -438,8 +438,27 @@ class ordersummaryview(APIView):
         items_amount=sum(amount)
         gst=(items_amount*0.18)
         total_amount=(items_amount+gst)
-        data2= [{"total_items":total_items, "items_amount": items_amount,"gst":gst,"total_amount":total_amount}]
+        data2= [{"total_items":total_items, "items_amount": items_amount,"gst":"{:.2f}".format(gst),"total_amount":"{:.2f}".format(total_amount)}]
         results = ordersummary(data2, many=True).data
+        return Response(results)
+    
+class checkoutsummaryview(APIView):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    def get(self,request):
+        data1=Cart.objects.filter(user=self.request.user)  
+        items=[]
+        amount=[]
+        for i in data1:
+            items.append(int(i.quantity))
+            amount.append(int(i.Total_amount))
+        total_items=sum(items)
+        items_amount=sum(amount)
+        price=(items_amount*0.18)
+        delivery_charges=(price*0.04)
+        total_payable=(price+delivery_charges)
+        data2=[{"total_items":total_items,"price":price,"delivery_charges":delivery_charges,"total_payable":total_payable}]
+        results=checkoutsummary(data2,many=True).data
         return Response(results)
     
 class userphoto1(viewsets.ModelViewSet):
@@ -1047,3 +1066,32 @@ class CurrentUserViewSet(APIView):
 def handler404(request,exception):
     return render(request, '404.html', status=404)
 
+class cartCreateView1(ModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
+    queryset = cart_order.objects.all()
+    serializer_class = cartorderserializer
+    http_method_names = ['post', ]
+
+    def create(self, request, *args, **kwargs):
+        # user = request.user
+        data = {
+            "msg": "Added to cart succesfully",
+            }
+        product=request.data['product']
+        data1=Product.objects.filter(id=int(product))
+        productt=Product.objects.get(id=int(product))
+        if data1.exists():
+            serializer = self.serializer_class(data=request.data)
+            # serializer.save(user=self.request.user)
+            data2=Cart.objects.filter(user=self.request.user,product=productt)
+            if data2.exists():
+                return Response({"msg":"Product already exists in cart"},status=status.HTTP_409_CONFLICT)
+            if serializer.is_valid():
+                print("--------------------------------",self.request.user)
+                serializer.save(user=self.request.user,product=productt)
+                return Response(data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 

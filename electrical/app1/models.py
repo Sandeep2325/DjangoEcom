@@ -45,6 +45,7 @@ class User(AbstractUser,PermissionsMixin):
     phone_no = models.CharField(max_length=10, null=True, unique=True)
     otp = models.IntegerField(default=False)
     is_used = models.BooleanField(default=False)
+    # dummy=models.CharField(max_length=200,null=True,blank=True)
     # last_login=models.CharField(max_length=255,blank=True,null=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name','phone_no']
@@ -899,3 +900,16 @@ class socialmedialinks(models.Model):
         return self.social_media
     class Meta:
         verbose_name_plural="Social media links"
+        
+class cart_order(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    date=models.DateField(auto_now_add=True,verbose_name="Odered Date",null=True)
+    product_count=models.CharField(max_length=10,null=True,blank=True)
+    total_price=models.IntegerField(null=True,blank=True)
+    products=models.ManyToManyField(Cart)
+    coupon=models.CharField(max_length=10,null=True,blank=True)
+    shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE, null=True)
+    is_paid=models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.user

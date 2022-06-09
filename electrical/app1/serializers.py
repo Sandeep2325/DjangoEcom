@@ -329,7 +329,17 @@ class ordersummary(serializers.Serializer):
    items_amount = serializers.CharField()
    gst=serializers.CharField()
    total_amount=serializers.CharField()
-   
+class checkoutsummary(serializers.Serializer):
+   """Your data serializer, define your fields here."""
+   total_items = serializers.CharField()
+   price = serializers.CharField()
+   delivery_charges=serializers.CharField()
+   total_payable=serializers.CharField()
+class cartorderserializer(serializers.ModelSerializer):
+    class Meta:
+        model=cart_order
+        fields="__all__"
+        read_only_fields=("user","products")
 class checkoutcreateserializer(serializers.ModelSerializer):
     class Meta:
         model=checkout

@@ -11,6 +11,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id','username', 'password', 'password2', 'email',
                  'phone_no')
+        read_only_fields=("dummy",)
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})

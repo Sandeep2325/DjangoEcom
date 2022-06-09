@@ -50,6 +50,7 @@ class RegistrationAPIView(APIView):
     def post(self, request):
         email = request.data['email']
         phone_no=request.data['phone_no']
+        # dummy=request.data["password2"]
         data = User.objects.filter(Q(email=email)& Q(is_confirmed=True))
         data1=User.objects.filter(phone_no=phone_no)
         data2=User.objects.filter(Q(email=email)& Q(is_confirmed=False))
