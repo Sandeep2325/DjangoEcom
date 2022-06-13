@@ -8,7 +8,6 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework import routers
 from django.conf.urls.static import static
 from django.conf import settings 
-
 router = routers.DefaultRouter()
 router.register('products-brand', productview)
 router.register('products-brand1',productview1)
@@ -34,15 +33,19 @@ router.register('userphotocreate',userphotocreate)
 router.register('cartCreateView1',cartCreateView1)
 router.register('userphoto1',userphoto1,basename="userphoto1")
 router.register('addresscreate',AddressCreateView)
-router.register("subcategory",subcategoryview)
+router.register("listsubcategory",subcategoryview)
 router.register('newsletter',newsletterCreateView)
 router.register('products',productsearch)
 router.register('orderss',orderss)
 router.register('addresses',addresslist)
 router.register('defaultaddressget',defaultaddressget)
+router.register("listattributes",listattributes)
+router.register("brands",listbrand)
 # router.register('notification',notificationlist,basename="notification")
 router.register('unotification',universalnotificationlist,basename="unotification")
+app_name = 'Product'
 urlpatterns = [
+    path('getSubcategory/', views.get_subcategory),
     path('', include(router.urls)),
     path('current-user/', CurrentUserViewSet.as_view(), name="current_user"),
 #     path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
@@ -61,14 +64,14 @@ urlpatterns = [
     path('categories/',
          listcategory.as_view({'get': 'list'}), name="category"),
     path('categories/<int:pk>/', detailcategory.as_view(), name="single_category"),
-    path('brands/',
-         listbrand.as_view({'get': 'list'}), name="Brands"),
+#     path('brands/',
+#          listbrand.as_view({'get': 'list'}), name="Brands"),
     path('brands1/', brandproductlist1.as_view(), name='brand1'),
     path('brands/<int:pk>/', detailbrand.as_view(), name="single_brand"),
     path('brand/', brandproductlist.as_view({'get': 'list'}), name="brand_product"),
    
     path('product/', Productlist.as_view({'get': 'list'}), name="product"),
-    path('product_brand/<int:pk>/',product_brand.as_view(),name="product_brand"),
+    path('product_brand/<int:pk>/',product_brand.as_view({'get': 'list'}),name="product_brand"),
     path('product/<int:pk>/', Productdetail.as_view(), name="single_product"),
 #     path('newest/', newest.as_view({'get': 'list'}), name="newset"),
 #     path('latest-product/', latestproductlist.as_view({'get': 'list'}), name="latest_product"),

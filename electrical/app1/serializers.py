@@ -169,15 +169,14 @@ class imageserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
         model=image
-class productSerializer(serializers.HyperlinkedModelSerializer):
-    category=categorySerializer(read_only=True)
-    brand=brandserializer(read_only=True)
-    image=imageserializer(many=True,read_only=True)
+
+class productSerializer(serializers.ModelSerializer):
+    
     class Meta:
         fields = ("id","title", "discounted_price", "category","brand","sku", "short_description", "detail_description","specification", "image","price",
                  "is_active","available_stocks", "created_at", "updated_at")
         model = Product
-
+        depth=1
     # def to_representation(self, instance):
     #     response = super().to_representation(instance)
     #     response['category'] = instance.category.brands
@@ -246,6 +245,7 @@ class attributesSerializer(serializers.ModelSerializer):
         fields = "__all__"
         model = Attributes
 from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives,EmailMessage
 
 class newsletterserializer(serializers.ModelSerializer):
     class Meta:
@@ -268,13 +268,15 @@ class newsletterserializer(serializers.ModelSerializer):
     #     return attrs
     def create(self, validate_data):
         instance = super(newsletterserializer, self).create(validate_data)
-        send_mail(
+        msg=EmailMessage(
             'Prakash Electricals',
             render_to_string(self.template_name),
             settings.EMAIL_HOST_USER,
             [instance.Email],
-            fail_silently=False,
+            
         )
+        msg.content_subtype ="html"
+        msg.send()
         return instance  
       
 class cartcreateserializer(serializers.ModelSerializer):
@@ -340,6 +342,7 @@ class cartorderserializer(serializers.ModelSerializer):
         model=cart_order
         fields="__all__"
         read_only_fields=("user","products")
+        
 class checkoutcreateserializer(serializers.ModelSerializer):
     class Meta:
         model=checkout
@@ -356,11 +359,11 @@ class checkoutcreateserializer(serializers.ModelSerializer):
         return value 
     
 class subcategoryserializer(serializers.ModelSerializer):
-    category=categorySerializer(many=True,read_only=True)
+    # category=categorySerializer(many=True,read_only=True)
     class Meta:
         model=subcategory
         fields=("sub_category","category")
-        
+        depth=1
 class checkoutserializer(serializers.ModelSerializer):
     cart=cartserializer(many=True,read_only=True)
     Shipping_address=CustomerAddressSerializers(read_only=True)

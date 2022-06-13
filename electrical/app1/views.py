@@ -38,6 +38,14 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.viewsets import ModelViewSet
 import pyotp
 from rest_framework_simplejwt.authentication import JWTAuthentication
+import json
+def get_subcategory(request):
+    id = request.GET.get('id', '')
+    print(id)
+    result = list(subcategory.objects.filter(category_id=int(id)).values('id','category'))
+    print(result)
+    return HttpResponse(json.dumps(result), content_type="application/json")
+
 def generateOTP():
     global totp
     secret = pyotp.random_base32()
@@ -156,17 +164,33 @@ class productview(viewsets.ModelViewSet):
         serializer = productSerializer(item,many=True)
         return Response(serializer.data)
     
-class product_brand(generics.RetrieveAPIView):
-    queryset = Product.objects.all()
+class subcategoryview(viewsets.ModelViewSet):
+    queryset = subcategory.objects.all()
+    serializer_class = subcategoryserializer
+    # pagination_class = MyPaginator
+    # search_fields = ['title','category__category','brand__brand_name']
+    # filter_backends = (filters.SearchFilter,filters.OrderingFilter)
+    def list(self, request,):
+        # page = self.paginate_queryset(self.queryset)
+        serializer = self.serializer_class(self.queryset, many=True)
+        return Response(serializer.data)
+    def retrieve(self, request, pk=None):
+        item = Product.objects.filter(Q(category_id=pk))
+        serializer = self.serializer_class(item,many=True)
+        return Response(serializer.data)
+      
+class product_brand(viewsets.ModelViewSet):
+    queryset = Product
     serializer_class = productSerializer  
+    pagination_class = MyPaginator
     def get_queryset(self):
         if 'pk' in self.kwargs:
             print(self.kwargs['pk'])
             print(Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True)))
             queryset=Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True))
             serializer = productSerializer(queryset,many=True)
-            print(serializer)
-            return serializer
+            print(serializer.data)
+            return serializer.data
         
 class productHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
@@ -303,9 +327,7 @@ class blogview(ViewSet):
            serializer = blogSerializer(item,many=True)
         #    pagination_class = PageNumberPagination
            return Response(serializer.data) 
-class subcategoryview(viewsets.ModelViewSet):
-    queryset = subcategory.objects.all()
-    serializer_class = subcategoryserializer   
+
      
 class Listblog(viewsets.ModelViewSet):
     queryset = Blog.objects.all()
@@ -602,7 +624,9 @@ class detailcategory(generics.RetrieveUpdateDestroyAPIView):
 class listbrand(viewsets.ModelViewSet):
     queryset=Brand.objects.all()
     serializer_class=brandserializer
-
+class listattributes(viewsets.ModelViewSet):
+    queryset=Attributes.objects.all()
+    serializer_class=attributesSerializer
 class detailbrand(RetrieveAPIView):
     queryset=Brand.objects.all()
     serializer_class=brandserializer
@@ -819,6 +843,7 @@ class newsletterCreateView(ModelViewSet):
             # return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+        
 class Listbanner(viewsets.ModelViewSet):
     queryset = Banner.objects.all()
     serializer_class = bannerSerializer
@@ -1024,34 +1049,7 @@ class socialmedialist(viewsets.ModelViewSet):
     serializer_class = sociallinkserializer
     pagination_class = PageNumberPagination
   
-def password_reset_request(request):
-    if request.method == "POST":
-        password_reset_form = PasswordResetForm(request.POST)
-        if password_reset_form.is_valid():
-            data = password_reset_form.cleaned_data['email']
-            associated_users = User.objects.filter(Q(email=data))
-            if associated_users.exists():
-                for user in associated_users:
-                    subject = "Password Reset Requested"
-                    email_template_name = "main/password/password_reset_email.txt"
-                    c = {
-                        "email": user.email,
-                        'domain': '127.0.0.1:8000',
-                        'site_name': 'Website',
-                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                        "user": user,
-                        'token': default_token_generator.make_token(user),
-                        'protocol': 'http',
-                    }
-                    email = render_to_string(email_template_name, c)
-                    try:
-                        send_mail(subject, email, 'admin@example.com',
-                                  [user.email], fail_silently=False)
-                    except BadHeaderError:
-                        return HttpResponse('Invalid header found.')
-                    return redirect("/password_reset/done/")
-    password_reset_form = PasswordResetForm()
-    return render(request=request, template_name="registration/password_reset.html", context={"password_reset_form": password_reset_form})
+
 
 # class CurrentUserViewSet(viewsets.ReadOnlyModelViewSet):
 #     queryset = User.objects.all()
@@ -1067,7 +1065,7 @@ class CurrentUserViewSet(APIView):
 def handler404(request,exception):
     return render(request, '404.html', status=404)
 
-class cartCreateView1(ModelViewSet):
+class cartorder(ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     queryset = cart_order.objects.all()

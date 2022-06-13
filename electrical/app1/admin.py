@@ -247,9 +247,9 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
         image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True
-        list_display = ['id', 'title', 'category','subcategory','brand','imagee', 'price', 'discounted_price','available_stocks', 'is_active',
+        list_display = ['id', 'title','subcategory','category','brand',"attributes",'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
                         'updated_at','created_at','action_btn']  # ,'is_active','is_featured'
-        list_editable = ('category', 'is_active','brand','available_stocks')
+        list_editable = ('category','subcategory', 'is_active','brand','available_stocks')
         list_filter = ('category', 'is_active', 'updated_at')
         list_per_page = 20
         #inlines = [ImagemInline]
@@ -392,7 +392,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
     except exception:
         pass
 class subcategoryadmin(admin.ModelAdmin):
-    list_display = ['id','sub_category', 'categoryy',]
+    list_display = ['id','sub_category', 'category',]
     # search_fields = ['category','Question']
     # actions = ['make_published', 'make_withdraw']
     list_editable= ['sub_category']
@@ -424,10 +424,10 @@ class OrderAdmin(admin.ModelAdmin):
         return form
 
 class AttributesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'Product', 'Color', 'Size', 'action_btn')
-    list_filter = ('Product', 'Color', 'Size')
+    list_display = ('id', 'Color','action_btn')
+    list_filter = ('Color',)
     list_per_page = 20
-    search_fields = ('Product', 'Color', 'Size')
+    search_fields = ('Color',)
     save_on_top = True
 
     def action_btn(self, obj):

@@ -165,6 +165,34 @@ class sales(models.Model):
     class Meta:
         verbose_name_plural = "Sales/Discount"
 
+
+
+class Brand(models.Model):
+    brand_name = models.CharField(max_length=150)
+    logo = models.ImageField(upload_to='brand', blank=True, null=True)
+    details = models.TextField(blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.brand_name
+
+class image(models.Model):
+    image = models.ImageField(upload_to="images")
+    """ def __str__(self):
+        return self.image """
+
+    def __str__(self):
+        return str(self.image)
+    """ def save(self,):
+        super().save()   # saving image first
+
+        img = Image.open(self.image.path) # Open image using self
+
+        if img.height > 500 or img.width > 500:
+            new_img = (500, 500)
+            img.thumbnail(new_img)
+            img.save(self.image.path) """
+##
 class Category(models.Model):
     def validate_image(fieldfile_obj):
         filesize = fieldfile_obj.file.size
@@ -204,43 +232,18 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = " Category"
-
-class Brand(models.Model):
-    brand_name = models.CharField(max_length=150)
-    logo = models.ImageField(upload_to='brand', blank=True, null=True)
-    details = models.TextField(blank=True, null=True)
-    date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.brand_name
-
-class image(models.Model):
-    image = models.ImageField(upload_to="images")
-    """ def __str__(self):
-        return self.image """
-
-    def __str__(self):
-        return str(self.image)
-    """ def save(self,):
-        super().save()   # saving image first
-
-        img = Image.open(self.image.path) # Open image using self
-
-        if img.height > 500 or img.width > 500:
-            new_img = (500, 500)
-            img.thumbnail(new_img)
-            img.save(self.image.path) """
-##
+        
 class subcategory(models.Model):
     sub_category=models.CharField(max_length=255,null=True,blank=True)
     category=models.ForeignKey(Category,blank=True,on_delete=models.CASCADE,null=True)
     
-    def categoryy(self):
-        return ",".join([str(p) for p in self.category.all()])
+    # def categoryy(self):
+    #     return ",".join([str(p) for p in self.category.all()])
     
     def __str__(self):
         template = '{0.sub_category}'
         return template.format(self)
+    
 class Product(models.Model):
     def validate_image(fieldfile_obj):
         filesize = fieldfile_obj.file.size
@@ -269,6 +272,8 @@ class Product(models.Model):
     subcategory=models.ForeignKey(
         subcategory, verbose_name="sub category", on_delete=models.SET_NULL, null=True,blank=True)
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
+    attributes = models.ForeignKey(
+        "Attributes", verbose_name=" Product Attributes", on_delete=models.SET_NULL, null=True, blank=True)
     available_stocks=models.CharField(max_length=10,null=True,blank=True)
     is_active = models.BooleanField(verbose_name="Is Active?", default=True)
     created_at = models.DateTimeField(
@@ -341,10 +346,10 @@ class Product(models.Model):
 
 ##
 class Attributes(models.Model):
-    Product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, verbose_name="Product")
+    # Product = models.ForeignKey(
+    #     Product, on_delete=models.CASCADE, verbose_name="Product")
     Color = models.CharField(max_length=50, null=True, verbose_name="Color")
-    Size = models.CharField(max_length=20, null=True, verbose_name="Size")
+    # Size = models.CharField(max_length=20, null=True, verbose_name="Size")
     def __str__(self):
         template = 'color: {0.Color}  Size: {0.Size}'
         return template.format(self)

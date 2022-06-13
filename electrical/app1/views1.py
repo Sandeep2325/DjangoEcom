@@ -102,7 +102,7 @@ class VerifyOTPView(APIView):
         if one:
             User.objects.filter(email=email).update(
                 is_confirmed=True, is_used=True, otp=one_time)
-            my_account.objects.create(user=self.request.user,email=email).save()
+            my_account.objects.create(user=self.request.user,email=email,is_confirmed=True).save()
             return Response({'msg': 'OTP verfication successful'}, status=status.HTTP_200_OK)
         else:
             return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
