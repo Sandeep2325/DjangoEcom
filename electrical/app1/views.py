@@ -168,11 +168,9 @@ class subcategoryview(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = categorySerializer01
     def list(self, request,):
-        # page = self.paginate_queryset(self.queryset)
         serializer = categorySerializer01(self.queryset, many=True)
         return Response(serializer.data)
     def retrieve(self, request, pk=None):
-        
         item = Category.objects.filter(id=pk)
         serializer = categorySerializer01(item,many=True)
         return Response(serializer.data)
@@ -285,6 +283,7 @@ class latestview(viewsets.ModelViewSet):
            item = Product.objects.filter(id=pk)
            serializer = productSerializer(item,many=True)
            return Response(serializer.data) 
+       
 class sidebarfilterview(APIView):
     permission_classes = (AllowAny,)
     serializer_class = sidebarfilterserializer
@@ -293,9 +292,37 @@ class sidebarfilterview(APIView):
         subcategory_id = request.data['subcategory_id']
         brand_id = request.data['brand_id']
         attribute_id=request.data['attribute_id']
-        data=Product.objects.filter(Q(subcategory_id=subcategory_id)| Q(brand_id=brand_id)| Q(attributes_id=attribute_id))
+        data=Product.objects.filter(Q(attributes_id=attribute_id)| Q(brand_id=brand_id)| Q(subcategory_id=subcategory_id))
+        # data1=Product.objects.filter(Q(subcategory_id=subcategory_id))
+        # data2=Product.objects.filter(Q(attributes_id=attribute_id))
+        # data3=Product.objects.filter(Q(brand_id=brand_id))
+        data4=Product.objects.filter(Q(subcategory_id=subcategory_id)& Q(attributes_id=attribute_id))
+        data5=Product.objects.filter(Q(subcategory_id=subcategory_id)& Q(brand_id=brand_id))
+        data6=Product.objects.filter(Q(attributes_id=attribute_id)& Q(brand_id=brand_id))
+        data7=Product.objects.filter(Q(attributes_id=attribute_id)& Q(brand_id=brand_id)& Q(subcategory_id=subcategory_id))
+        
+        # if data1.exists():
+        #     print("data1")
+        #     product_serializer=productSerializer(data1,many=True)
+        # elif data2.exists():
+        #     print("data2")
+        #     product_serializer=productSerializer(data2,many=True)
+        # elif data3.exists():
+        #     print("data3")
+        #     product_serializer=productSerializer(data3,many=True)
+        if data4.exists():
+            print("data4")
+            product_serializer=productSerializer(data4,many=True)
+        elif data5.exists():
+            print("data5")
+            product_serializer=productSerializer(data5,many=True)
+        elif data6.exists():
+            print("data6")
+            product_serializer=productSerializer(data6,many=True)
+        elif data7.exists():
+            print("data7")
+            product_serializer=productSerializer(data7,many=True)
         product_serializer=productSerializer(data,many=True)
-        # return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(product_serializer.data)
     
 class orderss(viewsets.ModelViewSet):

@@ -915,6 +915,6 @@ class cart_order(models.Model):
     coupon=models.CharField(max_length=10,null=True,blank=True)
     shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE, null=True)
     is_paid=models.BooleanField(default=False)
-    
+    order_payment_id = models.CharField(max_length=100)
     def __str__(self):
         return self.user

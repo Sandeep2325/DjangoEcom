@@ -166,7 +166,7 @@ class subcategoryserializer(serializers.ModelSerializer):
     
     class Meta:
         model=subcategory
-        fields=("id","sub_category","category")
+        fields=("id","sub_category")
         depth=1
         
 class categorySerializer01(serializers.ModelSerializer):
@@ -186,7 +186,7 @@ class imageserializer(serializers.ModelSerializer):
 class productSerializer(serializers.ModelSerializer):
     
     class Meta:
-        fields = ("id","title", "discounted_price", "category","subcategory","brand","sku", "short_description", "detail_description","specification", "image","price",
+        fields = ("id","title", "discounted_price", "category","subcategory","attributes","brand","sku", "short_description", "detail_description","specification", "image","price",
                  "is_active","available_stocks", "created_at", "updated_at")
         model = Product
         depth=1
