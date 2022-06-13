@@ -41,9 +41,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 import json
 def get_subcategory(request):
     id = request.GET.get('id', '')
-    print(id)
-    result = list(subcategory.objects.filter(category_id=int(id)).values('id','category'))
-    print(result)
+    # print(id)
+    result = list(subcategory.objects.filter(category_id=int(id)).values('id','sub_category'))
+    # print(result)
     return HttpResponse(json.dumps(result), content_type="application/json")
 
 def generateOTP():
@@ -165,18 +165,16 @@ class productview(viewsets.ModelViewSet):
         return Response(serializer.data)
     
 class subcategoryview(viewsets.ModelViewSet):
-    queryset = subcategory.objects.all()
-    serializer_class = subcategoryserializer
-    # pagination_class = MyPaginator
-    # search_fields = ['title','category__category','brand__brand_name']
-    # filter_backends = (filters.SearchFilter,filters.OrderingFilter)
+    queryset = Category.objects.all()
+    serializer_class = categorySerializer01
     def list(self, request,):
         # page = self.paginate_queryset(self.queryset)
-        serializer = self.serializer_class(self.queryset, many=True)
+        serializer = categorySerializer01(self.queryset, many=True)
         return Response(serializer.data)
     def retrieve(self, request, pk=None):
-        item = Product.objects.filter(Q(category_id=pk))
-        serializer = self.serializer_class(item,many=True)
+        
+        item = Category.objects.filter(id=pk)
+        serializer = categorySerializer01(item,many=True)
         return Response(serializer.data)
       
 class product_brand(viewsets.ModelViewSet):
@@ -287,6 +285,19 @@ class latestview(viewsets.ModelViewSet):
            item = Product.objects.filter(id=pk)
            serializer = productSerializer(item,many=True)
            return Response(serializer.data) 
+class sidebarfilterview(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = sidebarfilterserializer
+    def post(self, request):
+        serializer = sidebarfilterserializer(data=request.data)
+        subcategory_id = request.data['subcategory_id']
+        brand_id = request.data['brand_id']
+        attribute_id=request.data['attribute_id']
+        data=Product.objects.filter(Q(subcategory_id=subcategory_id)| Q(brand_id=brand_id)| Q(attributes_id=attribute_id))
+        product_serializer=productSerializer(data,many=True)
+        # return Response({'msg': 'OTP verfication Failed'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(product_serializer.data)
+    
 class orderss(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -432,7 +443,7 @@ class cartCreateView1(ModelViewSet):
                 return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-           
+
 class cartquantityupdateView(APIView):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]

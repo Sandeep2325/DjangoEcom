@@ -161,6 +161,19 @@ class categorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Category
+class subcategoryserializer(serializers.ModelSerializer):
+    # category=categorySerializer(many=True,read_only=True)
+    
+    class Meta:
+        model=subcategory
+        fields=("id","sub_category","category")
+        depth=1
+        
+class categorySerializer01(serializers.ModelSerializer):
+    subcategory=subcategoryserializer(many=True,read_only=True)
+    class Meta:
+        fields = ("category","subcategory")
+        model = Category       
 class brandserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -173,7 +186,7 @@ class imageserializer(serializers.ModelSerializer):
 class productSerializer(serializers.ModelSerializer):
     
     class Meta:
-        fields = ("id","title", "discounted_price", "category","brand","sku", "short_description", "detail_description","specification", "image","price",
+        fields = ("id","title", "discounted_price", "category","subcategory","brand","sku", "short_description", "detail_description","specification", "image","price",
                  "is_active","available_stocks", "created_at", "updated_at")
         model = Product
         depth=1
@@ -357,13 +370,11 @@ class checkoutcreateserializer(serializers.ModelSerializer):
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
         return value 
-    
-class subcategoryserializer(serializers.ModelSerializer):
-    # category=categorySerializer(many=True,read_only=True)
-    class Meta:
-        model=subcategory
-        fields=("sub_category","category")
-        depth=1
+class sidebarfilterserializer(serializers.Serializer):
+    brand_id = serializers.IntegerField()
+    attribute_id=serializers.IntegerField()
+    subcategory_id=serializers.IntegerField()
+
 class checkoutserializer(serializers.ModelSerializer):
     cart=cartserializer(many=True,read_only=True)
     Shipping_address=CustomerAddressSerializers(read_only=True)

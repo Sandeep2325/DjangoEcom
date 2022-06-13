@@ -129,6 +129,7 @@ urlpatterns = [
 #     path('unotification/', universalnotificationlist.as_view({'get': 'list'}), name="notification"),
     path('faq_enquiry/', enquiryCreateView.as_view(),
          name='faq_enquiry'),
+    path('sidebarfilter/', sidebarfilterview.as_view(),name="side-bar-filter"),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),
     path('register1/', RegistrationAPIView.as_view(),name="register"), #Registration
     path('login1/', LoginAPIView.as_view(),name="login"), #Login after otp verification

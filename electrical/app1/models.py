@@ -235,7 +235,7 @@ class Category(models.Model):
         
 class subcategory(models.Model):
     sub_category=models.CharField(max_length=255,null=True,blank=True)
-    category=models.ForeignKey(Category,blank=True,on_delete=models.CASCADE,null=True)
+    category=models.ForeignKey(Category,blank=True,on_delete=models.CASCADE,null=True,related_name="subcategory")
     
     # def categoryy(self):
     #     return ",".join([str(p) for p in self.category.all()])
@@ -351,7 +351,7 @@ class Attributes(models.Model):
     Color = models.CharField(max_length=50, null=True, verbose_name="Color")
     # Size = models.CharField(max_length=20, null=True, verbose_name="Size")
     def __str__(self):
-        template = 'color: {0.Color}  Size: {0.Size}'
+        template = 'color: {0.Color}'
         return template.format(self)
     class Meta:
         verbose_name_plural = "Attributes"

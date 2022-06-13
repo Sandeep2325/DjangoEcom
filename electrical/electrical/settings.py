@@ -187,7 +187,7 @@ ADMIN_ORDERING = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'electrical04',
+        'NAME': 'electrical02',
         'USER': 'root',
         'PASSWORD': 'mySqlServer@#$432',#mySqlServer@#$432
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
