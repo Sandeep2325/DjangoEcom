@@ -290,8 +290,10 @@ class sidebarfilterview(APIView):
     def post(self, request):
         serializer = sidebarfilterserializer(data=request.data)
         subcategory_id1 = request.data['subcategory_id']
+        print("-----------------------",subcategory_id1)
         subcategory_id = subcategory_id1.split(',')
-        print(subcategory_id)
+        # print()
+        print("+++++++++++++++++++",subcategory_id)
         brand_id1 = request.data['brand_id']
         brand_id = brand_id1.split(',')
         print(brand_id)
