@@ -292,14 +292,19 @@ class sidebarfilterview(APIView):
         subcategory_id = request.data['subcategory_id']
         brand_id = request.data['brand_id']
         attribute_id=request.data['attribute_id']
-        data=Product.objects.filter(Q(attributes_id=attribute_id)| Q(brand_id=brand_id)| Q(subcategory_id=subcategory_id))
+        # if attribute_id==True or brand_id==True or subcategory_id==True:
+        data=Product.objects.filter(Q(attributes_id='0' if attribute_id == '' else attribute_id)| Q(brand_id='0' if brand_id == '' else brand_id)| Q(subcategory_id='0' if subcategory_id == '' else subcategory_id))
         # data1=Product.objects.filter(Q(subcategory_id=subcategory_id))
         # data2=Product.objects.filter(Q(attributes_id=attribute_id))
         # data3=Product.objects.filter(Q(brand_id=brand_id))
-        data4=Product.objects.filter(Q(subcategory_id=subcategory_id)& Q(attributes_id=attribute_id))
-        data5=Product.objects.filter(Q(subcategory_id=subcategory_id)& Q(brand_id=brand_id))
-        data6=Product.objects.filter(Q(attributes_id=attribute_id)& Q(brand_id=brand_id))
-        data7=Product.objects.filter(Q(attributes_id=attribute_id)& Q(brand_id=brand_id)& Q(subcategory_id=subcategory_id))
+        # elif subcategory_id==True and attribute_id==True:
+        data4=Product.objects.filter(Q(subcategory_id='0' if subcategory_id == '' else subcategory_id)& Q(attributes_id='0' if attribute_id == '' else attribute_id))
+        # elif subcategory_id==True and brand_id==True:
+        data5=Product.objects.filter(Q(subcategory_id='0' if subcategory_id == '' else subcategory_id)& Q(brand_id='0' if brand_id == '' else brand_id))
+        # elif attribute_id==True and brand_id==True:
+        data6=Product.objects.filter(Q(attributes_id='0' if attribute_id == '' else attribute_id)& Q(brand_id='0' if brand_id == '' else brand_id))
+        # elif attribute_id==True and brand_id==True and subcategory_id==True:
+        data7=Product.objects.filter(Q(attributes_id='0' if attribute_id == '' else attribute_id)& Q(brand_id='0' if brand_id == '' else brand_id)& Q(subcategory_id='0' if subcategory_id == '' else subcategory_id))
         
         # if data1.exists():
         #     print("data1")
@@ -310,6 +315,7 @@ class sidebarfilterview(APIView):
         # elif data3.exists():
         #     print("data3")
         #     product_serializer=productSerializer(data3,many=True)
+        
         if data4.exists():
             print("data4")
             product_serializer=productSerializer(data4,many=True)
