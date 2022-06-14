@@ -289,16 +289,16 @@ class sidebarfilterview(APIView):
     serializer_class = sidebarfilterserializer
     def post(self, request):
         serializer = sidebarfilterserializer(data=request.data)
-        subcategory_id1 = request.data['subcategory_id']
-        print("-----------------------",subcategory_id1)
-        subcategory_id = subcategory_id1.split(',')
+        subcategory_id = request.data['subcategory_id']
+        # print("-----------------------",subcategory_id1)
+        # subcategory_id = subcategory_id1.split(',')
         # print()
         print("+++++++++++++++++++",subcategory_id)
-        brand_id1 = request.data['brand_id']
-        brand_id = brand_id1.split(',')
+        brand_id = request.data['brand_id']
+        # brand_id = brand_id1.split(',')
         print(brand_id)
-        attribute_id1=request.data['attribute_id']
-        attribute_id = attribute_id1.split(',')
+        attribute_id=request.data['attribute_id']
+        # attribute_id = attribute_id1.split(',')
         print(attribute_id)
         # if attribute_id==True or brand_id==True or subcategory_id==True:
         data=Product.objects.filter(Q(attributes_id__in='0' if attribute_id == '' else attribute_id)| Q(brand_id__in='0' if brand_id == '' else brand_id)| Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
