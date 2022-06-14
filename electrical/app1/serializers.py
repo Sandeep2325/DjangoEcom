@@ -351,10 +351,12 @@ class checkoutsummary(serializers.Serializer):
    delivery_charges=serializers.CharField()
    total_payable=serializers.CharField()
 class cartorderserializer(serializers.ModelSerializer):
+    cart_id=serializers.CharField()
+    address_id=serializers.CharField()
     class Meta:
         model=cart_order
-        fields="__all__"
-        read_only_fields=("user","products")
+        fields=("product_count","total_price","order_payment_id","address_id","cart_id")
+        read_only_fields=("user","products","shipping_address")
         
 class checkoutcreateserializer(serializers.ModelSerializer):
     class Meta:
@@ -371,9 +373,9 @@ class checkoutcreateserializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Invalid coupon")
         return value 
 class sidebarfilterserializer(serializers.Serializer):
-    brand_id = serializers.IntegerField()
-    attribute_id=serializers.IntegerField()
-    subcategory_id=serializers.IntegerField()
+    brand_id = serializers.CharField()
+    attribute_id=serializers.CharField()
+    subcategory_id=serializers.CharField()
 
 class checkoutserializer(serializers.ModelSerializer):
     cart=cartserializer(many=True,read_only=True)

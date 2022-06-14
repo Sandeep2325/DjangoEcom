@@ -289,22 +289,25 @@ class sidebarfilterview(APIView):
     serializer_class = sidebarfilterserializer
     def post(self, request):
         serializer = sidebarfilterserializer(data=request.data)
-        subcategory_id = request.data['subcategory_id']
-        brand_id = request.data['brand_id']
-        attribute_id=request.data['attribute_id']
+        subcategory_id1 = request.data['subcategory_id']
+        subcategory_id = subcategory_id1.split(',')
+        brand_id1 = request.data['brand_id']
+        brand_id = brand_id1.split(',')
+        attribute_id1=request.data['attribute_id']
+        attribute_id = attribute_id1.split(',')
         # if attribute_id==True or brand_id==True or subcategory_id==True:
-        data=Product.objects.filter(Q(attributes_id='0' if attribute_id == '' else attribute_id)| Q(brand_id='0' if brand_id == '' else brand_id)| Q(subcategory_id='0' if subcategory_id == '' else subcategory_id))
+        data=Product.objects.filter(Q(attributes_id__in='0' if attribute_id == '' else attribute_id)| Q(brand_id__in='0' if brand_id == '' else brand_id)| Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
         # data1=Product.objects.filter(Q(subcategory_id=subcategory_id))
         # data2=Product.objects.filter(Q(attributes_id=attribute_id))
         # data3=Product.objects.filter(Q(brand_id=brand_id))
         # elif subcategory_id==True and attribute_id==True:
-        data4=Product.objects.filter(Q(subcategory_id='0' if subcategory_id == '' else subcategory_id)& Q(attributes_id='0' if attribute_id == '' else attribute_id))
+        data4=Product.objects.filter(Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id))
         # elif subcategory_id==True and brand_id==True:
-        data5=Product.objects.filter(Q(subcategory_id='0' if subcategory_id == '' else subcategory_id)& Q(brand_id='0' if brand_id == '' else brand_id))
+        data5=Product.objects.filter(Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id)& Q(brand_id__in='0' if brand_id == '' else brand_id))
         # elif attribute_id==True and brand_id==True:
-        data6=Product.objects.filter(Q(attributes_id='0' if attribute_id == '' else attribute_id)& Q(brand_id='0' if brand_id == '' else brand_id))
+        data6=Product.objects.filter(Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id))
         # elif attribute_id==True and brand_id==True and subcategory_id==True:
-        data7=Product.objects.filter(Q(attributes_id='0' if attribute_id == '' else attribute_id)& Q(brand_id='0' if brand_id == '' else brand_id)& Q(subcategory_id='0' if subcategory_id == '' else subcategory_id))
+        data7=Product.objects.filter(Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
         
         # if data1.exists():
         #     print("data1")

@@ -14,13 +14,15 @@ environ.Env.read_env()
 @api_view(['POST'])
 def start_payment(request):
     # request.data is coming from frontend
-    date=request.data['date']
+    
     product_count=request.data['product_count']
     total_price=request.data['total_price']
-    shipping_address=request.data['shipping_address']
-    products=request.data['products']
+    address_id=request.data['address_id']
+    cart_id=request.data['cart_id']
+    # products=request.data['products']
     # name = request.data['name']
-    imagess = image.objects.get(pk=(int(products)))
+    productss = Cart.objects.get(pk=(int(cart_id)))
+    shipping_address=Address.objects.get(id=int(address_id))
     # setup razorpay client
     client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY')))
 
@@ -30,9 +32,13 @@ def start_payment(request):
                                    "payment_capture": "1"})
 
     # we are saving an order with isPaid=False
-    # order = Order.objects.create(order_product=name, 
-    #                              order_amount=amount, 
-    #                              order_payment_id=payment['id'])
+    order = cart_order.objects.create(
+                                 order_amount=total_price, 
+                                 order_payment_id=payment['id'],
+                                 product_count=product_count,
+                                 shipping_address=shipping_address,
+                                 )
+    order.products.add(productss)
 
     serializer = cartorderserializer(order)
 
