@@ -318,21 +318,27 @@ class sidebarfilterview(APIView):
         data6=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id))
         data7=Product.objects.filter(id__in=product_id,attributes_id__in= attribute_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id)
         if data1.exists():
+            print("data1")
             product_serializer=productSerializer(data1,many=True)
             return Response(product_serializer.data)
         elif data2.exists():
+            print("data2")
             product_serializer=productSerializer(data2,many=True)    
             return Response(product_serializer.data)
         elif data3.exists():
+            print("data3")
             product_serializer=productSerializer(data3,many=True) 
             return Response(product_serializer.data)
         elif data4.exists():
+            print("data4")
             product_serializer=productSerializer(data4,many=True) 
             return Response(product_serializer.data)
         elif data5.exists():
+            print("data5")
             product_serializer=productSerializer(data5,many=True) 
             return Response(product_serializer.data)
         elif data6.exists():
+            print("data6")
             product_serializer=productSerializer(data6,many=True) 
             return Response(product_serializer.data)
         # product_serializer=productSerializer(data,many=True)
