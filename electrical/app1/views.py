@@ -319,18 +319,24 @@ class sidebarfilterview(APIView):
         data7=Product.objects.filter(id__in=product_id,attributes_id__in= attribute_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id)
         if data1.exists():
             product_serializer=productSerializer(data1,many=True)
+            return Response(product_serializer.data)
         elif data2.exists():
             product_serializer=productSerializer(data2,many=True)    
+            return Response(product_serializer.data)
         elif data3.exists():
             product_serializer=productSerializer(data3,many=True) 
+            return Response(product_serializer.data)
         elif data4.exists():
             product_serializer=productSerializer(data4,many=True) 
+            return Response(product_serializer.data)
         elif data5.exists():
             product_serializer=productSerializer(data5,many=True) 
+            return Response(product_serializer.data)
         elif data6.exists():
             product_serializer=productSerializer(data6,many=True) 
-        product_serializer=productSerializer(data,many=True)
-        return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        # product_serializer=productSerializer(data,many=True)
+        # return Response(product_serializer.data)
     
 class orderss(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
