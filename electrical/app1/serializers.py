@@ -379,10 +379,10 @@ class checkoutcreateserializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Invalid coupon")
         return value 
 class sidebarfilterserializer(serializers.Serializer):
-    brand_id = serializers.CharField()
-    attribute_id=serializers.CharField()
-    subcategory_id=serializers.CharField()
-    product_id=serializers.CharField()
+    brand_id = serializers.ListField()
+    attribute_id=serializers.ListField()
+    subcategory_id=serializers.ListField()
+    product_id=serializers.ListField()
 
 class checkoutserializer(serializers.ModelSerializer):
     cart=cartserializer(many=True,read_only=True)
