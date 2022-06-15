@@ -133,7 +133,7 @@ class emailverify(APIView):
                 is_confirmed=True, is_used=True, otp=one_time)
             user=User.objects.get(pk=i.id)
             # print("-------------------",user.phone_no)
-            my_account.objects.create(user=user,email=email,phone_number=user.phone_no).save()
+            my_account.objects.create(user=user,email=email,phone_number=user.phone_no,is_confirmed=True).save()
             userphoto.objects.create(user=user).save()
             return Response({'msg': 'OTP verfication successful and Account created'}, status=status.HTTP_200_OK)
         else: 
@@ -245,9 +245,9 @@ class LoginAPIView(APIView):
                 if user is not None and user.is_confirmed and user.is_active:  # change according to yourself
                     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
                     # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-                    payload = jwt_payload_handler(user)
+                    # payload = jwt_payload_handler(user)
                     # token = jwt_encode_handler(payload)
-                    payload = jwt_payload_handler(user)
+                    # payload = jwt_payload_handler(user)
                     # token1 = jwt.encode(payload, settings.SECRET_KEY)
                     refresh1 = RefreshToken.for_user(user)
                     refresh_token=str(refresh1)

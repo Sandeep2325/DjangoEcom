@@ -122,19 +122,18 @@ def countt(request):
     return render(request, "admin/index.html", context)
 
 class productsearch(viewsets.ModelViewSet):
-    queryset = Product.objects.filter(is_active=True).order_by('id')
-    serializer_class = productSerializer
+    queryset = Product.objects.all()
+    # print(queryset)
+    serializer_class = productsearchSerializer
     pagination_class = MyPaginator
-    search_fields = ['$title','$category__category','$brand__brand_name']
+    search_fields = ['$title','$category__category','$brand__brand_name',"$subcategory__sub_category"]
     filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-    # def list(self, request,):
-    #     # page = self.paginate_queryset(self.queryset)
-    #     serializer = productSerializer(self.queryset, many=True)
-    #     return Response(serializer.data)
-    # def retrieve(self, request, pk=None):
-    #     item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
-    #     serializer = productSerializer(item,many=True)
-    #     return Response(serializer.data)
+    def get_queryset(self):
+        # if 'pk' in self.kwargs:
+        queryset = Product.objects.filter(is_active=True).order_by('id').values_list("id","title","brand__brand_name","category__category","attributes__Color","subcategory__sub_category")
+        serializer = productsearchSerializer(queryset,many=True)
+        print(serializer.data)
+        return serializer.data
 """Serch functionality filters"""
 class searchproductHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
@@ -298,6 +297,9 @@ class sidebarfilterview(APIView):
     serializer_class = sidebarfilterserializer
     def post(self, request):
         serializer = sidebarfilterserializer(data=request.data)
+        product_id1=request.data["product_id"]
+        print("-------",product_id1)
+        product_id = product_id1.split(',')
         subcategory_id1 = request.data['subcategory_id']
         print("-----------------------",subcategory_id1)
         subcategory_id = subcategory_id1.split(',')
@@ -309,29 +311,17 @@ class sidebarfilterview(APIView):
         attribute_id1=request.data['attribute_id']
         attribute_id = attribute_id1.split(',')
         print(attribute_id)
-        # if attribute_id==True or brand_id==True or subcategory_id==True:
-        data=Product.objects.filter(Q(attributes_id__in='0' if attribute_id == '' else attribute_id)| Q(brand_id__in='0' if brand_id == '' else brand_id)| Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
-        # data1=Product.objects.filter(Q(subcategory_id=subcategory_id))
-        # data2=Product.objects.filter(Q(attributes_id=attribute_id))
-        # data3=Product.objects.filter(Q(brand_id=brand_id))
-        # elif subcategory_id==True and attribute_id==True:
-        data4=Product.objects.filter(Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id))
-        # elif subcategory_id==True and brand_id==True:
-        data5=Product.objects.filter(Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id)& Q(brand_id__in='0' if brand_id == '' else brand_id))
-        # elif attribute_id==True and brand_id==True:
-        data6=Product.objects.filter(Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id))
-        # elif attribute_id==True and brand_id==True and subcategory_id==True:
-        data7=Product.objects.filter(Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
         
-        # if data1.exists():
-        #     print("data1")
-        #     product_serializer=productSerializer(data1,many=True)
-        # elif data2.exists():
-        #     print("data2")
-        #     product_serializer=productSerializer(data2,many=True)
-        # elif data3.exists():
-        #     print("data3")
-        #     product_serializer=productSerializer(data3,many=True)
+        # data0=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
+        data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in='0' if attribute_id == '' else attribute_id)| Q(brand_id__in='0' if brand_id == '' else brand_id)| Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
+        data4=Product.objects.filter(Q(id__in=product_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id))
+        # elif subcategory_id==True and brand_id==True:
+        data5=Product.objects.filter(Q(id__in=product_id)& Q(id__in=product_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id)& Q(brand_id__in='0' if brand_id == '' else brand_id))
+        # elif attribute_id==True and brand_id==True:
+        data6=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id))
+        # elif attribute_id==True and brand_id==True and subcategory_id==True:
+        data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
+        
         
         if data4.exists():
             print("data4")
@@ -344,8 +334,9 @@ class sidebarfilterview(APIView):
             product_serializer=productSerializer(data6,many=True)
         elif data7.exists():
             print("data7")
-            product_serializer=productSerializer(data7,many=True)
+            # product_serializer=productSerializer(data7,many=True)
         product_serializer=productSerializer(data,many=True)
+        print("data...")
         return Response(product_serializer.data)
     
 class orderss(viewsets.ModelViewSet):
@@ -500,7 +491,8 @@ class cartquantityupdateView(APIView):
     def put(self, request, pk, format=None):
         # p_id=request.data['p_id']
         # productt=Product.objects.get(id=int(p_id))
-        item = get_object_or_404(Cart.objects.all(), pk=pk)
+        item=Cart.objects.get(id=pk)
+        # item = get_object_or_404(Cart.objects.all(), pk=pk)
         serializer = cartquantityserializer(item, data=request.data)
         if serializer.is_valid():
             serializer.save(user=self.request.user,id=pk)
@@ -978,18 +970,12 @@ class enquirycreate(ModelViewSet):
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
           
 class AddCouponView(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (AllowAny, )
+    serializer_class=CouponSerializer
     def post(self, request, *args, **kwargs):
-        code = request.data.get('code', None)
-        if code is None:
-            return Response({"message": "Invalid data received"}, status=HTTP_400_BAD_REQUEST)
-        order = Order.objects.get(
-            user=self.request.user, ordered=False)
-        print("code=============================", code)
-        coupon = get_object_or_404(Coupon, code=code)
-        order.coupon = coupon
-        order.save(*args, **kwargs)
-        return Response(status=HTTP_200_OK)
+        ...
+        
+        
     
 class CouponViewSet(viewsets.ModelViewSet):
     queryset = Coupon.objects.all()
@@ -1005,10 +991,7 @@ class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
     
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = RegisterSerializer
+
 
 class cartlist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
@@ -1188,6 +1171,7 @@ class cartorder(ModelViewSet):
 #         c.save()
 #         buf.seek(0)
 #         return FileResponse(buf,as_attachment=True,filename="invoice.pdf",status=status.HTTP_201_CREATED)
+
 def html_to_pdf(template_src, context_dict={}):
      template = get_template(template_src)
      context={

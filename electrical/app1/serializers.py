@@ -182,7 +182,12 @@ class imageserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
         model=image
-
+class productsearchSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        fields = ("id","title","category","subcategory","attributes","brand",)
+        model = Product
+        depth=1
 class productSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -377,6 +382,7 @@ class sidebarfilterserializer(serializers.Serializer):
     brand_id = serializers.CharField()
     attribute_id=serializers.CharField()
     subcategory_id=serializers.CharField()
+    product_id=serializers.CharField()
 
 class checkoutserializer(serializers.ModelSerializer):
     cart=cartserializer(many=True,read_only=True)
@@ -611,103 +617,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['user'] = user.email
         return token
 
-class RegisterSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-
-    password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, required=True)
-    class Meta:
-        model = User
-        fields = ('id','username', 'password', 'password2', 'email',
-                 'phone_no')
-        
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."})
-        return attrs
-    def validate_email(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please provide email")
-        return value
-    # def validate_first_name(self, value):
-    #     if value == None:
-    #         raise serializers.ValidationError("Please provide first name")
-    #     return value
-    # def validate_last_name(self, value):
-    #     if value == None:
-    #         raise serializers.ValidationError("Please provide last name")
-    #     return value
-    def validate_phone_no(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please provide phone number")
-        return value 
-    
-    def create(self, validated_data):
-        user,k = User.objects.update_or_create(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            # first_name=validated_data['first_name'],
-            # last_name=validated_data['last_name'],
-            phone_no=validated_data['phone_no']
-        )
-        def generateOTP():
-            digits = "0123456789"
-            OTP = ""
-            for i in range(4) :
-                OTP += digits[math.floor(random.random() * 10)]
-            return OTP
-        name=validated_data['username']
-        to_email=validated_data['email']
-        otp=generateOTP()
-        send_mail(
-            'Hi... {}'.format(name),
-            'your otp is {}'.format(otp),
-            settings.EMAIL_HOST_USER,
-            [to_email],
-            fail_silently=False,
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
-    
 class CurrentUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'id','password')     
-        
-class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-    def validate(self, attrs):
-        user = authenticate(username=attrs['email'], password=attrs['password'])
-
-        if not user:
-            raise serializers.ValidationError('Incorrect email or password.')
-
-        if not user.is_active:
-            raise serializers.ValidationError('User is disabled.')
-
-        return {'user': user}
 
 
-class GlobalSearchSerializer(serializers.ModelSerializer):
-
-   class Meta:
-      model = Product
-      fields="__all__"
-   def to_native(self, obj):
-       if isinstance(obj, Product): 
-           serializer = productSerializer(obj)
-       elif isinstance(obj, Category):
-           serializer = categorySerializer(obj)
-       elif isinstance(obj, Brand):
-           serializer = brandserializer(obj)
-       else:
-         raise Exception("Neither a Snippet nor User instance!")
-       return serializer.data
