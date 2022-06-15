@@ -302,37 +302,35 @@ class sidebarfilterview(APIView):
         print(product_id)
         attribute_id=request.data["attribute_id"]
         print(attribute_id)
-        brand_id=request.data["attribute_id"]
+        brand_id=request.data["brand_id"]
         print(brand_id)
         subcategory_id=request.data["subcategory_id"]
         print(subcategory_id)
-        # data0=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
-        # data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in='0' if attribute_id == '' else attribute_id)| Q(brand_id__in='0' if brand_id == '' else brand_id)| Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id))
-        # data4=Product.objects.filter(Q(id__in=product_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id))
-        # elif subcategory_id==True and brand_id==True:
-        # data5=Product.objects.filter(Q(id__in=product_id)& Q(id__in=product_id)& Q(subcategory_id__in='0' if subcategory_id == '' else subcategory_id)& Q(brand_id__in='0' if brand_id == '' else brand_id))
-        # elif attribute_id==True and brand_id==True:
-        # data6=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in='0' if attribute_id == '' else attribute_id)& Q(brand_id__in='0' if brand_id == '' else brand_id))
-        # elif attribute_id==True and brand_id==True and subcategory_id==True:
-        # data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id))
+        data=Product.objects.filter(id__in=product_id)
+        data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id)
+        data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id)
+        data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id)
         
+        data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id)
+        data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id)
+        data5=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id)
         
-        # if data4.exists():
-        #     print("data4")
-        #     product_serializer=productSerializer(data4,many=True)
-        # elif data5.exists():
-        #     print("data5")
-        #     product_serializer=productSerializer(data5,many=True)
-        # elif data6.exists():
-        #     print("data6")
-        #     product_serializer=productSerializer(data6,many=True)
-        # elif data7.exists():
-        #     print("data7")
-            # product_serializer=productSerializer(data7,many=True)
-        # product_serializer=productSerializer(data7,many=True)
-        # print("data...")
-        # return Response(product_serializer.data)
-        return Response({"data":request.data})
+        data6=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id))
+        data7=Product.objects.filter(id__in=product_id,attributes_id__in= attribute_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id)
+        if data1.exists():
+            product_serializer=productSerializer(data1,many=True)
+        elif data2.exists():
+            product_serializer=productSerializer(data2,many=True)    
+        elif data3.exists():
+            product_serializer=productSerializer(data3,many=True) 
+        elif data4.exists():
+            product_serializer=productSerializer(data4,many=True) 
+        elif data5.exists():
+            product_serializer=productSerializer(data5,many=True) 
+        elif data6.exists():
+            product_serializer=productSerializer(data6,many=True) 
+        product_serializer=productSerializer(data,many=True)
+        return Response(product_serializer.data)
     
 class orderss(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
