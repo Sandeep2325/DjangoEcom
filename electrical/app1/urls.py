@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework import routers
 from django.conf.urls.static import static
 from django.conf import settings 
+from . import payment
 router = routers.DefaultRouter()
 router.register('products-brand', productview)
 router.register('products-brand1',productview1)
@@ -31,6 +32,7 @@ router.register('enquirycreate',enquirycreate)
 router.register('myaccountcreate',myaccountCreateView)
 router.register('userphotocreate',userphotocreate)
 router.register('cartCreateView1',cartCreateView1)
+# router.register('invoice',invoice)
 router.register('userphoto1',userphoto1,basename="userphoto1")
 router.register('addresscreate',AddressCreateView)
 router.register("listsubcategory",subcategoryview)
@@ -45,6 +47,8 @@ router.register("brands",listbrand)
 router.register('unotification',universalnotificationlist,basename="unotification")
 app_name = 'Product'
 urlpatterns = [
+     path('pay/', payment.start_payment, name="payment"),
+    path('payment/success/', payment.handle_payment_success, name="payment_success"),
     path('getSubcategory/', views.get_subcategory),
     path('', include(router.urls)),
     path('current-user/', CurrentUserViewSet.as_view(), name="current_user"),
@@ -129,6 +133,7 @@ urlpatterns = [
 #     path('unotification/', universalnotificationlist.as_view({'get': 'list'}), name="notification"),
     path('faq_enquiry/', enquiryCreateView.as_view(),
          name='faq_enquiry'),
+    path('invoice/', invoice.as_view(),name="invoice"),
     path('sidebarfilter/', sidebarfilterview.as_view(),name="side-bar-filter"),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),
     path('register1/', RegistrationAPIView.as_view(),name="register"), #Registration

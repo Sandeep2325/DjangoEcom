@@ -39,6 +39,15 @@ from rest_framework.viewsets import ModelViewSet
 import pyotp
 from rest_framework_simplejwt.authentication import JWTAuthentication
 import json
+from django.http import FileResponse
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 def get_subcategory(request):
     id = request.GET.get('id', '')
     # print(id)
@@ -393,7 +402,7 @@ class listmyaccount(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return my_account.objects.filter(user=user)
-      
+
 # class myaccountCreateView1(CreateAPIView):
 #     permission_classes = (IsAuthenticated, )
 #     authentication_classes = [JWTAuthentication,]                      
@@ -1146,3 +1155,58 @@ class cartorder(ModelViewSet):
                 return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
+
+
+# class invoice(ModelViewSet):
+#     # permission_classes = (IsAuthenticated, )
+#     # authentication_classes = [JWTAuthentication,]
+#     queryset = cart_order.objects.all()
+#     serializer_class = invoiceserializer
+#     http_method_names = ['post', ]
+
+#     def create(self, request, *args, **kwargs):
+#         # user = request.user
+#         data = {
+#             "msg": "Added to cart succesfully",
+#             }
+#         buf=io.BytesIO()
+#         c=canvas.Canvas(buf,pagesize=letter,bottomup=0)
+#         textob=c.beginText()
+#         textob.setTextOrigin(inch,inch)
+#         textob.setFont("Helvetica",14)
+        
+#         lines=[
+#             "this is line1",
+#             "this is line2",
+#             "this is line3",
+#         ]
+#         for line in lines:
+#             textob.textLine(line)
+#         c.drawText(textob)
+#         c.showPage()
+#         c.save()
+#         buf.seek(0)
+#         return FileResponse(buf,as_attachment=True,filename="invoice.pdf",status=status.HTTP_201_CREATED)
+def html_to_pdf(template_src, context_dict={}):
+     template = get_template(template_src)
+     context={
+            "title":"Prakash Electrical",
+        }
+     html  = template.render(context)
+     result = BytesIO()
+     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+     if not pdf.err:
+         return HttpResponse(result.getvalue(), content_type='application/pdf')
+     return None
+class invoice(APIView):
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = [JWTAuthentication,]
+    # queryset = cart_order.objects.all()
+    # serializer_class = invoiceserializer
+    # http_method_names = ['post', ]
+
+    def get(self, request, *args, **kwargs):
+        template_name='app1/invoice.html'
+        pdf = html_to_pdf(template_name)
+        return FileResponse(pdf,as_attachment=True,filename="invoice.pdf",content_type='application/pdf',status=status.HTTP_201_CREATED)

@@ -247,9 +247,9 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
         image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True
-        list_display = ['id', 'title','subcategory','category','brand',"attributes",'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
+        list_display = ['id', 'title','category','subcategory','brand',"attributes",'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
                         'updated_at','created_at','action_btn']  # ,'is_active','is_featured'
-        list_editable = ('category','subcategory', 'is_active','brand','available_stocks')
+        list_editable = ('category','attributes', 'is_active','brand','available_stocks')
         list_filter = ('category', 'is_active', 'updated_at')
         list_per_page = 20
         #inlines = [ImagemInline]
@@ -712,6 +712,8 @@ class notificationadmin(admin.ModelAdmin):
     list_display=["id",'offers','created_date']
 class userphotoadmin(admin.ModelAdmin):
     list_display=['id','user','photo']
+class cartorderadmin(admin.ModelAdmin):
+    list_display=["id","user","order_payment_id","total_price","shipping_address","is_paid","date"]
 admin.site.register(userphoto,userphotoadmin)
 admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
@@ -743,6 +745,7 @@ admin.site.unregister(Group)
 admin.site.register(Brand,BrandAdmin)
 admin.site.register(my_account,myaccount)
 admin.site.register(subcategory,subcategoryadmin)
+admin.site.register(cart_order,cartorderadmin)
 # admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
     list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn','last_login','date_joined']

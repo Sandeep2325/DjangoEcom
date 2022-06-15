@@ -351,13 +351,14 @@ class checkoutsummary(serializers.Serializer):
    delivery_charges=serializers.CharField()
    total_payable=serializers.CharField()
 class cartorderserializer(serializers.ModelSerializer):
-    cart_id=serializers.CharField()
-    address_id=serializers.CharField()
+    # cart_id=serializers.CharField()
+    # address_id=serializers.CharField()
     class Meta:
         model=cart_order
-        fields=("product_count","total_price","order_payment_id","address_id","cart_id")
+        fields=("product_count","total_price",)
         read_only_fields=("user","products","shipping_address")
-        
+class invoiceserializer(serializers.Serializer):
+    id=serializers.CharField()      
 class checkoutcreateserializer(serializers.ModelSerializer):
     class Meta:
         model=checkout

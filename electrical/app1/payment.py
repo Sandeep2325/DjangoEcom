@@ -1,17 +1,23 @@
 import json
 
-import environ
+# import environ
 import razorpay
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import *
 from .serializers import *
-env = environ.Env()
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes,authentication_classes
+from rest_framework_simplejwt.authentication import JWTAuthentication
+# env = environ.Env()
 
 # you have to create .env file in same folder where you are using environ.Env()
 # reading .env file which located in api folder
-environ.Env.read_env()
+# environ.Env.read_env()
+# authentication_classes = [JWTAuthentication,]
 @api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+@authentication_classes((JWTAuthentication,))
 def start_payment(request):
     # request.data is coming from frontend
     
@@ -19,13 +25,16 @@ def start_payment(request):
     total_price=request.data['total_price']
     address_id=request.data['address_id']
     cart_id=request.data['cart_id']
-    # products=request.data['products']
-    # name = request.data['name']
+    user=request.user
+    print(user)
+    print(product_count)
+    print(total_price)
+    print(address_id)
+    print(cart_id)
     productss = Cart.objects.get(pk=(int(cart_id)))
     shipping_address=Address.objects.get(id=int(address_id))
     # setup razorpay client
-    client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY')))
-
+    client=razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
     # create razorpay order
     payment = client.order.create({"amount": int(total_price) * 100, 
                                    "currency": "INR", 
@@ -33,8 +42,9 @@ def start_payment(request):
 
     # we are saving an order with isPaid=False
     order = cart_order.objects.create(
-                                 order_amount=total_price, 
-                                 order_payment_id=payment['id'],
+        user=request.user,
+                                 total_price=total_price, 
+                                order_payment_id=payment['id'],
                                  product_count=product_count,
                                  shipping_address=shipping_address,
                                  )
@@ -82,15 +92,16 @@ def handle_payment_success(request):
             raz_signature = res[key]
 
     # get order by payment_id which we've created earlier with isPaid=False
-    order = Order.objects.get(order_payment_id=ord_id)
+    order = cart_order.objects.get(order_payment_id=ord_id)
 
     data = {
         'razorpay_order_id': ord_id,
         'razorpay_payment_id': raz_pay_id,
         'razorpay_signature': raz_signature
     }
+    client=razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
 
-    client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY')))
+    # client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY')))
 
     # checking if the transaction is valid or not if it is "valid" then check will return None
     check = client.utility.verify_payment_signature(data)
@@ -100,9 +111,8 @@ def handle_payment_success(request):
         return Response({'error': 'Something went wrong'})
 
     # if payment is successful that means check is None then we will turn isPaid=True
-    order.isPaid = True
+    order.is_paid = True
     order.save()
-
     res_data = {
         'message': 'payment successfully received!'
     }
