@@ -135,9 +135,10 @@ class productsearch(viewsets.ModelViewSet):
     #     print(serializer.data)
     #     return serializer.data
 """Product filters"""
+
 class lowtohigh(APIView):
     permission_classes = (AllowAny,)
-    serializer_class = productfilterserializers
+    serializer_class = sidebarfilterserializer
     def post(self, request):
         print(request.data)
         
@@ -154,31 +155,45 @@ class lowtohigh(APIView):
         print(subcategory_id)
         print(bool(subcategory_id))
         
-        data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id)).order_by('price')
-        product_serializer=productSerializer(data,many=True)
-        return Response(product_serializer.data)
-# class hightolow(APIView):
-#     permission_classes = (AllowAny,)
-#     serializer_class = productfilterserializers
-#     def post(self, request):
-#         print(request.data)
+        if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+            data=Product.objects.filter(id__in=product_id).order_by('price')
+            product_serializer=productSerializer(data,many=True)
+            return Response(product_serializer.data)
         
-#         product_id=request.data["product_id"]
-#         print(product_id)
-#         print(bool(product_id))
-#         attribute_id=request.data["attribute_id"]
-#         print(attribute_id)
-#         print(bool(attribute_id))
-#         brand_id=request.data["brand_id"]
-#         print(brand_id)
-#         print(bool(brand_id))
-#         subcategory_id=request.data["subcategory_id"]
-#         print(subcategory_id)
-#         print(bool(subcategory_id))
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+            data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('price')
+            product_serializer=productSerializer(data1,many=True)
+            return Response(product_serializer.data)
         
-#         data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id)).order_by('-price')
-#         product_serializer=productSerializer(data,many=True)
-#         return Response(product_serializer.data)
+        elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+            data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('price')
+            product_serializer=productSerializer(data2,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+            data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('price')
+            product_serializer=productSerializer(data3,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+            data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('price')
+            product_serializer=productSerializer(data4,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+            data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('price')
+            product_serializer=productSerializer(data5,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+            data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('price')
+            product_serializer=productSerializer(data6,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+            data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('price')
+            product_serializer=productSerializer(data7,many=True)
+            return Response(product_serializer.data)
 class hightolow(APIView):
     permission_classes = (AllowAny,)
     serializer_class = sidebarfilterserializer
@@ -237,9 +252,10 @@ class hightolow(APIView):
             data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('-price')
             product_serializer=productSerializer(data7,many=True)
             return Response(product_serializer.data)
+        
 class newest(APIView):
     permission_classes = (AllowAny,)
-    serializer_class = productfilterserializers
+    serializer_class = sidebarfilterserializer
     def post(self, request):
         print(request.data)
         
@@ -255,15 +271,54 @@ class newest(APIView):
         subcategory_id=request.data["subcategory_id"]
         print(subcategory_id)
         print(bool(subcategory_id))
-        data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id)).order_by('-created_at')
-        product_serializer=productSerializer(data,many=True)
-        return Response(product_serializer.data)
+        
+        if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+            data=Product.objects.filter(id__in=product_id).order_by('-created_at')
+            product_serializer=productSerializer(data,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+            data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+            product_serializer=productSerializer(data1,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+            data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('-created_at')
+            product_serializer=productSerializer(data2,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+            data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('-created_at')
+            product_serializer=productSerializer(data3,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+            data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('-created_at')
+            product_serializer=productSerializer(data4,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+            data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('-created_at')
+            product_serializer=productSerializer(data5,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+            data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('-created_at')
+            product_serializer=productSerializer(data6,many=True)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+            data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('-created_at')
+            product_serializer=productSerializer(data7,many=True)
+            return Response(product_serializer.data)
+        
 class discount(APIView):
     permission_classes = (AllowAny,)
-    serializer_class = productfilterserializers
+    serializer_class = sidebarfilterserializer
     data=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False))
     def post(self, request):
         print(request.data)
+        
         product_id=request.data["product_id"]
         print(product_id)
         print(bool(product_id))
@@ -277,16 +332,85 @@ class discount(APIView):
         print(subcategory_id)
         print(bool(subcategory_id))
         if self.data.exists():
-            data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id))& Q(discounted_price__isnull= False).order_by("discounted_price")
-            queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('discounted_price') 
-            product_serializer=productSerializer(data,many=True)
-            return Response(product_serializer.data)
+            if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+                data=Product.objects.filter(id__in=product_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+                data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data1,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+                data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data2,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+                data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data3,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+                data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data4,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+                data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data5,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+                data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data6,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+                data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)& Q(discounted_price__isnull= False)).order_by('discounted_price')
+                product_serializer=productSerializer(data7,many=True)
+                return Response(product_serializer.data)
         else:
-            data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id))& Q(discounted_price__isnull= True).order_by("discounted_price")
-            queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('price') 
-            product_serializer=productSerializer(data,many=True)
-            return Response(product_serializer.data)
-        
+            if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+                data=Product.objects.filter(id__in=product_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+                data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data1,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+                data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data2,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+                data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data3,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+                data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data4,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+                data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data5,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+                data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data6,many=True)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+                data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)& Q(discounted_price__isnull= True)).order_by('discounted_price')
+                product_serializer=productSerializer(data7,many=True)
+                return Response(product_serializer.data)        
 """Serch functionality filters"""
 class searchproductHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
