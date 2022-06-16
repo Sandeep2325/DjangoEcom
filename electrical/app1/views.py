@@ -199,42 +199,42 @@ class hightolow(APIView):
         print(bool(subcategory_id))
         
         if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
-            data=Product.objects.filter(id__in=product_id)
+            data=Product.objects.filter(id__in=product_id).order_by('-price')
             product_serializer=productSerializer(data,many=True)
             return Response(product_serializer.data)
         
         elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
-            data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id)
+            data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-price')
             product_serializer=productSerializer(data1,many=True)
             return Response(product_serializer.data)
         
         elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
-            data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id)
+            data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('-price')
             product_serializer=productSerializer(data2,many=True)
             return Response(product_serializer.data)
         
         elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
-            data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id)
+            data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('-price')
             product_serializer=productSerializer(data3,many=True)
             return Response(product_serializer.data)
         
         elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
-            data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id)
+            data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('-price')
             product_serializer=productSerializer(data4,many=True)
             return Response(product_serializer.data)
         
         elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
-            data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id)
+            data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('-price')
             product_serializer=productSerializer(data5,many=True)
             return Response(product_serializer.data)
         
         elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
-            data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id)
+            data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('-price')
             product_serializer=productSerializer(data6,many=True)
             return Response(product_serializer.data)
         
         elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
-            data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id))
+            data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('-price')
             product_serializer=productSerializer(data7,many=True)
             return Response(product_serializer.data)
 class newest(APIView):
