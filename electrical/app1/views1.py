@@ -24,6 +24,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework_simplejwt.tokens import RefreshToken,AccessToken
 from django.shortcuts import render
+from hashlib import sha1 
 # generating OTP
 def generateOTP():
     global totp
@@ -167,7 +168,7 @@ class ForgotPasswordView(APIView):
         else:
             return Response({'msg': 'Not a valid request'}, status=status.HTTP_400_BAD_REQUEST)
    
-from hashlib import sha1     
+    
 class forgotpasswordotpverification(APIView):
     permission_classes = (AllowAny,)
     serializer_class = forgotverifyserializer

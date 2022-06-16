@@ -331,6 +331,7 @@ class productfilterserializers(serializers.Serializer):
     attribute_id=serializers.ListField()
     subcategory_id=serializers.ListField()
     product_id=serializers.ListField()
+    filter_by=serializers.CharField()
 class sidebarfilterserializer(serializers.Serializer):
     brand_id = serializers.ListField()
     attribute_id=serializers.ListField()

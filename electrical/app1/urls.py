@@ -17,10 +17,6 @@ router.register('products-category',most_categoryview,basename="products-categor
 router.register('latest-product', latestview,basename="latest-product")
 router.register("blogg",blogview)
 #filter
-# router.register('high-to-low',productHitoLo,basename="high-to-low")
-# router.register('low-to-high',productLotoHi,basename="low-to-high")
-# router.register('newest',newest,basename="newest")
-# router.register('discount',discount,basename="discount")
 #search functionality filters
 router.register('search-high-to-low',searchproductHitoLo,basename="search-high-to-low")
 router.register('search-low-to-high',searchproductLotoHi,basename="search-low-to-high")
@@ -136,6 +132,7 @@ urlpatterns = [
          name='faq_enquiry'),
     path('invoice/', invoice.as_view(),name="invoice"),
     #filters
+    path('filters/', filters.as_view(),name="filters"),
     path('hightolow/', hightolow.as_view(),name="hightolow"),
     path('lowtohigh/', lowtohigh.as_view(),name="lowtohigh"),
     path('newest/', newest.as_view(),name="newest"),
