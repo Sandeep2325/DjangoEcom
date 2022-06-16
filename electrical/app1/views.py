@@ -122,18 +122,113 @@ def countt(request):
     return render(request, "admin/index.html", context)
 
 class productsearch(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().order_by('id')
     # print(queryset)
     serializer_class = productsearchSerializer
     pagination_class = MyPaginator
     search_fields = ['$title','$category__category','$brand__brand_name',"$subcategory__sub_category"]
     filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-    def get_queryset(self):
-        # if 'pk' in self.kwargs:
-        queryset = Product.objects.filter(is_active=True).order_by('id').values_list("id","title","brand__brand_name","category__category","attributes__Color","subcategory__sub_category")
-        serializer = productsearchSerializer(queryset,many=True)
-        print(serializer.data)
-        return serializer.data
+    # def get_queryset(self):
+    #     # if 'pk' in self.kwargs:
+    #     queryset = Product.objects.filter(is_active=True).order_by('id').values_list("id","title","brand__brand_name","category__category","attributes__Color","subcategory__sub_category")
+    #     serializer = productsearchSerializer(queryset,many=True)
+    #     print(serializer.data)
+    #     return serializer.data
+"""Product filters"""
+class lowtohigh(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = productfilterserializers
+    def post(self, request):
+        print(request.data)
+        
+        product_id=request.data["product_id"]
+        print(product_id)
+        print(bool(product_id))
+        attribute_id=request.data["attribute_id"]
+        print(attribute_id)
+        print(bool(attribute_id))
+        brand_id=request.data["brand_id"]
+        print(brand_id)
+        print(bool(brand_id))
+        subcategory_id=request.data["subcategory_id"]
+        print(subcategory_id)
+        print(bool(subcategory_id))
+        
+        data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id)).order_by('price')
+        product_serializer=productSerializer(data,many=True)
+        return Response(product_serializer.data)
+class hightolow(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = productfilterserializers
+    def post(self, request):
+        print(request.data)
+        
+        product_id=request.data["product_id"]
+        print(product_id)
+        print(bool(product_id))
+        attribute_id=request.data["attribute_id"]
+        print(attribute_id)
+        print(bool(attribute_id))
+        brand_id=request.data["brand_id"]
+        print(brand_id)
+        print(bool(brand_id))
+        subcategory_id=request.data["subcategory_id"]
+        print(subcategory_id)
+        print(bool(subcategory_id))
+        
+        data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id)).order_by('-price')
+        product_serializer=productSerializer(data,many=True)
+        return Response(product_serializer.data)
+class newest(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = productfilterserializers
+    def post(self, request):
+        print(request.data)
+        
+        product_id=request.data["product_id"]
+        print(product_id)
+        print(bool(product_id))
+        attribute_id=request.data["attribute_id"]
+        print(attribute_id)
+        print(bool(attribute_id))
+        brand_id=request.data["brand_id"]
+        print(brand_id)
+        print(bool(brand_id))
+        subcategory_id=request.data["subcategory_id"]
+        print(subcategory_id)
+        print(bool(subcategory_id))
+        data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id)).order_by('-created_at')
+        product_serializer=productSerializer(data,many=True)
+        return Response(product_serializer.data)
+class discount(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = productfilterserializers
+    data=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False))
+    def post(self, request):
+        print(request.data)
+        product_id=request.data["product_id"]
+        print(product_id)
+        print(bool(product_id))
+        attribute_id=request.data["attribute_id"]
+        print(attribute_id)
+        print(bool(attribute_id))
+        brand_id=request.data["brand_id"]
+        print(brand_id)
+        print(bool(brand_id))
+        subcategory_id=request.data["subcategory_id"]
+        print(subcategory_id)
+        print(bool(subcategory_id))
+        if self.data.exists():
+            data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id))& Q(discounted_price__isnull= False).order_by("discounted_price")
+            queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('discounted_price') 
+            product_serializer=productSerializer(data,many=True)
+            return Response(product_serializer.data)
+        else:
+            data=Product.objects.filter(Q(id__in=product_id)| Q(attributes_id__in=attribute_id)| Q(subcategory_id__in=subcategory_id)| Q(brand_id__in=brand_id))& Q(discounted_price__isnull= True).order_by("discounted_price")
+            queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('price') 
+            product_serializer=productSerializer(data,many=True)
+            return Response(product_serializer.data)
+        
 """Serch functionality filters"""
 class searchproductHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
@@ -196,74 +291,74 @@ class product_brand(viewsets.ModelViewSet):
             print(serializer.data)
             return serializer.data
         
-class productHitoLo(viewsets.ModelViewSet):
-       queryset = Product.objects.filter(is_active=True).order_by('-price')
-       serializer_class = productSerializer
-       search_fields = ['title','category__category','brand__brand_name']
-       filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-       def list(self, request,):
-           serializer = productSerializer(self.queryset, many=True)
-           return Response(serializer.data)
-       def retrieve(self, request, pk=None):
-           item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('-price')
-           serializer = productSerializer(item,many=True)
-           return Response(serializer.data)
+# class productHitoLo(viewsets.ModelViewSet):
+#        queryset = Product.objects.filter(is_active=True).order_by('-price')
+#        serializer_class = productSerializer
+#        search_fields = ['title','category__category','brand__brand_name']
+#        filter_backends = (filters.SearchFilter,filters.OrderingFilter)
+#        def list(self, request,):
+#            serializer = productSerializer(self.queryset, many=True)
+#            return Response(serializer.data)
+#        def retrieve(self, request, pk=None):
+#            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('-price')
+#            serializer = productSerializer(item,many=True)
+#            return Response(serializer.data)
          
-class productLotoHi(viewsets.ModelViewSet):
-       queryset = Product.objects.filter(is_active=True).order_by('price')
-       serializer_class = productSerializer
-       search_fields = ['title','category__category','brand__brand_name']
-       filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-       def list(self, request,):
-           serializer = productSerializer(self.queryset, many=True)
-           return Response(serializer.data)
-       def retrieve(self, request, pk=None):
-           item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('price')
-           serializer = productSerializer(item,many=True)
-           return Response(serializer.data)
+# class productLotoHi(viewsets.ModelViewSet):
+#        queryset = Product.objects.filter(is_active=True).order_by('price')
+#        serializer_class = productSerializer
+#        search_fields = ['title','category__category','brand__brand_name']
+#        filter_backends = (filters.SearchFilter,filters.OrderingFilter)
+#        def list(self, request,):
+#            serializer = productSerializer(self.queryset, many=True)
+#            return Response(serializer.data)
+#        def retrieve(self, request, pk=None):
+#            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('price')
+#            serializer = productSerializer(item,many=True)
+#            return Response(serializer.data)
        
             
-class newest(viewsets.ModelViewSet):
-       queryset = Product.objects.filter(is_active=True).order_by('-created_at')
-       serializer_class = productSerializer
-       search_fields = ['title','category__category','brand__brand_name']
-       filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-       def list(self, request,):
-           serializer = productSerializer(self.queryset, many=True)
-           return Response(serializer.data)
-       def retrieve(self, request, pk=None):
-           item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('price')
-           serializer = productSerializer(item,many=True)
-           return Response(serializer.data)  
+# class newest(viewsets.ModelViewSet):
+#        queryset = Product.objects.filter(is_active=True).order_by('-created_at')
+#        serializer_class = productSerializer
+#        search_fields = ['title','category__category','brand__brand_name']
+#        filter_backends = (filters.SearchFilter,filters.OrderingFilter)
+#        def list(self, request,):
+#            serializer = productSerializer(self.queryset, many=True)
+#            return Response(serializer.data)
+#        def retrieve(self, request, pk=None):
+#            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)).order_by('price')
+#            serializer = productSerializer(item,many=True)
+#            return Response(serializer.data)  
              
-class discount(viewsets.ModelViewSet):
-    queryset=Product.objects.filter(is_active=True).order_by('discounted_price') 
-    serializer_class = productSerializer 
-    pagination_class = MyPaginator  
-    search_fields = ['title','category__category','brand__brand_name']
-    filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-    data=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False))
-    def list(self,request,):
-        if self.data.exists():
-            queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('discounted_price') 
-            queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
-            serializer = productSerializer(queryset, many=True)
-            return Response(serializer.data)
-        else:
-            queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('discounted_price') 
-            queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
-            serializer = productSerializer(queryset, many=True)
-            return Response(serializer.data)
+# class discount(viewsets.ModelViewSet):
+#     queryset=Product.objects.filter(is_active=True).order_by('discounted_price') 
+#     serializer_class = productSerializer 
+#     pagination_class = MyPaginator  
+#     search_fields = ['title','category__category','brand__brand_name']
+#     filter_backends = (filters.SearchFilter,filters.OrderingFilter)
+#     data=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False))
+#     def list(self,request,):
+#         if self.data.exists():
+#             queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('discounted_price') 
+#             queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
+#             serializer = productSerializer(queryset, many=True)
+#             return Response(serializer.data)
+#         else:
+#             queryset=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('discounted_price') 
+#             queryset1=Product.objects.filter(Q(is_active=True)).order_by('discounted_price') 
+#             serializer = productSerializer(queryset, many=True)
+#             return Response(serializer.data)
             
-    def retrieve(self, request, pk=None):
-        if self.data.exists():
-            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('price')
-            serializer = productSerializer(item,many=True)
-            return Response(serializer.data)
-        else:
-            item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('price')
-            serializer = productSerializer(item,many=True)
-            return Response(serializer.data)
+#     def retrieve(self, request, pk=None):
+#         if self.data.exists():
+#             item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= False)).order_by('price')
+#             serializer = productSerializer(item,many=True)
+#             return Response(serializer.data)
+#         else:
+#             item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True)& Q(discounted_price__isnull= True)).order_by('price')
+#             serializer = productSerializer(item,many=True)
+#             return Response(serializer.data)
 
 class most_categoryview(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('id')
@@ -351,34 +446,6 @@ class sidebarfilterview(APIView):
             product_serializer=productSerializer(data7,many=True)
             return Response(product_serializer.data)
         
-        data7=Product.objects.filter(id__in=product_id,attributes_id__in= attribute_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id)
-        # if data1.exists():
-        #     print("data1")
-        #     product_serializer=productSerializer(data1,many=True)
-        #     return Response(product_serializer.data)
-        # elif data2.exists():
-        #     print("data2")
-        #     product_serializer=productSerializer(data2,many=True)    
-        #     return Response(product_serializer.data)
-        # elif data3.exists():
-        #     print("data3")
-        #     product_serializer=productSerializer(data3,many=True) 
-        #     return Response(product_serializer.data)
-        # elif data4.exists():
-        #     print("data4")
-        #     product_serializer=productSerializer(data4,many=True) 
-        #     return Response(product_serializer.data)
-        # elif data5.exists():
-        #     print("data5")
-        #     product_serializer=productSerializer(data5,many=True) 
-        #     return Response(product_serializer.data)
-        # elif data6.exists():
-        #     print("data6")
-        #     product_serializer=productSerializer(data6,many=True) 
-        #     return Response(product_serializer.data)
-        # product_serializer=productSerializer(data,many=True)
-        # return Response(product_serializer.data)
-    
 class orderss(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -1013,20 +1080,15 @@ class AddCouponView(APIView):
     permission_classes = (AllowAny, )
     serializer_class=CouponSerializer
     def post(self, request, *args, **kwargs):
-        ...
+        serializer=CouponSerializer(data=request.data)
+        coupon=request.data["coupon"]
+        try:
+            data=Coupon.objects.get(coupon=coupon)
+            data.coupon_discount
+            return Response({"data":data.coupon_discount},status=status.HTTP_202_ACCEPTED)   
+        except:
+            return Response({"data":"Invalid coupon"},status=status.HTTP_404_NOT_FOUND)     
         
-        
-    
-class CouponViewSet(viewsets.ModelViewSet):
-    queryset = Coupon.objects.all()
-    serializer_class = CouponSerializer
-
-    @action(detail=True, methods=['get'])
-    def redeem(self, request, pk=None):
-        obj = self.get_object()
-        # obj.coupon==queryset
-        return Response()
-
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer

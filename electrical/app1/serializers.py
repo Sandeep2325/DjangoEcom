@@ -10,23 +10,7 @@ from math import ceil
 from django.utils.timezone import now
 import regex as re
 from collections import OrderedDict
-#from app1.models import User
-#from django.contrib.auth.models import User
-#from .models import User
-""" class RegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields=('username','first_name','last_name','email','password','phone_no')
-    def create(self, validated_data):
-        user = User.objects.create_user(username=validated_data['username'],password = validated_data['password'],email=validated_data['email'],first_name=validated_data['first_name'],last_name=validated_data['last_name'],phone_no=validated_data['phone_no'])
-        user.save()
-        return user """
-# User serializer
-""" class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__' """
-##################################################################################
+
 class userserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -40,17 +24,11 @@ class myaccountlistserializer(serializers.ModelSerializer):
         model=my_account
 class myaccountemailserializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
-    # password = serializers.CharField(
-    #     write_only=True, required=True, validators=[validate_password])
-    # password2 = serializers.CharField(write_only=True, required=True)
     class Meta:
         model = User
         fields = ('email',)
 class myaccountotpsesrializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
-    # password = serializers.CharField(
-    #     write_only=True, required=True, validators=[validate_password])
-    # password2 = serializers.CharField(write_only=True, required=True)
     class Meta:
         model = User
         fields = ('email','otp')
@@ -61,9 +39,7 @@ class userphotoserializer(serializers.ModelSerializer):
         read_only_fields = ("user",) 
         model=userphoto     
 class myaccountserializers(serializers.ModelSerializer):
-    # user=userserializer(read_only=True)
     class Meta:
-        # fields=('id','user','first_name','last_name','phone_number','email','address','city','state','postal_pin')
         fields="__all__"
         read_only_fields = ("user",) 
         
@@ -107,12 +83,7 @@ class myaccountserializers(serializers.ModelSerializer):
         if value == None:
             raise serializers.ValidationError("Please enter the postal address")
         return value
-class customerlistserializer(serializers.ModelSerializer):
-    read_only_fields=('user',)
-    class Meta:
-        fields=("id","user","fullname","phone","locality","state","city","pincode","address","home","work")
-        read_only_fields = ("user",)
-        model=Address    
+ 
 class CustomerAddressSerializers(serializers.ModelSerializer):
     class Meta:
         fields = ("id","fullname","phone","locality","state","city","pincode","address","home","work","default")
@@ -195,15 +166,6 @@ class productSerializer(serializers.ModelSerializer):
                  "is_active","available_stocks", "created_at", "updated_at")
         model = Product
         depth=1
-    # def to_representation(self, instance):
-    #     response = super().to_representation(instance)
-    #     response['category'] = instance.category.brands
-    #     response['brand']=instance.brand.brand_name
-    #     response['image']=",".join([(p.image.url) for p in instance.image.all()])
-        #response['image'] = instance.image.last().image.url,instance.image.first().image.url,
-        # response['price'] = instance.item.price
-
-        # return response
 
     def averagee_rating(self, instance):
         if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
@@ -243,10 +205,7 @@ class productSerializer(serializers.ModelSerializer):
         # for review in reviews:
         #     return review
         # reviews
-class productdetailserializer(serializers.ModelSerializer):
-    class Meta:
-        fields = "__all__"
-        model = Product
+
 class latestproductserializer(serializers.ModelSerializer):
     product=productSerializer(read_only=True)
     class Meta:
@@ -274,16 +233,6 @@ class newsletterserializer(serializers.ModelSerializer):
         if value == "":
             raise serializers.ValidationError("Please provide email")
         return value
-    # def validate_Email(self,value):
-    #     for i in newsletter.objects.all():
-    #         print(i.Email,'=',value)
-    #         if i.Email == value:
-    #             raise serializers.ValidationError("you have already subscribed") 
-        
-    # def validate(self, attrs):
-    #     if attrs['Email']
-    #         raise serializers.ValidationError({"password": "Password fields didn't match."})
-    #     return attrs
     def create(self, validate_data):
         instance = super(newsletterserializer, self).create(validate_data)
         msg=EmailMessage(
@@ -304,7 +253,6 @@ class cartcreateserializer(serializers.ModelSerializer):
         read_only_fields = ("user","product")
         model=Cart
 class cartquantityserializer(serializers.ModelSerializer):
-    # p_id = serializers.IntegerField()
     class Meta:
         fields=('id','quantity')
         read_only_fields=("user",)
@@ -378,6 +326,11 @@ class checkoutcreateserializer(serializers.ModelSerializer):
             if value not in list1:
                 raise serializers.ValidationError("Invalid coupon")
         return value 
+class productfilterserializers(serializers.Serializer):
+    brand_id = serializers.ListField()
+    attribute_id=serializers.ListField()
+    subcategory_id=serializers.ListField()
+    product_id=serializers.ListField()
 class sidebarfilterserializer(serializers.Serializer):
     brand_id = serializers.ListField()
     attribute_id=serializers.ListField()
@@ -602,10 +555,8 @@ class sociallinkserializer(serializers.ModelSerializer):
     class Meta:
         model=socialmedialinks
         fields="__all__"  
-class CouponSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Coupon
-        fields = "__all__"
+class CouponSerializer(serializers.Serializer):
+    coupon=serializers.CharField()
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
