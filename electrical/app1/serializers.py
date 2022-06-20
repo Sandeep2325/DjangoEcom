@@ -1,16 +1,11 @@
-from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth import authenticate         
-from rest_framework.validators import UniqueValidator
+
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 import math, random
 #from rest_auth.registration.serializers import RegisterSerializer
 from . models import *
-from math import ceil
-from django.utils.timezone import now
 import regex as re
 from collections import OrderedDict
-
 class userserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -118,28 +113,20 @@ class CustomerAddressSerializers(serializers.ModelSerializer):
         if value=="":
             raise serializers.ValidationError("Please provide address")
         return value
-    # def validate_address(self,value):
-    #     if value=="":
-    #         raise serializers.ValidationError("Please provide address")
-    #     return value
 class defaultaddressserailizer(serializers.ModelSerializer):
     class Meta:
         fields=("default",)   
         read_only_fields=('user',)
         model = Address 
-
 class categorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Category
 class subcategoryserializer(serializers.ModelSerializer):
-    # category=categorySerializer(many=True,read_only=True)
-    
     class Meta:
         model=subcategory
         fields=("id","sub_category")
         depth=1
-        
 class categorySerializer01(serializers.ModelSerializer):
     subcategory=subcategoryserializer(many=True,read_only=True)
     class Meta:
@@ -156,7 +143,7 @@ class imageserializer(serializers.ModelSerializer):
 class productsearchSerializer(serializers.ModelSerializer):
     
     class Meta:
-        fields = ("id","title","category","subcategory","attributes","brand",)
+        fields = ("id","title","category","image","price","discounted_price","subcategory","attributes","brand",)
         model = Product
         depth=1
 class productSerializer(serializers.ModelSerializer):
@@ -167,60 +154,17 @@ class productSerializer(serializers.ModelSerializer):
         model = Product
         depth=1
 
-    def averagee_rating(self, instance):
-        if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
-            review = Rating.objects.filter(Q(Status="Approved") & Q(
-                product=instance)).aggregate(average=Avg('Rating'))
-            avg = 0
-
-            if review["average"] is not None:
-                avg = float(review["average"])
-            # return avg
-            if avg != 0:
-                return "%.1f" % float(avg)
-            else:
-                return format_html("<p class=text-danger>No ratings yet!</p>")
-        else:
-            return format_html("<p class=text-danger>No ratings yet!</p>")
-
-    def count_rating(self, instance):
-        if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
-            reviews = Rating.objects.filter(Q(Status="Approved") & Q(
-                product=instance)).aggregate(count=Count('id'))
-            cnt = 0
-            if reviews["count"] is not None:
-                cnt = int(reviews["count"])
-            return cnt
-
-    def reviewss(self, instance):
-        if Rating.objects.filter(Q(Status="Approved") & Q(product=instance)):
-            reviews = Rating.objects.filter(Q(Status="Approved") & Q(
-                product=instance)).values_list("Reviews")
-            for review in reviews:
-                return review
-        else:
-            return "no ratings yet"
-
-        # reviews=Rating.objects.filter(product=instance).values_list("Reviews")
-        # for review in reviews:
-        #     return review
-        # reviews
-
-class latestproductserializer(serializers.ModelSerializer):
-    product=productSerializer(read_only=True)
-    class Meta:
-        fields=("id","product","created_date")
-        model=latest_product
-        
 class mostselledserializer(serializers.ModelSerializer):
     product=productSerializer(read_only=True)
     class Meta:
         fields = ("id","product","created_date")
-        model = most_selled_products    
+        model = most_selled_products   
+         
 class attributesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Attributes
+        
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives,EmailMessage
 
@@ -265,7 +209,6 @@ class cartbrandserializer(serializers.ModelSerializer):
     class Meta:
         fields=("brand_name",)
         model=Brand
-        
 class cartproductSerializer(serializers.HyperlinkedModelSerializer):
     category=cartcategorySerializer(read_only=True)
     brand=cartbrandserializer(read_only=True)
@@ -280,17 +223,7 @@ class cartserializer(serializers.ModelSerializer):
     class Meta:
         fields=('id','user','product','attributes','quantity','Total_amount','updated_at')
         model=Cart
-    def validate_coupon(self,value):
-        list1=[]
-        for coupons in Coupon.objects.all():
-            a=coupons.coupon
-            list1.append(a)
-            b=coupons.coupon_discount
-
-        if value!="":
-            if value not in list1:
-                raise serializers.ValidationError("Invalid coupon")
-        return value
+    
 class ordersummary(serializers.Serializer):
    """Your data serializer, define your fields here."""
    total_items = serializers.CharField()
@@ -308,24 +241,9 @@ class cartorderserializer(serializers.ModelSerializer):
     # address_id=serializers.CharField()
     class Meta:
         model=cart_order
-        fields=("product_count","total_price",)
+        fields=("product_count","total_price","coupon")
         read_only_fields=("user","products","shipping_address")
-class invoiceserializer(serializers.Serializer):
-    id=serializers.CharField()      
-class checkoutcreateserializer(serializers.ModelSerializer):
-    class Meta:
-        model=checkout
-        fields=("user","cart","Shipping_address",'No_of_items_to_checkout','checkout_amount','Coupon')
-    def validate_Coupon(self,value):
-        list1=[]
-        for coupons in Coupon.objects.all():
-            a=coupons.coupon
-            list1.append(a)
-            b=coupons.coupon_discount  
-        if value!="":
-            if value not in list1:
-                raise serializers.ValidationError("Invalid coupon")
-        return value 
+   
 class productfilterserializers(serializers.Serializer):
     brand_id = serializers.ListField()
     attribute_id=serializers.ListField()
@@ -337,77 +255,6 @@ class sidebarfilterserializer(serializers.Serializer):
     attribute_id=serializers.ListField()
     subcategory_id=serializers.ListField()
     product_id=serializers.ListField()
-
-class checkoutserializer(serializers.ModelSerializer):
-    cart=cartserializer(many=True,read_only=True)
-    Shipping_address=CustomerAddressSerializers(read_only=True)
-    class Meta:
-        model=checkout
-        fields=("user","cart","Shipping_address",'No_of_items_to_checkout','checkout_amount','Coupon')
-    def validate_Coupon(self,value):
-        list1=[]
-        for coupons in Coupon.objects.all():
-            a=coupons.coupon
-            list1.append(a)
-            b=coupons.coupon_discount  
-        if value!="":   
-            if value not in list1:
-                raise serializers.ValidationError("Invalid coupon")
-        return value
-class couponserializers(serializers.ModelSerializer):
-    class Meta:
-        model=redeemed_coupon
-        fields=("checkout_product","coupon","redeemed_date")
-    def validate_coupon(self,value):
-        list1=[]
-        for coupons in Coupon.objects.all():
-            a=coupons.coupon
-            list1.append(a)
-            b=coupons.coupon_discount  
-        if value!="":   
-            if value not in list1:
-                raise serializers.ValidationError("Invalid coupon")
-        return value
-                
-class checkoutcouponserializer(serializers.ModelSerializer):
-    class Meta:
-        model=checkout
-        fields=("Coupon",)
-    def validate_Coupon(self,value):
-        for coupons in Coupon.objects.all():
-            a=coupons.coupon
-            b=coupons.coupon_discount
-        if value!="":
-            if str(a)!=value:  
-                raise serializers.ValidationError("Invalid coupon")
-        return value
-class ordercreateserializer(serializers.ModelSerializer):
-    # checkout_product= checkoutserializer(read_only=True)
-    class Meta:
-        model=Orders
-        fields=('id',"user","checkout_product",)
-class orderserializer(serializers.ModelSerializer):
-    checkout_product= checkoutserializer(read_only=True)
-    class Meta:
-        model=Orders
-        fields=("id","user","checkout_product",)
-class orderscancelserializer(serializers.ModelSerializer):
-    class Meta:
-        models=Orders
-        fields=("id","checkout_product","status")
-    def validate_status(self,value):
-        pass
-class ordersSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('id',"user", "address", "product", 'quantity',
-                  'coupon','price', 'attributes', 'status')
-        model = Order
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response["user"] = instance.user.username
-        response["address"] = instance.address.city
-        response["product"] = instance.product.title
-        return response
 class notificationserializer(serializers.ModelSerializer):
     class Meta:
         fields=('user_notifications','created_date')
@@ -431,11 +278,7 @@ class blogSerializer(serializers.ModelSerializer):
         fields = "__all__"
         fields = ("id", 'title', 'image',"detail_description",'location',"facebook","twitter","instagram","linkdin","uploaded_date")
         model = Blog
-        
-class faqSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ("Question",)
-        model = FAQ
+
        
 class ffaqSerializer(serializers.ModelSerializer):
     category=categorySerializer(read_only=True)
@@ -541,16 +384,7 @@ class faq_enquirySerializer(serializers.ModelSerializer):
                 "Please provide message/ask any questions ")
         return value
     
-    # def create(self, validate_data):
-    #     instance = super(faq_enquirySerializer, self).create(validate_data)
-    #     send_mail(
-    #         'You have a message from {}'.format(instance.name),
-    #         'Name: {}\nEmail: {}\nPhone: {}\nMessage: {}'.format(instance.name,instance.Email,instance.Phone,instance.Message),
-    #         settings.EMAIL_HOST_USER,
-    #         ['sandeep.nexevo@gmail.com'],
-    #         fail_silently=False,
-    #     )
-    #     return instance
+
     
 class sociallinkserializer(serializers.ModelSerializer):
     class Meta:

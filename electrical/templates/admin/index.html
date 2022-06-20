@@ -31,7 +31,7 @@
     <div class="card-body">
       <h5 class="card-title">Total {{ model.name }}</h5>
 
-      <p class="card-text">{{model|length}}</p>
+      <p id="count" class="card-text">{}</p>
       
       <a class="btn btn-primary" href="{{ model.url }}">{{ model.name }}</a>
       {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
@@ -103,5 +103,22 @@
         </div>
     </div>
 </div>
+{{ block.super }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+$.getJSON("/dashboard/", { id: $(this).val() }, function (j) {
+for (var i = 0; i < j.length; i++) {
+    console.log(j[i].id)
+    let product_count=j[i].products
+    let order_count=j[i].orders
+    let users=j[i].users
+    console.log(users)
+    console.log(product_count)
+    document.getElementById("count").innerHTML = product_count;
+}
+// inspect html to check id of subcategory select dropdown.
+$("select#count").html(users);
+});
 
+</script>
 {%endblock%}

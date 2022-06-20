@@ -351,11 +351,12 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                     iter_image = splited_image[i]
                                     
                                     imagess = image.objects.get(pk=(int(iter_image)))
-                                    print(imagess)
+                                    print("2222222",imagess)
                                     created.image.add(imagess)
                                     created.save()
                             else:
                                 imagess = image.objects.get(pk=fields[8])
+                                print("2222222",imagess)
                                 print(imagess)
                                 created.image.add(imagess)
                                 created.save()

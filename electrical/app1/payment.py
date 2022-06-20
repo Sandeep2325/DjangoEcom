@@ -25,13 +25,15 @@ def start_payment(request):
     total_price=request.data['total_price']
     address_id=request.data['address_id']
     cart_id=request.data['cart_id']
+    coupon=request.data['coupon']
     user=request.user
     print(user)
     print(product_count)
     print(total_price)
     print(address_id)
     print(cart_id)
-    productss = Cart.objects.get(pk=(int(cart_id)))
+    productsss = Cart.objects.filter(id__in=cart_id)
+    print(productsss)
     shipping_address=Address.objects.get(id=int(address_id))
     # setup razorpay client
     client=razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
@@ -42,14 +44,15 @@ def start_payment(request):
 
     # we are saving an order with isPaid=False
     order = cart_order.objects.create(
-        user=request.user,
+                                user=request.user,
+                                coupon=coupon,
                                  total_price=total_price, 
                                 order_payment_id=payment['id'],
                                  product_count=product_count,
                                  shipping_address=shipping_address,
                                  )
-    order.products.add(productss)
-
+    for i in productsss:
+        order.products.add(i.id)
     serializer = cartorderserializer(order)
 
     """order response will be 
@@ -65,8 +68,6 @@ def start_payment(request):
         "order": serializer.data
     }
     return Response(data)
-
-
 @api_view(['POST'])
 def handle_payment_success(request):
     # request.data is coming from frontend
