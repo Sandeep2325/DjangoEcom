@@ -1,7 +1,7 @@
 from django.urls import path,include
 from app1.models import Attributes
 from rest_framework_simplejwt import views as jwt_views
-from . import dummyview
+from .dummyview import hightolow,lowtohigh,discount,newest
 from app1.views import *
 from app1.views1 import *
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -110,10 +110,10 @@ urlpatterns = [
     path('invoice/', invoice.as_view(),name="invoice"),
     #filters
     path('filters/', filters.as_view(),name="filters"),
-#     path('hightolow/', hightolow.as_view(),name="hightolow"),
-#     path('lowtohigh/', lowtohigh.as_view(),name="lowtohigh"),
-#     path('newest/', newest.as_view(),name="newest"),
-#     path('discount/', discount.as_view(),name="discount"),
+    path('hightolow/', hightolow.as_view(),name="hightolow"),
+    path('lowtohigh/', lowtohigh.as_view(),name="lowtohigh"),
+    path('newest/', newest.as_view(),name="newest"),
+    path('discount/', discount.as_view(),name="discount"),
 #     path('sidebarfilter/', sidebarfilterview.as_view(),name="side-bar-filter"),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),
     path('register1/', RegistrationAPIView.as_view(),name="register"), #Registration
