@@ -610,7 +610,6 @@ class customer_messageAdmin(admin.ModelAdmin):
                 message = "Hi {},\nyour message was recieved\nthank you ".format(i.first_name)
                 a = send_mail('Prakash Electrical', email_html_template, settings.EMAIL_HOST_USER, [
                                 email], fail_silently=False,),messages.success(request, "Successfully sent to {}".format(email))
-                print("++++++++++++++++++++++++++++++++++++++email sent+++++++++++++++++++++++++++++++++++")
     # actions = ["send_message"]
 class mailadmin(admin.ModelAdmin):
     list_display = ['subject', 'message', 'send_it',
@@ -747,6 +746,7 @@ admin.site.register(Brand,BrandAdmin)
 admin.site.register(my_account,myaccount)
 admin.site.register(subcategory,subcategoryadmin)
 admin.site.register(cart_order,cartorderadmin)
+admin.site.register(payment)
 # admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
     list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn','last_login','date_joined']

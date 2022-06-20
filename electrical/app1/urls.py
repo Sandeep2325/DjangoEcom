@@ -106,7 +106,6 @@ urlpatterns = [
     path('notification/<pk>/delete/',
          deletenotification.as_view(), name='notification-delete'),
 #     path('unotification/', universalnotificationlist.as_view({'get': 'list'}), name="notification"),
-
     path('invoice/', invoice.as_view(),name="invoice"),
     #filters
     path('filters/', filters.as_view(),name="filters"),

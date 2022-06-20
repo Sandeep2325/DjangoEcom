@@ -714,6 +714,11 @@ class invoice(APIView):
     def get(self, request, *args, **kwargs):
         template_name='app1/invoice.html'
         pdf = html_to_pdf(template_name)
+        
+        email = EmailMessage(
+        'Subject here', 'Here is the message.', settings.EMAIL_HOST_USER, ['sandeep.nexevo@gmail.com'])
+        email.attach_file(pdf)
+        email.send()
         return FileResponse(pdf,as_attachment=True,filename="invoice.pdf",content_type='application/pdf',status=status.HTTP_201_CREATED)
 class filters(APIView):
     permission_classes = (AllowAny,)

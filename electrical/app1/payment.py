@@ -69,6 +69,8 @@ def start_payment(request):
     }
     return Response(data)
 @api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+@authentication_classes((JWTAuthentication,))
 def handle_payment_success(request):
     # request.data is coming from frontend
     res = json.loads(request.data["response"])
@@ -112,10 +114,11 @@ def handle_payment_success(request):
         return Response({'error': 'Something went wrong'})
 
     # if payment is successful that means check is None then we will turn isPaid=True
+    amount=order.total_price
     order.is_paid = True
     order.save()
     res_data = {
         'message': 'payment successfully received!'
     }
-
+    payment.objects.create(user=request.user,order_id=ord_id,payment_id=raz_pay_id,signature_id=raz_signature,amount=amount).save()
     return Response(res_data)

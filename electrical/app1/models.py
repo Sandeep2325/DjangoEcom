@@ -918,3 +918,11 @@ class cart_order(models.Model):
     order_payment_id = models.CharField(max_length=100,null=True)
     def __str__(self):
         return str(self.user.username)
+class payment(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    order_id=models.CharField(max_length=1000,null=True,blank=True)
+    payment_id=models.CharField(max_length=1000,null=True,blank=True)
+    signature_id=models.CharField(max_length=1000,null=True,blank=True)
+    amount=models.CharField(max_length=20,null=True,blank=True)
+    def __str__(self):
+        return str(self.order_id)
