@@ -908,7 +908,7 @@ class cart_order(models.Model):
     date=models.DateField(auto_now_add=True,verbose_name="Ordered Date",null=True)
     product_count=models.CharField(max_length=10,null=True,blank=True)
     total_price=models.IntegerField(null=True,blank=True)
-    products=models.ManyToManyField(Product)
+    prod=models.ManyToManyField(Product)
     coupon=models.CharField(max_length=10,null=True,blank=True)
     shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE, null=True)
     is_paid=models.BooleanField(default=False)

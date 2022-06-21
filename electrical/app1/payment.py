@@ -61,7 +61,7 @@ def start_payment(request):
                                  shipping_address=shipping_address,
                                  )
     for i in productsss:
-        order.products.add(i.id)
+        order.prod.add(i.id)
         order.save()
     serializer = cartorderserializer(order)
 
@@ -135,7 +135,7 @@ def handle_payment_success(request):
         i.is_paid=True
         i.save()
     a=[]
-    for i in order.products.all():
+    for i in order.product.all():
         a.append(i.id)
     Cart.objects.filter(id__in=a).delete()
     payment.objects.create(user=request.user,order_id=ord_id,payment_id=raz_pay_id,signature_id=raz_signature,amount=amount)
