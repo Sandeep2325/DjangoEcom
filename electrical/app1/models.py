@@ -911,7 +911,7 @@ class cart_order(models.Model):
     date=models.DateField(auto_now_add=True,verbose_name="Odered Date",null=True)
     product_count=models.CharField(max_length=10,null=True,blank=True)
     total_price=models.IntegerField(null=True,blank=True)
-    products=models.ManyToManyField(Cart)
+    products=models.ManyToManyField(Product)
     coupon=models.CharField(max_length=10,null=True,blank=True)
     shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE, null=True)
     is_paid=models.BooleanField(default=False)
@@ -926,3 +926,9 @@ class payment(models.Model):
     amount=models.CharField(max_length=20,null=True,blank=True)
     def __str__(self):
         return str(self.order_id)
+class cart2(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    product=models.CharField(max_length=1000,null=True,blank=True)
+    price=models.CharField(max_length=1000,null=True,blank=True)
+    order_id=models.CharField(max_length=100,null=True)
+    is_paid=models.BooleanField(default=False)

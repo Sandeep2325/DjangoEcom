@@ -749,6 +749,7 @@ admin.site.register(my_account,myaccount)
 admin.site.register(subcategory,subcategoryadmin)
 admin.site.register(cart_order,cartorderadmin)
 admin.site.register(payment,paymentadmin)
+admin.site.register(cart2)
 # admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
     list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn','last_login','date_joined']

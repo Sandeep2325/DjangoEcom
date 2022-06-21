@@ -48,6 +48,10 @@ def start_payment(request):
                                    "payment_capture": "1"})
 
     # we are saving an order with isPaid=False
+    
+    for i in productsss:
+        print(i.product)
+        cart2.objects.create(user=request.user,product=(str(i.product)),price=i.Total_amount,order_id=payment['id']).save()
     order = cart_order.objects.create(
                                 user=request.user,
                                 coupon=coupon,
@@ -102,7 +106,7 @@ def handle_payment_success(request):
 
     # get order by payment_id which we've created earlier with isPaid=False
     order = cart_order.objects.get(order_payment_id=ord_id)
-
+    dupcart=cart2.objects.filter(order_id=ord_id)
     data = {
         'razorpay_order_id': ord_id,
         'razorpay_payment_id': raz_pay_id,
@@ -127,6 +131,9 @@ def handle_payment_success(request):
     res_data = {
         'message': 'payment successfully received!'
     }
+    for i in dupcart:
+        i.is_paid=True
+        i.save()
     a=[]
     for i in order.products.all():
         a.append(i.id)

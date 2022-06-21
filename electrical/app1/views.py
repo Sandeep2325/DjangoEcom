@@ -716,7 +716,7 @@ class invoice(APIView):
         order_id=request.data["order_id"]
         order=cart_order.objects.get(order_payment_id=order_id)
         print(order.order_payment_id)
-        data=order.products.all()
+        data=cart2.objects.filter(order_id=order_id)
         print(data)
         context_dict={
             "order_id":order.order_payment_id,
