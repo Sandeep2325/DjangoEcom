@@ -61,7 +61,7 @@ def start_payment(request):
                                  shipping_address=shipping_address,
                                  )
     for i in productsss:
-        order.prod.add(i.id)
+        order.product.add(i.id)
         order.save()
     serializer = cartorderserializer(order)
 

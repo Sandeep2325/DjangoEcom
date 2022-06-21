@@ -50,9 +50,9 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 
 def get_subcategory(request):
-    # id = request.GET.get('id', '')
+    id = request.GET.get('id', '')
     # print(id)
-    result = list(subcategory.objects.filter(category_id=int(2)).values('id','sub_category'))
+    result = list(subcategory.objects.filter(category_id=int(id)).values('id','sub_category'))
     print(result)
     # print(result)
     return HttpResponse(json.dumps(result), content_type="application/json")
