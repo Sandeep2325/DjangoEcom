@@ -165,14 +165,11 @@ class sales(models.Model):
     class Meta:
         verbose_name_plural = "Sales/Discount"
 
-
-
 class Brand(models.Model):
     brand_name = models.CharField(max_length=150)
     logo = models.ImageField(upload_to='brand', blank=True, null=True)
     details = models.TextField(blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
-
     def __str__(self):
         return self.brand_name
 
@@ -908,7 +905,7 @@ class socialmedialinks(models.Model):
         
 class cart_order(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    date=models.DateField(auto_now_add=True,verbose_name="Odered Date",null=True)
+    date=models.DateField(auto_now_add=True,verbose_name="Ordered Date",null=True)
     product_count=models.CharField(max_length=10,null=True,blank=True)
     total_price=models.IntegerField(null=True,blank=True)
     products=models.ManyToManyField(Product)
