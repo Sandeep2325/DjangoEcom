@@ -58,6 +58,7 @@ def start_payment(request):
                                  )
     for i in productsss:
         order.products.add(i.id)
+        order.save()
     serializer = cartorderserializer(order)
 
     """order response will be 
