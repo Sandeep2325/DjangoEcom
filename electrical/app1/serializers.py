@@ -242,7 +242,7 @@ class cartorderserializer(serializers.ModelSerializer):
     class Meta:
         model=cart_order
         fields=("product_count","total_price","coupon")
-        read_only_fields=("user","prods","shipping_address")
+        read_only_fields=("user","product","shipping_address")
    
 class productfilterserializers(serializers.Serializer):
     brand_id = serializers.ListField()
