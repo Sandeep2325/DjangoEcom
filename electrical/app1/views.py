@@ -719,7 +719,7 @@ class invoice(APIView):
         'Subject here', 'Here is the message.', settings.EMAIL_HOST_USER, ['sandeep.nexevo@gmail.com'])
         email.attach_file(pdf)
         email.send()
-        return FileResponse(pdf,as_attachment=True,filename="invoice.pdf",content_type='application/pdf',status=status.HTTP_201_CREATED)
+        return FileResponse(pdf,as_attachment=True,filename="invoice.pdf",content_type='application/pdf',status=status.HTTP_201_CREATED)  
 class filters(APIView):
     permission_classes = (AllowAny,)
     serializer_class = productfilterserializers
@@ -946,5 +946,21 @@ class socialmedialist(viewsets.ModelViewSet):
     queryset = socialmedialinks.objects.all()
     serializer_class = sociallinkserializer
     pagination_class = PageNumberPagination
+class orderview(APIView):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    def get(self,request):
+        data1=cart_order.objects.filter(user=self.request.user)
+        data=[]
+        for i in data1:
+            product_count=i.product_count
+            total_price=i.total_price
+            order_no=i.order_payment_id
+            date=i.date
+            data2={"product_count":product_count,"total_price":total_price,"order_no":order_no,"date":date}
+            data.append(data2)
+        print(data)
+        results=cartorderSerializer1(data,many=True).data
+        return Response(results)
 def handler404(request,exception):
     return render(request, '404.html', status=404)

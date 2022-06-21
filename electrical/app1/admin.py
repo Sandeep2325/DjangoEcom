@@ -714,6 +714,8 @@ class userphotoadmin(admin.ModelAdmin):
     list_display=['id','user','photo']
 class cartorderadmin(admin.ModelAdmin):
     list_display=["id","user","order_payment_id","total_price","shipping_address","is_paid","date"]
+class paymentadmin(admin.ModelAdmin):
+    list_display=["id","order_id","payment_id","signature_id","amount"]
 admin.site.register(userphoto,userphotoadmin)
 admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
@@ -746,7 +748,7 @@ admin.site.register(Brand,BrandAdmin)
 admin.site.register(my_account,myaccount)
 admin.site.register(subcategory,subcategoryadmin)
 admin.site.register(cart_order,cartorderadmin)
-admin.site.register(payment)
+admin.site.register(payment,paymentadmin)
 # admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
     list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn','last_login','date_joined']

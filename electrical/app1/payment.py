@@ -38,7 +38,7 @@ def start_payment(request):
     # setup razorpay client
     client=razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
     # create razorpay order
-    payment = client.order.create({"amount": int(total_price) * 100, 
+    payment = client.order.create({"amount": float(total_price) * 100, 
                                    "currency": "INR", 
                                    "payment_capture": "1"})
 
@@ -102,6 +102,7 @@ def handle_payment_success(request):
         'razorpay_payment_id': raz_pay_id,
         'razorpay_signature': raz_signature
     }
+    print(data)
     client=razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
 
     # client = razorpay.Client(auth=(env('PUBLIC_KEY'), env('SECRET_KEY')))
@@ -109,9 +110,9 @@ def handle_payment_success(request):
     # checking if the transaction is valid or not if it is "valid" then check will return None
     check = client.utility.verify_payment_signature(data)
 
-    if check is not None:
-        print("Redirect to error url or error page")
-        return Response({'error': 'Something went wrong'})
+    # if check is not None:
+    #     print("Redirect to error url or error page")
+    #     return Response({'error': 'Something went wrong'})
 
     # if payment is successful that means check is None then we will turn isPaid=True
     amount=order.total_price
@@ -120,5 +121,6 @@ def handle_payment_success(request):
     res_data = {
         'message': 'payment successfully received!'
     }
-    payment.objects.create(user=request.user,order_id=ord_id,payment_id=raz_pay_id,signature_id=raz_signature,amount=amount).save()
+    payment.objects.create(user=request.user,order_id=ord_id,payment_id=raz_pay_id,signature_id=raz_signature,amount=amount)
+   
     return Response(res_data)

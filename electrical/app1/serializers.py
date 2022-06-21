@@ -407,5 +407,11 @@ class CurrentUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'id','password')     
+class cartorderSerializer1(serializers.Serializer):
+    order_no=serializers.CharField()
+    product_count=serializers.CharField()
+    total_price=serializers.CharField()
+    date=serializers.CharField()
+    
 
 

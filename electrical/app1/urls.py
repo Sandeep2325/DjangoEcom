@@ -102,6 +102,7 @@ urlpatterns = [
     path('cartquantity/update/<pk>', cartquantityupdateView.as_view(), name='cart-update'),
     path('ordersummary',ordersummaryview.as_view(),name="ordersummary"),
     path('checkoutsummary',checkoutsummaryview.as_view(),name="checkoutsummary"),
+    path('order',orderview.as_view(),name="order"),
 #     path('notification/', notificationlist.as_view({'get': 'list'}), name="notification"),
     path('notification/<pk>/delete/',
          deletenotification.as_view(), name='notification-delete'),
