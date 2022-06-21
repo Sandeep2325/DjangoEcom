@@ -9,6 +9,11 @@ from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes,authentication_classes
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import viewsets, filters, status
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from rest_framework.views import APIView
+from django.http import FileResponse
 # env = environ.Env()
 
 # you have to create .env file in same folder where you are using environ.Env()
@@ -122,9 +127,11 @@ def handle_payment_success(request):
         'message': 'payment successfully received!'
     }
     a=[]
-    for i in order.products.id:
-        a.append(i)
+    for i in order.products.all():
+        a.append(i.id)
     Cart.objects.filter(id__in=a).delete()
     payment.objects.create(user=request.user,order_id=ord_id,payment_id=raz_pay_id,signature_id=raz_signature,amount=amount)
    
     return Response(res_data)
+
+
