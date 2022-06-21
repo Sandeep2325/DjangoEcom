@@ -412,6 +412,7 @@ class cartorderSerializer1(serializers.Serializer):
     product_count=serializers.CharField()
     total_price=serializers.CharField()
     date=serializers.CharField()
-    
+class invoiceserializer(serializers.Serializer):
+    order_id=serializers.CharField()  
 
 

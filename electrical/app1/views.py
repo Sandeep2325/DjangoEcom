@@ -1,4 +1,5 @@
 from ctypes import addressof
+from multiprocessing import context
 from re import U
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
@@ -694,32 +695,39 @@ class deletenotification(DestroyAPIView):
 #         buf.seek(0)
 #         return FileResponse(buf,as_attachment=True,filename="invoice.pdf",status=status.HTTP_201_CREATED)
 
+    
 def html_to_pdf(template_src, context_dict={}):
-     template = get_template(template_src)
-     context={
-            "title":"Prakash Electrical",
-        }
-     html  = template.render(context)
-     result = BytesIO()
-     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-     if not pdf.err:
-         return HttpResponse(result.getvalue(), content_type='application/pdf')
-     return None
+    template = get_template(template_src)
+    
+    html  = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
 class invoice(APIView):
     # permission_classes = (IsAuthenticated, )
     # authentication_classes = [JWTAuthentication,]
     # queryset = cart_order.objects.all()
-    # serializer_class = invoiceserializer
+    serializer_class = invoiceserializer
     # http_method_names = ['post', ]
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+        self.serializer_class(data=request.data)
+        order_id=request.data["order_id"]
+        order=cart_order.objects.get(order_payment_id=order_id)
+        print(order.order_payment_id)
+        data=order.products.all()
+        print(data)
+        context_dict={
+            "order_id":order.order_payment_id,
+            "date":order.date,
+            "total_price":order.total_price,
+            "data":data
+        }
+    
         template_name='app1/invoice.html'
-        pdf = html_to_pdf(template_name)
-        
-        email = EmailMessage(
-        'Subject here', 'Here is the message.', settings.EMAIL_HOST_USER, ['sandeep.nexevo@gmail.com'])
-        email.attach_file(pdf)
-        email.send()
-        return FileResponse(pdf,as_attachment=True,filename="invoice.pdf",content_type='application/pdf',status=status.HTTP_201_CREATED)  
+        pdf = html_to_pdf(template_name,context_dict)
+        return FileResponse(pdf,as_attachment=True,filename="invoice.pdf",content_type='application/pdf',status=status.HTTP_201_CREATED)   
 class filters(APIView):
     permission_classes = (AllowAny,)
     serializer_class = productfilterserializers

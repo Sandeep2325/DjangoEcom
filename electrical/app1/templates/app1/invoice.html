@@ -120,7 +120,7 @@
 	</head>
 
 	<body>
-		<h1>{{title}}</h1>
+		<h1>Prakash Electrical</h1>
 		<h3>Online Payment Invoice</h3>
 	
 
@@ -136,8 +136,8 @@
 
 								<td>
 									Invoice : 123<br />
-									Created: June 15, 2022<br />
-									Due: June 15, 2022
+									Created: {{date}}<br />
+									order_id:{{order_id}}
 								</td>
 							</tr>
 						</table>
@@ -146,30 +146,20 @@
         <table>
           <tr>
             <th>Products</th>
-            <th>Order_id</th>
             <th>amount(Rs)</th>
           </tr>
+		  {%for i in data%}
           <tr>
-            <td>Switch</td>
-            <td>4564656 </td>
-            <td>256</td>
+			
+            <td>{{i.product}}</td>
+            <td>{{i.Total_amount}}</td>
+			
           </tr>
+		  {%endfor%}
           <tr>
-            <td>Switch</td>
-            <td>4564656 </td>
-            <td>256</td>
+            <td><h2>Total Amount</h2></th>
+            <td><h2>{{total_price}}</h2></th>
           </tr>
-          <tr>
-            <td>Switch</td>
-            <td>4564656 </td>
-            <td>256</td>
-          </tr>
-          <tr>
-            <td>Switch</td>
-            <td>4564656 </td>
-            <td>256</td>
-          </tr>
-          
         </table>
 				
 		</div>
