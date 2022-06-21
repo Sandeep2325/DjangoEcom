@@ -121,6 +121,10 @@ def handle_payment_success(request):
     res_data = {
         'message': 'payment successfully received!'
     }
+    a=[]
+    for i in order.products.id:
+        a.append(i)
+    Cart.objects.filter(id__in=a).delete()
     payment.objects.create(user=request.user,order_id=ord_id,payment_id=raz_pay_id,signature_id=raz_signature,amount=amount)
    
     return Response(res_data)
