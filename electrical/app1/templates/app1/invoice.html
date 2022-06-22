@@ -125,7 +125,9 @@
 	
 
 		<div class="invoice-box">
-			
+			<div style="text-align:right">
+				<h3>Shipping Address</h3>
+			</div>
 				<tr class="top">
 					<td colspan="2">
 						<table>
@@ -137,6 +139,7 @@
 								<td>
 									Created: {{date}}<br />
 									order_id:{{order_id}}
+
 								</td>
 							</tr>
 						</table>
@@ -145,32 +148,37 @@
         <table>
           <tr>
             <th>Products</th>
+			<th>Quantity</th>
             <th>amount(Rs)</th>
           </tr>
 		  {%for i in data%}
           <tr>
             <td>{{i.product}}</td>
+			<td>{{i.quantity}}</td>
             <td>{{i.price}}</td>
           </tr>
 		  {%endfor%}
+		</table>
+		<table>
           <tr>
-            <td><h3>Total Amount</h3></th>
-            <td><h3>{{total_price}}</h3></th>
+            <td><h3>Sub Total</h3></th>
+            <td><h3>Rs {{total_price}}</h3></th>
           </tr>
 		  <tr>
             <td><h3>GST(18%)</h3></th>
-            <td><h3>{{gst}}</h3></th>
+            <td><h3>Rs {{gst}}</h3></th>
           </tr>
 		  <tr>
             <td><h3>Delivery charges</h3></th>
-            <td><h3>{{deliver_charge}}</h3></th>
+            <td><h3>Rs {{deliver_charge}}</h3></th>
           </tr>
 		  <tr>
             <td><h2>Grand Total amount</h2></th>
-            <td><h3>{{grand_total}}</h3></th>
+            <td><h3>Rs {{grand_total}}</h3></th>
           </tr>
         </table>
 				
 		</div>
+	</div>
 	</body>
 </html>

@@ -998,7 +998,8 @@ class cancelorder(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         order_id = request.data['order_id']
-        data2=cart_order.objects.filter(status="Delivered")
+        data2=cart_order.objects.filter(order_payment_id=order_id,status="Delivered")
+        print(data2)
         if data2.exists():
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
