@@ -714,6 +714,7 @@ class invoice(APIView):
         self.serializer_class(data=request.data)
         order_id=request.data["order_id"]
         order=cart_order.objects.get(order_payment_id=order_id)
+        address=Address.objects.get(id=order.shipping_address.id)
         print(order.order_payment_id)
         data=cart2.objects.filter(order_id=order_id)
         total_amount=[]
@@ -731,7 +732,14 @@ class invoice(APIView):
             "data":data,
             "gst":gst,
             "grand_total":grand_total,
-            "deliver_charge":deliver_charge
+            "deliver_charge":deliver_charge,
+            "name":address.fullname,
+            "phone":address.phone,
+            "locality":address.locality,
+            "address":address.address,
+            "city":address.city,
+            "state":address.state,
+            "pincode":address.pincode
         }
     
         template_name='app1/invoice.html'

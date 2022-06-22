@@ -123,11 +123,9 @@
 		<h1>Prakash Electrical</h1>
 		<h3>Online Payment Invoice</h3>
 	
-
+		
 		<div class="invoice-box">
-			<div style="text-align:right">
-				<h3>Shipping Address</h3>
-			</div>
+			
 				<tr class="top">
 					<td colspan="2">
 						<table>
@@ -137,9 +135,16 @@
 								</td> {% endcomment %}
 
 								<td>
-									Created: {{date}}<br />
-									order_id:{{order_id}}
-
+									<b>Created</b>: {{date}}<br/>
+									<b>order_id</b>:{{order_id}}<br/>
+									<b>Shipping Address</b>:<br>
+									{{name}}<br>{{phone}}<br>
+									{{locality}} 
+									{{address}} 
+									{{city}}<br>
+									{{state}}<br>
+									{{pincode}}<br>
+									
 								</td>
 							</tr>
 						</table>
