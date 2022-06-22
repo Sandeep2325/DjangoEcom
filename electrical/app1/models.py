@@ -109,38 +109,7 @@ class notification(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)
     class Meta:
         verbose_name_plural = "Notification"
-        
-# class notification1(models.Model):
-#     notification=models.TextField(null=True,blank=True)
-#     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
-#     created_date = models.DateTimeField(
-#         auto_now_add=True, verbose_name="Created Date", null=True)
-#     class Meta:
-#         verbose_name_plural = "Notification1"
-        
-# class notification1(models.Model):
-#     order_no=models.IntegerField(null=True,blank=True)
-#     notification=models.TextField(null=True,blank=True)
-#     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
-#     created_date = models.DateTimeField(
-#         auto_now_add=True, verbose_name="Created Date", null=True)
-#     # checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product",null=True,blank=True)
-#     checkout_product=models.CharField(max_length=50,null=True,blank=True)
-#     sales=models.TextField(null=True,blank=True)
-#     product=models.CharField(max_length=100,null=True,blank=True)
-#     status=models.CharField(max_length=50,null=True,blank=True)
-#     coupons=models.TextField(null=True,blank=True)
-#     @property
-#     def user_notifications(self):
-#         if self.sales is not None:
-#             a="Exciting offer is waiting for you"
-#         elif self.product is not None:
-#             a="new product is added"
-#         elif self.coupons is not None:
-#             a=self.coupons
-#         else:
-#             a="Hi {} your product {} is {}".format(self.user.username,self.checkout_product,self.status)
-#         return a   
+ 
 class sales(models.Model):
     campaign_name = models.CharField(
         verbose_name="Campaign name", max_length=200, null=True)
@@ -234,8 +203,6 @@ class subcategory(models.Model):
     sub_category=models.CharField(max_length=255,null=True,blank=True)
     category=models.ForeignKey(Category,blank=True,on_delete=models.CASCADE,null=True,related_name="subcategory")
     
-    # def categoryy(self):
-    #     return ",".join([str(p) for p in self.category.all()])
     
     def __str__(self):
         template = '{0.sub_category}'
@@ -304,7 +271,6 @@ class Product(models.Model):
                 return format_html("<p class=text-danger>No ratings!</p>")
         else:
             return format_html("<p class=text-danger>No ratings!</p>")
-    # average_review.short_description="Average Rating"
 
     @property
     def count_review(self):
@@ -327,13 +293,9 @@ class Product(models.Model):
                 return review
         else:
             return format_html("<p class=text-danger>No ratings!</p>")
-        
-    # def save(self, *args, **kwargs):
-    #     notification.objects.create(product=self.title)
-    #     return super().save(*args, **kwargs)
+   
     
     class Meta:
-        # def countt(self):
         verbose_name_plural = '  Products'
         ordering = ('-created_at',)
 
@@ -343,10 +305,7 @@ class Product(models.Model):
 
 ##
 class Attributes(models.Model):
-    # Product = models.ForeignKey(
-    #     Product, on_delete=models.CASCADE, verbose_name="Product")
     Color = models.CharField(max_length=50, null=True, verbose_name="Color")
-    # Size = models.CharField(max_length=20, null=True, verbose_name="Size")
     def __str__(self):
         template = 'color: {0.Color}'
         return template.format(self)
@@ -511,43 +470,7 @@ class checkout(models.Model):
                 total=total+i.Total_amount
             return total
 
-class redeemed_coupon(models.Model):  
-    checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="checkout product",null=True)
-    coupon=models.CharField(max_length=50,null=True,blank=True)
-    redeemed_date = models.DateTimeField(
-        auto_now_add=True, verbose_name="Created Date", null=True)    
-    def __str__(self):
-        return self.coupon
-    
-STATUS_CHOICES = (
-    ('ordered','ordered'),
-    ('Pending', 'Pending'),
-    ('Accepted', 'Accepted'),
-    ('Packed', 'Packed'),
-    ('On The Way', 'On The Way'),
-    ('Delivered', 'Delivered'),
-    ('Cancelled', 'Cancelled'),
-)
-class Orders(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    checkout_product=models.ForeignKey(checkout,on_delete=models.CASCADE,verbose_name="Checked out product")
-    ordered_date = models.DateTimeField(
-        auto_now_add=True, verbose_name="ordered Date", null=True)
-    status = models.CharField(
-        choices=STATUS_CHOICES,
-        max_length=50,
-        default="ordered")
-    Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address",null=True,blank=True)
-    class Meta:
-        verbose_name_plural = "Orders"
-        
-    def save(self, *args, **kwargs):
-        # a="Hi {} your product {} is {}".format(self.user.username,self.checkout_product,self.status)
-        a="Hi {} sale is ON buy any product get {}% discount".format(self.campaign_name,self.sales_discount)
-        notification.objects.create(notification=a)
-        return super().save(*args, **kwargs)
-    def __str__(self):
-        return (str(self.checkout_product))
+
 
 class Coupon(models.Model):
     coupon = models.CharField(
@@ -567,81 +490,6 @@ class Coupon(models.Model):
         return self.coupon
     class Meta:
         verbose_name_plural = "Coupons"
-####
-STATUS_CHOICES = (
-    ('Pending', 'Pending'),
-    ('Accepted', 'Accepted'),
-    ('Packed', 'Packed'),
-    ('On The Way', 'On The Way'),
-    ('Delivered', 'Delivered'),
-    ('Cancelled', 'Cancelled'),
-)
-
-class Order(models.Model):
-    user = models.ForeignKey(User, verbose_name="User",
-                             on_delete=models.CASCADE)
-    address = models.ForeignKey(
-        Address, verbose_name="Shipping Address", on_delete=models.CASCADE, )
-    product = models.ForeignKey(
-        Product, verbose_name="Product", on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(verbose_name="Quantity")
-    price = models.DecimalField(
-        max_digits=8, decimal_places=2, null=True, blank=True, verbose_name="Price(₹)")
-    coupon = models.ForeignKey(
-        Coupon, on_delete=models.SET_NULL, blank=True, null=True)
-    attributes = models.ForeignKey(
-        Attributes, verbose_name=" Product Attributes", on_delete=models.SET_NULL, null=True, blank=True)
-    ordered_date = models.DateTimeField(
-        auto_now_add=True, verbose_name="ordered Date", null=True)
-    updated_at = models.DateTimeField(
-        auto_now=True, verbose_name="Updated Date", null=True)
-    status = models.CharField(
-        choices=STATUS_CHOICES,
-        max_length=50,
-        default="Pending"
-        )
-    @property
-    def pricee(self,):
-        return self.product.price
-    @property
-    def offer_price(self):
-        return self.product.discounted_price
-    @property
-    def Total_amount(self):
-        if self.product.discounted_price is None:
-            try:
-                total_amount=self.quantity*self.product.price
-            except:
-                total_amount=1*self.product.price
-            return total_amount
-        else:
-            total_amount=self.quantity*self.product.discounted_price
-            return total_amount
-    # def save(self, *args, **kwargs):
-    #     try:
-    #         if self.product.discounted_price is None:
-    #             self.price = self.product.price*self.quantity
-    #             if self.coupon:
-    #                 self.price = self.price-self.coupon.coupon_discount
-    #                 return super(Order, self).save(*args, **kwargs)
-    #             return super(Order, self).save(*args, **kwargs)
-
-    #         elif self.product.discounted_price is not None:
-    #             self.price = self.product.discounted_price*self.quantity
-    #             if self.coupon:
-    #                 self.price = self.price-self.coupon.coupon_discount
-    #                 return super(Order, self).save(*args, **kwargs)
-    #             return super(Order, self).save(*args, **kwargs)
-    #         else:
-    #             return messages.warning('Something went wrong!')
-    #     except:
-    #         pass
-
-    def __str__(self):
-        return str(self.user.username)
-
-    class Meta:
-        verbose_name_plural = "Order"
 
 ##Rating Models##
 STATUS_CHOICES = (

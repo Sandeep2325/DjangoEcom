@@ -967,7 +967,7 @@ class orderview(APIView):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]
     def get(self,request):
-        data1=cart_order.objects.filter(user=self.request.user)
+        data1=cart_order.objects.filter(user=self.request.user).order_by("-id")
         data=[]
         for i in data1:
             print(i.status)
@@ -1008,7 +1008,6 @@ class cancelorder(APIView):
 class universalnotificationlist(viewsets.ModelViewSet):
     serializer_class = unotificationserializer
     queryset = notification.objects.all().order_by("-id") 
-    
 class usernotificationview(viewsets.ModelViewSet):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]

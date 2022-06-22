@@ -398,31 +398,6 @@ class subcategoryadmin(admin.ModelAdmin):
     # actions = ['make_published', 'make_withdraw']
     list_editable= ['sub_category']
     
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'address', 'product', 'quantity', 'pricee','offer_price','Total_amount',
-                    'coupon', 'attributes', 'status', 'ordered_date', 'updated_at', 'action_btn')
-    list_editable = ('quantity', 'status', 'user', 'product')
-    list_filter = ('status', 'ordered_date')
-    list_per_page = 20
-    #search_fields = ('user', 'product')
-    action = None
-    save_on_top = True
-
-    def action_btn(self, obj):
-        html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/order/" + \
-            str(obj.id)+"/change/'></a><br></br>"
-        html += "<a class='text-success fa fa-eye ml-2' href='/admin/app1/order/" + \
-            str(obj.id)+"/change/'></a><br></br>"
-        html += "<a class='text-danger fa fa-trash ml-2' href='/admin/app1/order/" + \
-            str(obj.id)+"/delete/'></a></div>"
-        return format_html(html)
-    action_btn.short_description = "Action"
-
-    def get_form(self, request, obj=None, **kwargs):
-        # if obj.type == "1":
-        self.exclude = ("price", )
-        form = super(OrderAdmin, self).get_form(request, obj, **kwargs)
-        return form
 
 class AttributesAdmin(admin.ModelAdmin):
     list_display = ('id', 'Color','action_btn')
@@ -640,9 +615,7 @@ class checkoutadmin(admin.ModelAdmin):
     list_display=['id','user','cart_products',"Shipping_address","checkout_amount"]
     # def get_products(self, obj):
     # return "\n".join([p.product for p in obj.cart.all()])     
-class ordersadmin(admin.ModelAdmin):
-    list_display=['id','user',"checkout_product","ordered_date","status"]
-    list_editable = ['status']   
+
 class latestproductadmin(admin.ModelAdmin):
     list_display=['id','product','created_date','action_btnn']
     list_editable=['product']
@@ -724,10 +697,8 @@ admin.site.register(socialmedialinks,socialmedialinksadmin)
 admin.site.register(latest_product,latestproductadmin)
 admin.site.register(most_selled_products,mostselledproductadmin)
 admin.site.register(newsletter,newsletterproductadmin)
-admin.site.register(Orders,ordersadmin)
 admin.site.register(checkout,checkoutadmin)
 admin.site.register(Cart,cartadmin) 
-admin.site.register(Order, OrderAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Address, AddressAdmin)
@@ -735,13 +706,11 @@ admin.site.register(Attributes, AttributesAdmin)
 admin.site.register(sales, salesAdmin)
 admin.site.register(image, imageAdmin)
 admin.site.register(Coupon, CoupenAdmin)
-# admin.site.register(ClaimedCoupon,claimedcouponAdmin)
 admin.site.register(Rating, RatingAdmin)
 admin.site.register(Blog, BlogAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.register(customer_message, customer_messageAdmin)
 admin.site.register(Banner, BannerAdmin)
-# admin.site.register(Mail)
 admin.site.register(MailText, mailadmin)
 admin.site.unregister(get_attachment_model())
 admin.site.unregister(Group)
@@ -752,11 +721,9 @@ admin.site.register(cart_order,cartorderadmin)
 admin.site.register(payment,paymentadmin)
 # admin.site.register(cart2)
 # admin.site.register(notificationn)
-# admin.site.register(User)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
     list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn','last_login','date_joined']
     list_editable=['is_confirmed']
-    #actions = ['action_btn',]
     def action_btn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/user/" + \
             str(obj.id)+"/change/'></a><br></br>"
