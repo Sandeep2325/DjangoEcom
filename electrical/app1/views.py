@@ -976,7 +976,7 @@ class orderview(APIView):
             total_price=i.total_price
             order_no=i.order_payment_id
             date=i.date
-            data2={"product_count":product_count,"total_price":total_price,"order_no":order_no,"date":date}
+            data2={"product_count":product_count,"total_price":total_price,"order_no":order_no,"date":date,"status":i.status}
             data.append(data2)
         print(data)
         results=cartorderSerializer1(data,many=True).data
