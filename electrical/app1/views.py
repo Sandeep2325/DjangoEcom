@@ -991,6 +991,15 @@ class orderproduct(APIView):
         data1=cart2.objects.filter(order_id=order_id)
         product_serializer=self.serializer_class(data1,many=True)
         return Response(product_serializer.data, status=status.HTTP_200_OK)
-        
+class cancelorder(APIView):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    serializer_class=cancelorderserializer
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        order_id = request.data['order_id']
+        data1=cart_order.objects.filter(order_payment_id=order_id).update(status="Cancelled")
+        product_serializer=self.serializer_class(data1,many=True)
+        return Response({"msg":"Ordered Cancelled"}, status=status.HTTP_200_OK)        
 def handler404(request,exception):
     return render(request, '404.html', status=404)

@@ -420,4 +420,6 @@ class orderproductSerializer(serializers.ModelSerializer):
         fields=("order_id","product","quantity","price")
         ready_only_fields=("user","product","quantity","price")
         depth=2
+class cancelorderserializer(serializers.Serializer):
+    order_id=serializers.CharField()
 

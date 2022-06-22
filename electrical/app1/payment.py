@@ -126,6 +126,7 @@ def handle_payment_success(request):
     # if payment is successful that means check is None then we will turn isPaid=True
     amount=order.total_price
     order.is_paid = True
+    order.status="Ordered"
     order.save()
     res_data = {
         'message': 'payment successfully received!'
@@ -138,7 +139,6 @@ def handle_payment_success(request):
         a.append(i.id)
     Cart.objects.filter(product_id__in=a).delete()
     payment.objects.create(user=request.user,order_id=ord_id,payment_id=raz_pay_id,signature_id=raz_signature,amount=amount)
-   
     return Response(res_data)
 
 

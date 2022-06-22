@@ -713,7 +713,8 @@ class notificationadmin(admin.ModelAdmin):
 class userphotoadmin(admin.ModelAdmin):
     list_display=['id','user','photo']
 class cartorderadmin(admin.ModelAdmin):
-    list_display=["id","user","order_payment_id","total_price","shipping_address","is_paid","date"]
+    list_display=["id","user","order_payment_id","total_price","shipping_address","is_paid","date","status"]
+    list_editable=["status"]
 class paymentadmin(admin.ModelAdmin):
     list_display=["id","order_id","payment_id","signature_id","amount"]
 admin.site.register(userphoto,userphotoadmin)

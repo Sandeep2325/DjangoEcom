@@ -104,6 +104,7 @@ urlpatterns = [
     path('checkoutsummary',checkoutsummaryview.as_view(),name="checkoutsummary"),
     path('order',orderview.as_view(),name="order"),
     path("orderproducts/",orderproduct.as_view(),name="orderproducts"),
+    path("cancelorder/",cancelorder.as_view(),name="cancelorder"),
 #     path('notification/', notificationlist.as_view({'get': 'list'}), name="notification"),
     path('notification/<pk>/delete/',
          deletenotification.as_view(), name='notification-delete'),

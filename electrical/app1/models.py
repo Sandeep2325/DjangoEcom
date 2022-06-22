@@ -902,6 +902,14 @@ class socialmedialinks(models.Model):
         return self.social_media
     class Meta:
         verbose_name_plural="Social media links"
+STATUS_CHOICES = (
+    ('orderpending', 'order Pending'),
+    ('Ordered', 'Ordered'),
+    ('Packed', 'Packed'),
+    ('Shipped', 'Shipped'),
+    ('Delivered', 'Delivered'),
+    ('Cancelled', 'Cancelled'),
+)
 class cart_order(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     date=models.DateField(auto_now_add=True,verbose_name="Ordered Date",null=True)
@@ -912,6 +920,8 @@ class cart_order(models.Model):
     shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE, null=True)
     is_paid=models.BooleanField(default=False)
     order_payment_id = models.CharField(max_length=100,null=True)
+    status = models.CharField(
+        max_length=50, choices=STATUS_CHOICES, default="orderpending")
     def __str__(self):
         return str(self.user.username)
 class payment(models.Model):
