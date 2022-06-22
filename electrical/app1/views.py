@@ -718,12 +718,20 @@ class invoice(APIView):
         order=cart_order.objects.get(order_payment_id=order_id)
         print(order.order_payment_id)
         data=cart2.objects.filter(order_id=order_id)
+        total_amount=[]
+        for i in data:
+            total_amount.append(float(i.price))
+        amount=sum(total_amount)   
+        gst= amount*0.18
+        grand_total=gst+amount+100
         print(data)
         context_dict={
             "order_id":order.order_payment_id,
             "date":order.date,
-            "total_price":order.total_price,
-            "data":data
+            "total_price":amount,
+            "data":data,
+            "gst":gst,
+            "grand_total":grand_total
         }
     
         template_name='app1/invoice.html'

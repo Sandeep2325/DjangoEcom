@@ -135,7 +135,6 @@
 								</td> {% endcomment %}
 
 								<td>
-									Invoice : 123<br />
 									Created: {{date}}<br />
 									order_id:{{order_id}}
 								</td>
@@ -150,15 +149,25 @@
           </tr>
 		  {%for i in data%}
           <tr>
-			
             <td>{{i.product}}</td>
             <td>{{i.price}}</td>
-			
           </tr>
 		  {%endfor%}
           <tr>
-            <td><h2>Total Amount</h2></th>
-            <td><h2>{{total_price}}</h2></th>
+            <td><h3>Total Amount</h3></th>
+            <td><h3>{{total_price}}</h3></th>
+          </tr>
+		  <tr>
+            <td><h3>GST(18%)</h3></th>
+            <td><h3>{{gst}}</h3></th>
+          </tr>
+		  <tr>
+            <td><h3>Delivery charges</h3></th>
+            <td><h3>100</h3></th>
+          </tr>
+		  <tr>
+            <td><h2>Grand Total amount</h2></th>
+            <td><h3>{{grand_total}}</h3></th>
           </tr>
         </table>
 				
