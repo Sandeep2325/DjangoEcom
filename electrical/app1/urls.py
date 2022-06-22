@@ -38,8 +38,8 @@ router.register('addresses',addresslist)
 router.register('defaultaddressget',defaultaddressget)
 router.register("listattributes",listattributes)
 router.register("brands",listbrand)
-# router.register('notification',notificationlist,basename="notification")
 router.register('unotification',universalnotificationlist,basename="unotification")
+router.register('usernotification',usernotificationview,basename="usernotification")
 app_name = 'Product'
 urlpatterns = [
      path('pay/', payment.start_payment, name="payment"),
@@ -105,10 +105,7 @@ urlpatterns = [
     path('order',orderview.as_view(),name="order"),
     path("orderproducts/",orderproduct.as_view(),name="orderproducts"),
     path("cancelorder/",cancelorder.as_view(),name="cancelorder"),
-#     path('notification/', notificationlist.as_view({'get': 'list'}), name="notification"),
-    path('notification/<pk>/delete/',
-         deletenotification.as_view(), name='notification-delete'),
-#     path('unotification/', universalnotificationlist.as_view({'get': 'list'}), name="notification"),
+
     path('invoice/', invoice.as_view(),name="invoice"),
     #filters
     path('filters/', filters.as_view(),name="filters"),

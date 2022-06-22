@@ -412,6 +412,7 @@ class cartorderSerializer1(serializers.Serializer):
     product_count=serializers.CharField()
     total_price=serializers.CharField()
     date=serializers.CharField()
+    status=serializers.CharField()
 class invoiceserializer(serializers.Serializer):
     order_id=serializers.CharField()  
 class orderproductSerializer(serializers.ModelSerializer):
@@ -422,4 +423,8 @@ class orderproductSerializer(serializers.ModelSerializer):
         depth=2
 class cancelorderserializer(serializers.Serializer):
     order_id=serializers.CharField()
+class usernotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=notificationn
+        fields="__all__"
 

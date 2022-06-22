@@ -372,9 +372,7 @@ class listattributes(viewsets.ModelViewSet):
 class listbrand(viewsets.ModelViewSet):
     queryset=Brand.objects.all()
     serializer_class=brandserializer  
-class universalnotificationlist(viewsets.ModelViewSet):
-    serializer_class = unotificationserializer
-    queryset = notification.objects.all().order_by("-id")
+
 class CurrentUserViewSet(APIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -972,13 +970,15 @@ class orderview(APIView):
         data1=cart_order.objects.filter(user=self.request.user)
         data=[]
         for i in data1:
+            print(i.status)
             product_count=i.product_count
             total_price=i.total_price
             order_no=i.order_payment_id
             date=i.date
-            data2={"product_count":product_count,"total_price":total_price,"order_no":order_no,"date":date,"status":i.status}
+            status=i.status
+            data2={"product_count":product_count,"total_price":total_price,"order_no":order_no,"date":date,"status":status}
             data.append(data2)
-        print(data)
+        # print(data)
         results=cartorderSerializer1(data,many=True).data
         return Response(results)
 class orderproduct(APIView):
@@ -1004,6 +1004,15 @@ class cancelorder(APIView):
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             data1=cart_order.objects.filter(order_payment_id=order_id).update(status="Cancelled")
-            return Response({"msg":"Ordered Cancelled"}, status=status.HTTP_200_OK)        
+            return Response({"msg":"Ordered Cancelled"}, status=status.HTTP_200_OK)  
+class universalnotificationlist(viewsets.ModelViewSet):
+    serializer_class = unotificationserializer
+    queryset = notification.objects.all().order_by("-id") 
+    
+class usernotificationview(viewsets.ModelViewSet):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    serializer_class = usernotificationSerializer
+    queryset = notificationn.objects.all().order_by("-id")        
 def handler404(request,exception):
     return render(request, '404.html', status=404)

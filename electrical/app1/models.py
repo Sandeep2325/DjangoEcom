@@ -902,6 +902,9 @@ class socialmedialinks(models.Model):
         return self.social_media
     class Meta:
         verbose_name_plural="Social media links"
+class notificationn(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    message=models.TextField(null=True,blank=True)
 STATUS_CHOICES = (
     ('orderpending', 'order Pending'),
     ('Ordered', 'Ordered'),
@@ -924,6 +927,13 @@ class cart_order(models.Model):
         max_length=50, choices=STATUS_CHOICES, default="orderpending")
     def __str__(self):
         return str(self.user.username)
+    
+    def save(self, *args, **kwargs):
+        print(self.user,self.order_payment_id,self.status)
+        message="Hello {} your Order({}) is {}".format(str(self.user.username),self.order_payment_id,self.status)
+        notificationn.objects.create(user=self.user,message=message)
+        return super().save(*args, **kwargs)
+    
 class payment(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     order_id=models.CharField(max_length=1000,null=True,blank=True)
