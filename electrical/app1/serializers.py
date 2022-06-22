@@ -262,7 +262,7 @@ class notificationserializer(serializers.ModelSerializer):
         model=notification
 class unotificationserializer(serializers.ModelSerializer):
     class Meta:
-        fields=("offers",)
+        fields=("message",)
         read_only_fields = ("user",)
         model=notification    
     def to_representation(self, instance):
@@ -423,8 +423,4 @@ class orderproductSerializer(serializers.ModelSerializer):
         depth=2
 class cancelorderserializer(serializers.Serializer):
     order_id=serializers.CharField()
-class usernotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=notificationn
-        fields="__all__"
 

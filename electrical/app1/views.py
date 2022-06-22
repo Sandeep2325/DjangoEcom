@@ -1014,12 +1014,10 @@ class cancelorder(APIView):
             data1=cart_order.objects.filter(order_payment_id=order_id).update(status="Cancelled")
             return Response({"msg":"Ordered Cancelled"}, status=status.HTTP_200_OK)  
 class universalnotificationlist(viewsets.ModelViewSet):
-    serializer_class = unotificationserializer
-    queryset = notification.objects.all().order_by("-id") 
-class usernotificationview(viewsets.ModelViewSet):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]
-    serializer_class = usernotificationSerializer
-    queryset = notificationn.objects.all().order_by("-id")        
+    serializer_class = unotificationserializer
+    queryset = notification.objects.all().order_by("-id") 
+      
 def handler404(request,exception):
     return render(request, '404.html', status=404)

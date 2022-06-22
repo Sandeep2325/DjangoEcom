@@ -104,7 +104,9 @@ class Address(models.Model):
     class Meta:
         verbose_name_plural = "Customer Address"
 class notification(models.Model):
-    offers=models.TextField(null=True,blank=True)
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    message=models.TextField(null=True,blank=True)
+    # offers=models.TextField(null=True,blank=True)
     created_date = models.DateTimeField(
         auto_now_add=True, verbose_name="Created Date", null=True)
     class Meta:
@@ -124,10 +126,9 @@ class sales(models.Model):
     def save(self, *args, **kwargs):
         
         a="{} sale is ON buy any product get {}% discount".format(self.campaign_name,self.sales_discount)
-        notification.objects.create(offers=a)
+        notification.objects.create(message=a)
         return super().save(*args, **kwargs)
         
-    
     def __str__(self):
         return self.campaign_name
 
@@ -484,7 +485,7 @@ class Coupon(models.Model):
         auto_now_add=True, verbose_name="Created Date", null=True)
     def save(self, *args, **kwargs):
         coupons="use {} coupon to get {}% discount".format(self.coupon,self.coupon_discount)
-        notification.objects.create(offers=coupons)
+        notification.objects.create(message=coupons)
         return super().save(*args, **kwargs)
     def __str__(self):
         return self.coupon
@@ -750,9 +751,7 @@ class socialmedialinks(models.Model):
         return self.social_media
     class Meta:
         verbose_name_plural="Social media links"
-class notificationn(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    message=models.TextField(null=True,blank=True)
+
 STATUS_CHOICES = (
     ('orderpending', 'order Pending'),
     ('Ordered', 'Ordered'),
@@ -779,7 +778,7 @@ class cart_order(models.Model):
     def save(self, *args, **kwargs):
         print(self.user,self.order_payment_id,self.status)
         message="Hello {} your Order({}) is {}".format(str(self.user.username),self.order_payment_id,self.status)
-        notificationn.objects.create(user=self.user,message=message)
+        notification.objects.create(user=self.user,message=message)
         return super().save(*args, **kwargs)
     
 class payment(models.Model):

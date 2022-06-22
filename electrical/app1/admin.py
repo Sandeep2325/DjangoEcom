@@ -682,7 +682,7 @@ class faq_enquiryAdmin(admin.ModelAdmin):
         return format_html(html)
     action_btn.short_description = "Action"
 class notificationadmin(admin.ModelAdmin):
-    list_display=["id",'offers','created_date']
+    list_display=["id",'message','created_date']
 class userphotoadmin(admin.ModelAdmin):
     list_display=['id','user','photo']
 class cartorderadmin(admin.ModelAdmin):

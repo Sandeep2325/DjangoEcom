@@ -39,7 +39,6 @@ router.register('defaultaddressget',defaultaddressget)
 router.register("listattributes",listattributes)
 router.register("brands",listbrand)
 router.register('unotification',universalnotificationlist,basename="unotification")
-router.register('usernotification',usernotificationview,basename="usernotification")
 app_name = 'Product'
 urlpatterns = [
      path('pay/', payment.start_payment, name="payment"),
