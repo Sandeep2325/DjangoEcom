@@ -652,8 +652,8 @@ class checkoutsummaryview(APIView):
         items_amount=sum(amount)
         gst=(items_amount*0.18)
         price=(items_amount+gst)
-        # delivery_charges=(price*0.04)
-        delivery_charges=100
+        delivery_charges=(price*0.04)
+        # delivery_charges=100
         total_payable=(price+delivery_charges)
         data2=[{"total_items":total_items,"price":price,"delivery_charges":"{:.2f}".format(delivery_charges),"total_payable":"{:.2f}".format(total_payable)}]
         results=checkoutsummary(data2,many=True).data
@@ -723,7 +723,8 @@ class invoice(APIView):
             total_amount.append(float(i.price))
         amount=sum(total_amount)   
         gst= amount*0.18
-        grand_total=gst+amount+100
+        deliver_charge=(amount+gst)*0.04
+        grand_total=gst+amount+deliver_charge
         print(data)
         context_dict={
             "order_id":order.order_payment_id,
@@ -731,7 +732,8 @@ class invoice(APIView):
             "total_price":amount,
             "data":data,
             "gst":gst,
-            "grand_total":grand_total
+            "grand_total":grand_total,
+            "deliver_charge":deliver_charge
         }
     
         template_name='app1/invoice.html'
