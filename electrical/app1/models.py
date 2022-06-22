@@ -902,7 +902,6 @@ class socialmedialinks(models.Model):
         return self.social_media
     class Meta:
         verbose_name_plural="Social media links"
-        
 class cart_order(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     date=models.DateField(auto_now_add=True,verbose_name="Ordered Date",null=True)

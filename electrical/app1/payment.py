@@ -38,7 +38,6 @@ def start_payment(request):
     print(address_id)
     print(cart_id)
     productsss = Cart.objects.filter(id__in=cart_id)
-    print(productsss)
     shipping_address=Address.objects.get(id=int(address_id))
     # setup razorpay client
     client=razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
@@ -50,7 +49,6 @@ def start_payment(request):
     # we are saving an order with isPaid=False
     
     for i in productsss:
-        print(i.product)
         cart2.objects.create(user=request.user,product=i.product,price=i.Total_amount,order_id=payment['id'],quantity=i.quantity).save()
     order = cart_order.objects.create(
                                 user=request.user,
@@ -60,8 +58,9 @@ def start_payment(request):
                                  product_count=product_count,
                                  shipping_address=shipping_address,
                                  )
-    for i in productsss:
-        order.product.add(i.id)
+    orderproduct=cart2.objects.filter(order_id=payment['id'])
+    for i in orderproduct:
+        order.product.add(i.product)
         order.save()
     serializer = cartorderserializer(order)
 
@@ -137,7 +136,7 @@ def handle_payment_success(request):
     a=[]
     for i in order.product.all():
         a.append(i.id)
-    Cart.objects.filter(id__in=a).delete()
+    Cart.objects.filter(product_id__in=a).delete()
     payment.objects.create(user=request.user,order_id=ord_id,payment_id=raz_pay_id,signature_id=raz_signature,amount=amount)
    
     return Response(res_data)
