@@ -652,7 +652,8 @@ class checkoutsummaryview(APIView):
         items_amount=sum(amount)
         gst=(items_amount*0.18)
         price=(items_amount+gst)
-        delivery_charges=(price*0.04)
+        # delivery_charges=(price*0.04)
+        delivery_charges=100
         total_payable=(price+delivery_charges)
         data2=[{"total_items":total_items,"price":price,"delivery_charges":"{:.2f}".format(delivery_charges),"total_payable":"{:.2f}".format(total_payable)}]
         results=checkoutsummary(data2,many=True).data
@@ -970,5 +971,16 @@ class orderview(APIView):
         print(data)
         results=cartorderSerializer1(data,many=True).data
         return Response(results)
+class orderproduct(APIView):
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
+    serializer_class=orderproductSerializer
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        order_id = request.data['order_id']
+        data1=cart2.objects.filter(order_id=order_id)
+        product_serializer=self.serializer_class(data1,many=True)
+        return Response(product_serializer.data, status=status.HTTP_200_OK)
+        
 def handler404(request,exception):
     return render(request, '404.html', status=404)

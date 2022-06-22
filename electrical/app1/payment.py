@@ -51,7 +51,7 @@ def start_payment(request):
     
     for i in productsss:
         print(i.product)
-        cart2.objects.create(user=request.user,product=(str(i.product)),price=i.Total_amount,order_id=payment['id']).save()
+        cart2.objects.create(user=request.user,product=i.product,price=i.Total_amount,order_id=payment['id'],quantity=i.quantity).save()
     order = cart_order.objects.create(
                                 user=request.user,
                                 coupon=coupon,

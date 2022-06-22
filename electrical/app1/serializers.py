@@ -414,5 +414,10 @@ class cartorderSerializer1(serializers.Serializer):
     date=serializers.CharField()
 class invoiceserializer(serializers.Serializer):
     order_id=serializers.CharField()  
-
+class orderproductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=cart2
+        fields=("order_id","product","quantity","price")
+        ready_only_fields=("user","product","quantity","price")
+        depth=2
 

@@ -59,7 +59,7 @@ class userphoto(models.Model):
 class my_account(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     # photo=models.ImageField(upload_to='profile', verbose_name="Profle photo", null=True, blank=True, max_length=500)
-    first_name=models.CharField(max_length=50,null=True,verbose_name="First Name",default="Your first name")
+    first_name=models.CharField(max_length=50,null=True,verbose_name="First Name",default="User")
     last_name=models.CharField(max_length=50,null=True,verbose_name="last Name")
     phone_number=models.BigIntegerField(null=True,verbose_name="Phone number")
     email=models.EmailField(max_length=255,null=True,verbose_name="Email")
@@ -925,7 +925,8 @@ class payment(models.Model):
         return str(self.order_id)
 class cart2(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    product=models.CharField(max_length=1000,null=True,blank=True)
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True,blank=True)
+    quantity=models.CharField(max_length=20,null=True,blank=True)
     price=models.CharField(max_length=1000,null=True,blank=True)
-    order_id=models.CharField(max_length=100,null=True)
+    order_id=models.CharField(max_length=100,null=True,blank=True)
     is_paid=models.BooleanField(default=False)
