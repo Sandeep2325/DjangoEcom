@@ -1006,7 +1006,7 @@ class cancelorder(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         order_id = request.data['order_id']
-        data2=cart_order.objects.get(order_payment_id=order_id,status="Delivered")
+        data2=cart_order.objects.get(order_payment_id=order_id)
         print(data2)
         client = razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
         payments=payment.objects.get(order_id=order_id)
