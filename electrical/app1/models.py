@@ -32,6 +32,11 @@ from django.db.models import Avg, Count
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.utils.text import slugify
+from PIL import Image
+from io import BytesIO
+from django.core.files import File
+import sys
+from django.core.files.uploadedfile import InMemoryUploadedFile
 class User(AbstractUser,PermissionsMixin):
     username = models.CharField(
         max_length=50, blank=False, null=True,verbose_name="Full name")
@@ -547,7 +552,6 @@ class customer_message(models.Model):
         max_length=50, null=True, verbose_name="First Name", blank=True)
     last_name = models.CharField(
         max_length=50, null=True, verbose_name="Last Name", blank=True)
-    #Name=models.CharField(max_length=50, null=True,)
     Email = models.EmailField(max_length=50, null=True,)
     Phone = models.BigIntegerField(null=True,)
     Message = models.TextField(max_length=200, null=True,)
@@ -562,11 +566,7 @@ class customer_message(models.Model):
     class Meta:
         verbose_name_plural = "Customer msgs/contact us"
 
-from PIL import Image
-from io import BytesIO
-from django.core.files import File
-import sys
-from django.core.files.uploadedfile import InMemoryUploadedFile
+
 class Banner(models.Model):
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to="Banner", blank=True, null=True,)

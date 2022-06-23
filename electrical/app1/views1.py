@@ -254,18 +254,8 @@ class LoginAPIView(APIView):
                     refresh_token=str(refresh1)
                     token3=AccessToken.for_user(user)
                     access_token=str(token3)
-                    
-                    # token2=str(refresh1.access_token)
-                    
-                    # print("......",token3)
-                    # print("......",token2)
-                    # token2=str(AccessToken.for_user(user))
-                    # print(refresh_token)
-                    # print(token2)
-                    # print(token1)
                     return Response({'msg': 'Login successful', 'is_confirmed': user.is_confirmed, 'access_token': access_token,"refresh_token":refresh_token,
                                      }, status=status.HTTP_200_OK)
-                
                 else:
                     return Response({'msg': 'Invalid credentials'}, status=status.HTTP_409_CONFLICT)
             else:

@@ -1,7 +1,8 @@
 from django.urls import path,include
 from app1.models import Attributes
 from rest_framework_simplejwt import views as jwt_views
-from .dummyview import hightolow,lowtohigh,discount,newest
+from app1.dummyview import hightolow,lowtohigh,discount,newest,filters
+from app1 import dummyview
 from app1.views import *
 from app1.views1 import *
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -10,8 +11,7 @@ from django.conf.urls.static import static
 from django.conf import settings 
 from . import payment
 router = routers.DefaultRouter()
-router.register('products-brand', productview)
-# router.register('productbrand',product_brand,basename="brand")
+router.register('products-brand', dummyview.productview)
 router.register('products-category',most_categoryview,basename="products-category")
 router.register('latest-product', latestview,basename="latest-product")
 router.register("blogg",blogview)
@@ -21,23 +21,22 @@ router.register('search-high-to-low',searchproductHitoLo,basename="search-high-t
 router.register('search-low-to-high',searchproductLotoHi,basename="search-low-to-high")
 router.register('search-newest',searchnewest,basename="search-newest")
 router.register('search-discount',searchdiscount,basename="search-discount")
-#faq page
 router.register('faq',Listfaq)
 router.register('enquirycreate',enquirycreate)
+router.register('contactusform',contactusform)
 router.register('myaccountcreate',myaccountCreateView)
 router.register('userphotocreate',userphotocreate)
 router.register('cartCreateView1',cartCreateView1)
-# router.register('invoice',invoice)
 router.register('userphoto1',userphoto1,basename="userphoto1")
 router.register('addresscreate',AddressCreateView)
 router.register("listsubcategory",subcategoryview)
 router.register('newsletter',newsletterCreateView)
 router.register('products',productsearch)
-# router.register('sidebarfilter1',sidebarfilterview)
 router.register('addresses',addresslist)
 router.register('defaultaddressget',defaultaddressget)
 router.register("listattributes",listattributes)
 router.register("brands",listbrand)
+# router.register('invoice',invoice,basename="invoice")
 router.register('unotification',universalnotificationlist,basename="unotification")
 app_name = 'Product'
 urlpatterns = [
@@ -50,14 +49,12 @@ urlpatterns = [
 #     path('login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 #     path('register/', RegisterView.as_view(), name='auth_register'),
-
     path('myaccount/',
          listmyaccount.as_view({'get': 'list'}), name="myaccount"),
     path('myaccount/update/<pk>',
          myaccountupdateview.as_view(), name='myaccount-update'),
     path('myaccountemail/',myaccountemail.as_view(),name="myaccountemail"),
     path('myaccountemailverify/',myaccountemailverify.as_view(),name="myaccountemailverify"),
-    
     path('userphoto/<pk>',
          userphoto11.as_view(), name='userphoto'),
     path('categories/',
@@ -68,11 +65,6 @@ urlpatterns = [
     path('product/', Productlist.as_view({'get': 'list'}), name="product"),
     path('product_brand/<int:pk>/',product_brand.as_view({'get': 'list'}),name="product_brand"),
     path('product/<int:pk>/', Productdetail.as_view(), name="single_product"),
-    
-#     path('newest/', newest.as_view({'get': 'list'}), name="newset"),
-#     path('latest-product/', latestproductlist.as_view({'get': 'list'}), name="latest_product"),
-#     path('latest-product/<int:pk>/', latestproductdetail.as_view(), name="latestdetail_product"),
-
     path('mostselled-product/', mostselledproductlist.as_view({'get': 'list'}), name="mostselled_product"),
     path('mostselled-product/<int:pk>/', mostselledproductdetail.as_view(), name="mostselled_detail_product"),
     path('attributes/',
@@ -91,7 +83,6 @@ urlpatterns = [
     path('rating/', Listrating.as_view({'get': 'list'}), name="rating"),
     path('rating/create/', ratingCreateView.as_view(), name='rating-create'),
     path('rating/update/<pk>', ratingupdateView.as_view(), name='rating-update'),
-   
     path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
     #     path('cart1/',cart1.as_view(),name="cart1"),
     path('cart/', cartlist.as_view({'get': 'list'}), name="cart"),
@@ -104,14 +95,13 @@ urlpatterns = [
     path('order',orderview.as_view(),name="order"),
     path("orderproducts/",orderproduct.as_view(),name="orderproducts"),
     path("cancelorder/",cancelorder.as_view(),name="cancelorder"),
-
     path('invoice/', invoice.as_view(),name="invoice"),
     #filters
-    path('filters/', filters.as_view(),name="filters"),
-    path('hightolow/', hightolow.as_view(),name="hightolow"),
-    path('lowtohigh/', lowtohigh.as_view(),name="lowtohigh"),
-    path('newest/', newest.as_view(),name="newest"),
-    path('discount/', discount.as_view(),name="discount"),
+    path('filters/', dummyview.filters.as_view(),name="filters"),
+    path('hightolow/', dummyview.hightolow.as_view(),name="hightolow"),
+    path('lowtohigh/', dummyview.lowtohigh.as_view(),name="lowtohigh"),
+    path('newest/', dummyview.newest.as_view(),name="newest"),
+    path('discount/', dummyview.discount.as_view(),name="discount"),
 #     path('sidebarfilter/', sidebarfilterview.as_view(),name="side-bar-filter"),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),
     path('register1/', RegistrationAPIView.as_view(),name="register"), #Registration

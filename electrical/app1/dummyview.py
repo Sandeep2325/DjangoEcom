@@ -115,10 +115,9 @@ class productview1(viewsets.ModelViewSet):
 def countt(request):
     usercount = User.objects.all().count()
     productcount = Product.objects.all().count()
-    ordercount = Order.objects.all().count()
+    # ordercount = Order.objects.all().count()
     context = {'usercount': usercount,
-               'productcount': productcount,
-               'ordercount': ordercount}
+               'productcount': productcount,}
     return render(request, "admin/index.html", context)
 
 class productsearch(viewsets.ModelViewSet):

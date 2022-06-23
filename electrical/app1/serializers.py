@@ -423,4 +423,6 @@ class orderproductSerializer(serializers.ModelSerializer):
         depth=2
 class cancelorderserializer(serializers.Serializer):
     order_id=serializers.CharField()
+class cartidserializer(serializers.Serializer):
+    cart_id=serializers.ListField()
 

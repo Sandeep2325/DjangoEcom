@@ -48,7 +48,8 @@ from io import BytesIO
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-
+from rest_framework.pagination import LimitOffsetPagination 
+from app1.paginations import PaginationHandlerMixin
 def get_subcategory(request):
     id = request.GET.get('id', '')
     # print(id)
@@ -87,12 +88,11 @@ def verifyOTP(one_time):
         return({'msg':"OTP already used"})
     return answer
 class MyPaginator(PageNumberPagination):
-    
-    page_size = 12
+    page_size = 16
     page_size_query_param = 'page_size'
     max_page_size = 1000
 
-class productview(viewsets.ModelViewSet):
+class productview(viewsets.ModelViewSet,PaginationHandlerMixin):
     queryset = Product.objects.filter(is_active=True).order_by('id')
     serializer_class = productSerializer
     pagination_class = MyPaginator
@@ -104,7 +104,13 @@ class productview(viewsets.ModelViewSet):
         return Response(serializer.data)
     def retrieve(self, request, pk=None):
         item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
-        serializer = productSerializer(item,many=True)
+        page = self.paginate_queryset(item)
+        if page is not None:
+            serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+            return Response(serializer.data)
+        else:
+            product_serializer=productSerializer(item,many=True)
+            return Response(product_serializer.data)
         return Response(serializer.data)
 class most_categoryview(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('id')
@@ -148,16 +154,19 @@ class blogview(ViewSet):
 """Serch functionality filters"""
 class searchproductHitoLo(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-price')
+       pagination_class = MyPaginator
        serializer_class = productSerializer
        search_fields = ['title','category__category','brand__brand_name']
        filter_backends = (filters.SearchFilter,filters.OrderingFilter) 
 class searchproductLotoHi(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('price')
+       pagination_class = MyPaginator
        serializer_class = productSerializer
        search_fields = ['title','category__category','brand__brand_name']
        filter_backends = (filters.SearchFilter,filters.OrderingFilter)  
 class searchnewest(viewsets.ModelViewSet):
        queryset = Product.objects.filter(is_active=True).order_by('-created_at')
+       pagination_class = MyPaginator
        serializer_class = productSerializer
        search_fields = ['title','category__category','brand__brand_name']
        filter_backends = (filters.SearchFilter,filters.OrderingFilter)   
@@ -196,6 +205,22 @@ class enquirycreate(ModelViewSet):
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+class contactusform(ModelViewSet):
+    queryset = customer_message.objects.all()
+    serializer_class = customermessageSerializer
+    # permission_classes = (IsAuthenticated,)
+    http_method_names = ['post', ]
+    def create(self, request, *args, **kwargs):
+        # user = request.user
+        data = {
+            "msg": "Your Enquiry has been Submitted Successfully",
+            }
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class myaccountCreateView(ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -703,6 +728,7 @@ def html_to_pdf(template_src, context_dict={}):
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
+
 class invoice(APIView):
     # permission_classes = (IsAuthenticated, )
     # authentication_classes = [JWTAuthentication,]
@@ -740,11 +766,12 @@ class invoice(APIView):
             "state":address.state,
             "pincode":address.pincode
         }
-    
         template_name='app1/invoice.html'
         pdf = html_to_pdf(template_name,context_dict)
         return FileResponse(pdf,as_attachment=True,filename="invoice.pdf",content_type='application/pdf',status=status.HTTP_201_CREATED)   
-class filters(APIView):
+   
+class filters(APIView,PaginationHandlerMixin):
+    pagination_class = MyPaginator
     permission_classes = (AllowAny,)
     serializer_class = productfilterserializers
     def post(self, request):
@@ -762,210 +789,1044 @@ class filters(APIView):
         subcategory_id=request.data["subcategory_id"]
         print(subcategory_id)
         print(bool(subcategory_id))
-        
         if filter_by=="high_to_low":
             if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
                 data=Product.objects.filter(id__in=product_id).order_by('-price')
-                product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
         
             elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
                 data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-price')
                 product_serializer=productSerializer(data1,many=True)
-                return Response(product_serializer.data)
+                page = self.paginate_queryset(data1)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data1,many=True)
+                    return Response(product_serializer.data)
+                # return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
                 data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('-price')
                 product_serializer=productSerializer(data2,many=True)
+                page = self.paginate_queryset(data2)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data2,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
                 data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('-price')
                 product_serializer=productSerializer(data3,many=True)
+                page = self.paginate_queryset(data3)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data3,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
                 data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('-price')
                 product_serializer=productSerializer(data4,many=True)
+                page = self.paginate_queryset(data4)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data4,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
                 data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('-price')
                 product_serializer=productSerializer(data5,many=True)
+                page = self.paginate_queryset(data5)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data5,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
                 data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('-price')
                 product_serializer=productSerializer(data6,many=True)
+                page = self.paginate_queryset(data6)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data6,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
                 data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('-price')
                 product_serializer=productSerializer(data7,many=True)
-                return Response(product_serializer.data)
+                page = self.paginate_queryset(data7)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data7,many=True)
+                    return Response(product_serializer.data)
         
         elif filter_by=="low_to_high":
             if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
                 data=Product.objects.filter(id__in=product_id).order_by('price')
                 product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
         
             elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
                 data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('price')
                 product_serializer=productSerializer(data1,many=True)
+                page = self.paginate_queryset(data1)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data1,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
                 data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('price')
                 product_serializer=productSerializer(data2,many=True)
+                page = self.paginate_queryset(data2)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data2,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
                 data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('price')
                 product_serializer=productSerializer(data3,many=True)
+                page = self.paginate_queryset(data3)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data3,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
                 data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('price')
                 product_serializer=productSerializer(data4,many=True)
+                page = self.paginate_queryset(data4)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data4,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
                 data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('price')
                 product_serializer=productSerializer(data5,many=True)
+                page = self.paginate_queryset(data5)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data5,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
                 data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('price')
                 product_serializer=productSerializer(data6,many=True)
+                page = self.paginate_queryset(data6)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data6,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
                 data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('price')
                 product_serializer=productSerializer(data7,many=True)
-                return Response(product_serializer.data)  
+                page = self.paginate_queryset(data7)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data7,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)   
         elif filter_by=="newest":
             if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
                 data=Product.objects.filter(id__in=product_id).order_by('-created_at')
                 product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
         
             elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
                 data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
                 product_serializer=productSerializer(data1,many=True)
+                page = self.paginate_queryset(data1)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data1,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
                 data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('-created_at')
                 product_serializer=productSerializer(data2,many=True)
+                page = self.paginate_queryset(data2)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data2,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
                 data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('-created_at')
                 product_serializer=productSerializer(data3,many=True)
+                page = self.paginate_queryset(data3)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data3,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
                 data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('-created_at')
                 product_serializer=productSerializer(data4,many=True)
+                page = self.paginate_queryset(data4)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data4,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
                 data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('-created_at')
                 product_serializer=productSerializer(data5,many=True)
+                page = self.paginate_queryset(data5)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data5,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
                 data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('-created_at')
                 product_serializer=productSerializer(data6,many=True)
+                page = self.paginate_queryset(data6)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data6,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
             
             elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
                 data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('-created_at')
                 product_serializer=productSerializer(data7,many=True)
+                page = self.paginate_queryset(data7)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data7,many=True)
+                    return Response(product_serializer.data)
                 return Response(product_serializer.data)
+        
         elif filter_by=="discount":
-            pro=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False))
-            if pro.exists():
+            data=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False))
+            if self.data.exists():
                 if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
                     data=Product.objects.filter(id__in=product_id,discounted_price__isnull= False).order_by('discounted_price')
                     product_serializer=productSerializer(data,many=True)
+                    page = self.paginate_queryset(data)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
                     data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,discounted_price__isnull= False).order_by('discounted_price')
                     product_serializer=productSerializer(data1,many=True)
+                    page = self.paginate_queryset(data1)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data1,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
                     data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,discounted_price__isnull= False).order_by('discounted_price')
                     product_serializer=productSerializer(data2,many=True)
+                    page = self.paginate_queryset(data2)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data2,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
                     data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
                     product_serializer=productSerializer(data3,many=True)
+                    page = self.paginate_queryset(data3)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data3,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
                     data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
                     product_serializer=productSerializer(data4,many=True)
+                    page = self.paginate_queryset(data4)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data4,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
                     data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id,discounted_price__isnull= False).order_by('discounted_price')
                     product_serializer=productSerializer(data5,many=True)
+                    page = self.paginate_queryset(data5)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data5,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
                     data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
                     product_serializer=productSerializer(data6,many=True)
+                    page = self.paginate_queryset(data6)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data6,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
                     data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)& Q(discounted_price__isnull= False)).order_by('discounted_price')
                     product_serializer=productSerializer(data7,many=True)
+                    page = self.paginate_queryset(data7)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data7,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
             else:
                 if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
                     data=Product.objects.filter(id__in=product_id,discounted_price__isnull= True).order_by('discounted_price')
                     product_serializer=productSerializer(data,many=True)
+                    page = self.paginate_queryset(data)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
                     data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,discounted_price__isnull= True).order_by('discounted_price')
                     product_serializer=productSerializer(data1,many=True)
+                    page = self.paginate_queryset(data1)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data1,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
                     data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,discounted_price__isnull= True).order_by('discounted_price')
                     product_serializer=productSerializer(data2,many=True)
+                    page = self.paginate_queryset(data2)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data2,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
                     data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
                     product_serializer=productSerializer(data3,many=True)
+                    page = self.paginate_queryset(data3)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data3,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
                     data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
                     product_serializer=productSerializer(data4,many=True)
+                    page = self.paginate_queryset(data4)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data4,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
                     data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id,discounted_price__isnull= True).order_by('discounted_price')
                     product_serializer=productSerializer(data5,many=True)
+                    page = self.paginate_queryset(data5)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data5,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
                     data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
                     product_serializer=productSerializer(data6,many=True)
+                    page = self.paginate_queryset(data6)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data6,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)
                 
                 elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
                     data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)& Q(discounted_price__isnull= True)).order_by('discounted_price')
                     product_serializer=productSerializer(data7,many=True)
+                    page = self.paginate_queryset(data7)
+                    if page is not None:
+                        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                        return Response(serializer.data)
+                    else:
+                        product_serializer=productSerializer(data7,many=True)
+                        return Response(product_serializer.data)
                     return Response(product_serializer.data)    
+
+class lowtohigh(APIView,PaginationHandlerMixin):
+    pagination_class = MyPaginator
+    permission_classes = (AllowAny,)
+    serializer_class = productfilterserializers
+    def post(self, request):
+        print(request.data)
+        
+        product_id=request.data["product_id"]
+        print(product_id)
+        print(bool(product_id))
+        attribute_id=request.data["attribute_id"]
+        print(attribute_id)
+        print(bool(attribute_id))
+        brand_id=request.data["brand_id"]
+        print(brand_id)
+        print(bool(brand_id))
+        subcategory_id=request.data["subcategory_id"]
+        print(subcategory_id)
+        print(bool(subcategory_id))
+        
+        if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+            data=Product.objects.filter(id__in=product_id).order_by('price')
+            product_serializer=productSerializer(data,many=True)
+            page = self.paginate_queryset(data)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+            data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('price')
+            product_serializer=productSerializer(data1,many=True)
+            page = self.paginate_queryset(data1)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data1,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+            data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('price')
+            product_serializer=productSerializer(data2,many=True)
+            page = self.paginate_queryset(data2)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data2,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+            data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('price')
+            product_serializer=productSerializer(data3,many=True)
+            page = self.paginate_queryset(data3)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data3,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+            data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('price')
+            product_serializer=productSerializer(data4,many=True)
+            page = self.paginate_queryset(data4)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data4,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+            data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('price')
+            product_serializer=productSerializer(data5,many=True)
+            page = self.paginate_queryset(data5)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data5,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+            data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('price')
+            product_serializer=productSerializer(data6,many=True)
+            page = self.paginate_queryset(data6)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data6,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+            data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('price')
+            product_serializer=productSerializer(data7,many=True)
+            page = self.paginate_queryset(data7)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data7,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+
+class hightolow(APIView,PaginationHandlerMixin):
+    pagination_class = MyPaginator
+    permission_classes = (AllowAny,)
+    serializer_class = productfilterserializers
+    def post(self, request):
+        print(request.data)
+        product_id=request.data["product_id"]
+        print(product_id)
+        print(bool(product_id))
+        attribute_id=request.data["attribute_id"]
+        print(attribute_id)
+        print(bool(attribute_id))
+        brand_id=request.data["brand_id"]
+        print(brand_id)
+        print(bool(brand_id))
+        subcategory_id=request.data["subcategory_id"]
+        print(subcategory_id)
+        print(bool(subcategory_id))
+        if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+            data=Product.objects.filter(id__in=product_id).order_by('-price')
+            page = self.paginate_queryset(data)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data,many=True)
+                return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+            data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-price')
+            product_serializer=productSerializer(data1,many=True)
+            page = self.paginate_queryset(data1)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data1,many=True)
+                return Response(product_serializer.data)
+            # return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+            data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('-price')
+            product_serializer=productSerializer(data2,many=True)
+            page = self.paginate_queryset(data2)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data2,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+            data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('-price')
+            product_serializer=productSerializer(data3,many=True)
+            page = self.paginate_queryset(data3)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data3,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+            data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('-price')
+            product_serializer=productSerializer(data4,many=True)
+            page = self.paginate_queryset(data4)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data4,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+            data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('-price')
+            product_serializer=productSerializer(data5,many=True)
+            page = self.paginate_queryset(data5)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data5,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+            data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('-price')
+            product_serializer=productSerializer(data6,many=True)
+            page = self.paginate_queryset(data6)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data6,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+            data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('-price')
+            product_serializer=productSerializer(data7,many=True)
+            page = self.paginate_queryset(data7)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data7,many=True)
+                return Response(product_serializer.data)
+            # return Response(product_serializer.data)
+        
+class newest(APIView,PaginationHandlerMixin):
+    pagination_class = MyPaginator
+    permission_classes = (AllowAny,)
+    serializer_class = productfilterserializers
+    def post(self, request):
+        print(request.data)
+        
+        product_id=request.data["product_id"]
+        print(product_id)
+        print(bool(product_id))
+        attribute_id=request.data["attribute_id"]
+        print(attribute_id)
+        print(bool(attribute_id))
+        brand_id=request.data["brand_id"]
+        print(brand_id)
+        print(bool(brand_id))
+        subcategory_id=request.data["subcategory_id"]
+        print(subcategory_id)
+        print(bool(subcategory_id))
+        
+        if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+            data=Product.objects.filter(id__in=product_id).order_by('-created_at')
+            product_serializer=productSerializer(data,many=True)
+            page = self.paginate_queryset(data)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+            data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+            product_serializer=productSerializer(data1,many=True)
+            page = self.paginate_queryset(data1)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data1,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+            data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id).order_by('-created_at')
+            product_serializer=productSerializer(data2,many=True)
+            page = self.paginate_queryset(data2)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data2,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+            data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id).order_by('-created_at')
+            product_serializer=productSerializer(data3,many=True)
+            page = self.paginate_queryset(data3)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data3,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+            data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id).order_by('-created_at')
+            product_serializer=productSerializer(data4,many=True)
+            page = self.paginate_queryset(data4)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data4,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+            data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id).order_by('-created_at')
+            product_serializer=productSerializer(data5,many=True)
+            page = self.paginate_queryset(data5)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data5,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+            data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id).order_by('-created_at')
+            product_serializer=productSerializer(data6,many=True)
+            page = self.paginate_queryset(data6)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data6,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+        elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+            data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)).order_by('-created_at')
+            product_serializer=productSerializer(data7,many=True)
+            page = self.paginate_queryset(data7)
+            if page is not None:
+                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                return Response(serializer.data)
+            else:
+                product_serializer=productSerializer(data7,many=True)
+                return Response(product_serializer.data)
+            return Response(product_serializer.data)
+        
+class discount(APIView,PaginationHandlerMixin):
+    pagination_class = MyPaginator
+    permission_classes = (AllowAny,)
+    serializer_class = productfilterserializers
+    data=Product.objects.filter(Q(is_active=True)& Q(discounted_price__isnull= False))
+    def post(self, request):
+        print(request.data)
+        
+        product_id=request.data["product_id"]
+        print(product_id)
+        print(bool(product_id))
+        attribute_id=request.data["attribute_id"]
+        print(attribute_id)
+        print(bool(attribute_id))
+        brand_id=request.data["brand_id"]
+        print(brand_id)
+        print(bool(brand_id))
+        subcategory_id=request.data["subcategory_id"]
+        print(subcategory_id)
+        print(bool(subcategory_id))
+        if self.data.exists():
+            if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+                data=Product.objects.filter(id__in=product_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+                data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data1,many=True)
+                page = self.paginate_queryset(data1)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data1,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+                data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data2,many=True)
+                page = self.paginate_queryset(data2)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data2,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+                data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data3,many=True)
+                page = self.paginate_queryset(data3)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data3,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+                data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data4,many=True)
+                page = self.paginate_queryset(data4)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data4,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+                data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data5,many=True)
+                page = self.paginate_queryset(data5)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data5,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+                data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id,discounted_price__isnull= False).order_by('discounted_price')
+                product_serializer=productSerializer(data6,many=True)
+                page = self.paginate_queryset(data6)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data6,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+                data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)& Q(discounted_price__isnull= False)).order_by('discounted_price')
+                product_serializer=productSerializer(data7,many=True)
+                page = self.paginate_queryset(data7)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data7,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+        else:
+            if bool(product_id)==True and  bool(subcategory_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+                data=Product.objects.filter(id__in=product_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(attribute_id)==True and bool(subcategory_id)==False and bool(brand_id)==False:
+                data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data1,many=True)
+                page = self.paginate_queryset(data1)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data1,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(brand_id)==True and bool(subcategory_id)==False and bool(attribute_id)==False:
+                data2=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data2,many=True)
+                page = self.paginate_queryset(data2)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data2,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==False and bool(attribute_id)==False:
+                data3=Product.objects.filter(id__in=product_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data3,many=True)
+                page = self.paginate_queryset(data3)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data3,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(attribute_id)==True and bool(brand_id)==False:
+                data4=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data4,many=True)
+                page = self.paginate_queryset(data4)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data4,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(attribute_id)==True and bool(brand_id)==True and bool(subcategory_id)==False:
+                data5=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id,brand_id__in=brand_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data5,many=True)
+                page = self.paginate_queryset(data5)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data5,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==False:
+                data6=Product.objects.filter(id__in=product_id,brand_id__in=brand_id,subcategory_id__in=subcategory_id,discounted_price__isnull= True).order_by('discounted_price')
+                product_serializer=productSerializer(data6,many=True)
+                page = self.paginate_queryset(data6)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data6,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
+            
+            elif bool(product_id)==True and bool(subcategory_id)==True and bool(brand_id)==True and bool(attribute_id)==True:
+                data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)& Q(discounted_price__isnull= True)).order_by('discounted_price')
+                product_serializer=productSerializer(data7,many=True)
+                page = self.paginate_queryset(data7)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data7,many=True)
+                    return Response(product_serializer.data)
+                return Response(product_serializer.data)
 class socialmedialist(viewsets.ModelViewSet):
     queryset = socialmedialinks.objects.all()
     serializer_class = sociallinkserializer
@@ -1041,6 +1902,6 @@ class universalnotificationlist(viewsets.ModelViewSet):
     authentication_classes=[JWTAuthentication,]
     serializer_class = unotificationserializer
     queryset = notification.objects.all().order_by("-id") 
-      
+
 def handler404(request,exception):
     return render(request, '404.html', status=404)
