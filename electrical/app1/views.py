@@ -1009,8 +1009,11 @@ class cancelorder(APIView):
         data2=cart_order.objects.get(order_payment_id=order_id)
         print(data2)
         client = razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
-        payments=payment.objects.get(order_id=order_id)
-        amount=data2.total_price
+        try:
+            payments=payment.objects.get(order_id=order_id)
+        except:
+            return Response({"msg":"Payment is not done"}, status=status.HTTP_404_NOT_FOUND)
+        amount=int(data2.total_price)*100
         client.payment.refund(payments.payment_id,{
             "amount": amount,
             "speed": "normal",
