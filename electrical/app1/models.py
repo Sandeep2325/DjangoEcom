@@ -744,3 +744,15 @@ class cart2(models.Model):
     price=models.CharField(max_length=1000,null=True,blank=True)
     order_id=models.CharField(max_length=100,null=True,blank=True)
     is_paid=models.BooleanField(default=False)
+class refund(models.Model):
+    refundId=models.CharField(max_length=100,null=True,blank=True)
+    entity=models.CharField(max_length=100,null=True,blank=True)
+    amount=models.CharField(max_length=100,null=True,blank=True)
+    currency=models.CharField(max_length=100,null=True,blank=True)
+    payment_id=models.CharField(max_length=100,null=True,blank=True)
+    created_at=models.CharField(max_length=100,null=True,blank=True)
+    status=models.CharField(max_length=100,null=True,blank=True)
+    speed_processed=models.CharField(max_length=100,null=True,blank=True)
+    speed_requested=models.CharField(max_length=100,null=True,blank=True)
+    
+   

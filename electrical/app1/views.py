@@ -1014,7 +1014,7 @@ class cancelorder(APIView):
         except:
             return Response({"msg":"Payment is not done"}, status=status.HTTP_404_NOT_FOUND)
         amount=int(data2.total_price)*100
-        client.payment.refund(payments.payment_id,{
+        res=client.payment.refund(payments.payment_id,{
             "amount": amount,
             "speed": "normal",
             "notes": {
@@ -1022,6 +1022,17 @@ class cancelorder(APIView):
                 "notes_key_2": "Engage"
             },
             })
+        refund.objects.create(
+        refundId = res['id'],
+        receiptId = res['receipt'],
+        entity = res['entity'],
+        currency = res['currency'],
+        amount = res['amount'],
+        payment_id = res['payment_id'],
+        created_at = res['created_at'],
+        status = res['status'],
+        speed_processed = res['speed_processed'],
+        speed_requested = res['speed_requested'],).save()
         data1=cart_order.objects.filter(order_payment_id=order_id).update(status="Cancelled")
         return Response({"msg":"Ordered Cancelled"}, status=status.HTTP_200_OK) 
 class universalnotificationlist(viewsets.ModelViewSet):
