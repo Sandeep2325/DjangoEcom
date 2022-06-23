@@ -746,6 +746,7 @@ class cart2(models.Model):
     is_paid=models.BooleanField(default=False)
 class refund(models.Model):
     refundId=models.CharField(max_length=100,null=True,blank=True)
+    receiptId=models.CharField(max_length=100,null=True,blank=True)
     entity=models.CharField(max_length=100,null=True,blank=True)
     amount=models.CharField(max_length=100,null=True,blank=True)
     currency=models.CharField(max_length=100,null=True,blank=True)
