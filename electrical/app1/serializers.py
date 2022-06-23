@@ -193,8 +193,8 @@ class newsletterserializer(serializers.ModelSerializer):
 class cartcreateserializer(serializers.ModelSerializer):
     p_id = serializers.IntegerField()
     class Meta:
-        fields=('id','p_id')
-        read_only_fields = ("user","product")
+        fields=('id','p_id',"is_active")
+        read_only_fields = ("user","product","is_active")
         model=Cart
 class cartquantityserializer(serializers.ModelSerializer):
     class Meta:
@@ -221,7 +221,7 @@ class cartserializer(serializers.ModelSerializer):
     product=cartproductSerializer(read_only=True)
     attributes=attributesSerializer(read_only=True)
     class Meta:
-        fields=('id','user','product','attributes','quantity','Total_amount','updated_at')
+        fields=('id','user','product','attributes','quantity','Total_amount','updated_at',"is_active")
         model=Cart
     
 class ordersummary(serializers.Serializer):

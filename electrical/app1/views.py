@@ -260,14 +260,13 @@ class cartCreateView1(ModelViewSet):
         productt=Product.objects.get(id=int(p_id))
         if data1.exists():
             serializer = self.serializer_class(data=request.data)
-            # serializer.save(user=self.request.user)
             data2=Cart.objects.filter(user=self.request.user,product=productt)
             if data2.exists():
                 return Response({"msg":"Product already exists in cart"},status=status.HTTP_409_CONFLICT)
             if serializer.is_valid():
-                print("--------------------------------",self.request.user)
                 serializer.save(user=self.request.user,product=productt)
-                return Response(data, status=status.HTTP_201_CREATED)
+                cart=cartcreateserializer(data2,many=True).data
+                return Response(cart, status=status.HTTP_201_CREATED)
             else:
                 return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         else:
@@ -999,6 +998,7 @@ class orderproduct(APIView):
         data1=cart2.objects.filter(order_id=order_id)
         product_serializer=self.serializer_class(data1,many=True)
         return Response(product_serializer.data, status=status.HTTP_200_OK)
+import razorpay
 class cancelorder(APIView):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]
@@ -1006,13 +1006,21 @@ class cancelorder(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         order_id = request.data['order_id']
-        data2=cart_order.objects.filter(order_payment_id=order_id,status="Delivered")
+        data2=cart_order.objects.get(order_payment_id=order_id,status="Delivered")
         print(data2)
-        if data2.exists():
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-        else:
-            data1=cart_order.objects.filter(order_payment_id=order_id).update(status="Cancelled")
-            return Response({"msg":"Ordered Cancelled"}, status=status.HTTP_200_OK)  
+        client = razorpay.Client(auth=('rzp_test_JiD8eNtJ2aNwZr','gtukARkLZ5U4Bjo9EfCSWkMf'))
+        payments=payment.objects.get(order_id=order_id)
+        amount=data2.total_price
+        client.payment.refund(payments.payment_id,{
+            "amount": amount,
+            "speed": "normal",
+            "notes": {
+                "notes_key_1": "Beam me up Scotty.",
+                "notes_key_2": "Engage"
+            },
+            })
+        data1=cart_order.objects.filter(order_payment_id=order_id).update(status="Cancelled")
+        return Response({"msg":"Ordered Cancelled"}, status=status.HTTP_200_OK) 
 class universalnotificationlist(viewsets.ModelViewSet):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]

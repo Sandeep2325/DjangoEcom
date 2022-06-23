@@ -611,10 +611,7 @@ class cartadmin(ExportActionMixin,admin.ModelAdmin):
     list_display=['id','user','product','attributes','price','offer_price','quantity','Total_amount','amount_saved','date','updated_at']
     list_editable = ['product','attributes','quantity']   
     search_fields = ['user__username','product__title']
-class checkoutadmin(admin.ModelAdmin):
-    list_display=['id','user','cart_products',"Shipping_address","checkout_amount"]
-    # def get_products(self, obj):
-    # return "\n".join([p.product for p in obj.cart.all()])     
+ 
 
 class latestproductadmin(admin.ModelAdmin):
     list_display=['id','product','created_date','action_btnn']
@@ -697,7 +694,6 @@ admin.site.register(socialmedialinks,socialmedialinksadmin)
 admin.site.register(latest_product,latestproductadmin)
 admin.site.register(most_selled_products,mostselledproductadmin)
 admin.site.register(newsletter,newsletterproductadmin)
-admin.site.register(checkout,checkoutadmin)
 admin.site.register(Cart,cartadmin) 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)

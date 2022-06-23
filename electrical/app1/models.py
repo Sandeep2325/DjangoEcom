@@ -324,6 +324,7 @@ class Cart(models.Model):
         auto_now=True, verbose_name="Updated Date", null=True)
     # p_idd=models.CharField(null=True,blank=True,max_length=5)
     p_id=models.CharField(null=True,blank=True,max_length=5)
+    is_active=models.BooleanField(default=True)
     # coupon=models.CharField(max_length=50,null=True,blank=True)
     # coupons=models.ForeignKey("Coupon",on_delete=models.CASCADE,null=True)
 
@@ -419,59 +420,6 @@ class Cart(models.Model):
         verbose_name_plural = "Carts"
     def __str__(self):
         return str(self.product)
-class checkout(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    cart=models.ManyToManyField(Cart)
-    Shipping_address=models.ForeignKey(Address,on_delete=models.CASCADE,verbose_name="Shipping Address")
-    Coupon=models.CharField(max_length=100,null=True,blank=True)
-
-    def cart_products(self):
-        return ",".join([str(p) for p in self.cart.all()])
-    def No_of_items_to_checkout(self):
-        return self.cart.all().count()
-    def __str__(self):
-        return str(self.cart.first())
-    class Meta:
-        verbose_name_plural = "Checkouts"
-    @property
-    def checkout_amount(self):
-        try:
-            total=0
-            for i in self.cart.all():
-                total=total+i.Total_amount
-            if self.Coupon !=None:
-                coupons_list=[]
-                coupons_discount=[]
-                data=Coupon.objects.filter(Coupon=self.Coupon)
-                for a in Coupon.objects.all():
-                        coupon_=a.coupon
-                        coupons_list.append(coupon_)
-                        coupons_discount.append(a.coupon_discount)
-                print(coupons_discount)
-                print(coupons_list)
-                try: 
-                    for i in range(len(coupons_list)):
-                        print(self.Coupon,"==",coupons_list[i])
-                        if self.Coupon==coupons_list[i]:
-                            coupon_price=coupons_discount[i]
-                            multiplier=coupon_price/100
-                            old_price=total
-                            newprice=ceil(old_price-(old_price*multiplier))
-                            price=newprice
-                        else:
-                            price=total
-                    return price
-                except Exception as e:
-                    print(e)
-            return total
-        except:
-            # print(e)
-            total=0
-            for i in self.cart.all():
-                total=total+i.Total_amount
-            return total
-
-
 
 class Coupon(models.Model):
     coupon = models.CharField(
