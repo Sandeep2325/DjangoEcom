@@ -132,7 +132,6 @@ class latestview(viewsets.ModelViewSet):
        def list(self, request,):
            serializer = productSerializer(self.queryset, many=True)
            return Response(serializer.data)
-
        def retrieve(self, request, pk=None):
            item = Product.objects.filter(id=pk)
            serializer = productSerializer(item,many=True)
@@ -359,7 +358,6 @@ class newsletterCreateView(ModelViewSet):
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)      
 class productsearch(viewsets.ModelViewSet):
     queryset = Product.objects.all().order_by('id')
-    # print(queryset)
     serializer_class = productsearchSerializer
     pagination_class = MyPaginator
     search_fields = ['$title','$category__category','$brand__brand_name',"$subcategory__sub_category"]
@@ -601,17 +599,23 @@ class ratingupdateView(UpdateAPIView):
     serializer_class = ratingSerializer
     queryset = Rating.objects.all()
 class AddCouponView(APIView):
-    permission_classes = (AllowAny, )
+    permission_classes=(IsAuthenticated,)
+    authentication_classes=[JWTAuthentication,]
     serializer_class=CouponSerializer
     def post(self, request, *args, **kwargs):
         serializer=CouponSerializer(data=request.data)
         coupon=request.data["coupon"]
         try:
-            data=Coupon.objects.get(coupon=coupon)
-            data.coupon_discount
-            return Response({"data":data.coupon_discount},status=status.HTTP_202_ACCEPTED)   
+            data=redeemedcoupons.objects.get(user=self.request.user,coupon=coupon)
+            return Response({"data":"This coupon already used"},status=status.HTTP_409_CONFLICT)
         except:
-            return Response({"data":"Invalid coupon"},status=status.HTTP_404_NOT_FOUND)  
+            try:
+                data=Coupon.objects.get(coupon=coupon)
+                data.coupon_discount
+                redeemedcoupons.objects.create(user=self.request.user,coupon=coupon)
+                return Response({"data":data.coupon_discount},status=status.HTTP_202_ACCEPTED)   
+            except:
+                return Response({"data":"Invalid coupon"},status=status.HTTP_404_NOT_FOUND)  
 class cartlist(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -748,7 +752,7 @@ class invoice(APIView):
         amount=sum(total_amount)   
         gst= amount*0.18
         deliver_charge=(amount+gst)*0.04
-        grand_total=gst+amount+deliver_charge
+        grand_total=order.total_price
         print(data)
         context_dict={
             "order_id":order.order_payment_id,
@@ -765,9 +769,10 @@ class invoice(APIView):
             "city":address.city,
             "state":address.state,
             "pincode":address.pincode
-        }
+            }
         template_name='app1/invoice.html'
         pdf = html_to_pdf(template_name,context_dict)
+        print(pdf)
         return FileResponse(pdf,as_attachment=True,filename="invoice.pdf",content_type='application/pdf',status=status.HTTP_201_CREATED)   
    
 class filters(APIView,PaginationHandlerMixin):
@@ -1820,13 +1825,13 @@ class discount(APIView,PaginationHandlerMixin):
                 data7=Product.objects.filter(Q(id__in=product_id)& Q(attributes_id__in= attribute_id)& Q(brand_id__in=brand_id)& Q(subcategory_id__in=subcategory_id)& Q(discounted_price__isnull= True)).order_by('discounted_price')
                 product_serializer=productSerializer(data7,many=True)
                 page = self.paginate_queryset(data7)
-                if page is not None:
+                if page is not None:    
                     serializer = self.get_paginated_response(productSerializer(page,many=True).data)
                     return Response(serializer.data)
                 else:
                     product_serializer=productSerializer(data7,many=True)
                     return Response(product_serializer.data)
-                return Response(product_serializer.data)
+                return Response(product_serializer.data) 
 class socialmedialist(viewsets.ModelViewSet):
     queryset = socialmedialinks.objects.all()
     serializer_class = sociallinkserializer

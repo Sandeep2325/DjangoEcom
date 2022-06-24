@@ -718,6 +718,7 @@ admin.site.register(subcategory,subcategoryadmin)
 admin.site.register(cart_order,cartorderadmin)
 admin.site.register(payment,paymentadmin)
 admin.site.register(refund,refundadmin)
+admin.site.register(redeemedcoupons)
 # admin.site.register(cart2)
 # admin.site.register(notificationn)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
