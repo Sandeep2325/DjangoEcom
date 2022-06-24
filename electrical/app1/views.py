@@ -1909,6 +1909,9 @@ class universalnotificationlist(viewsets.ModelViewSet):
     authentication_classes=[JWTAuthentication,]
     serializer_class = unotificationserializer
     queryset = notification.objects.all().order_by("-id") 
+    def get_queryset(self):
+        user = self.request.user
+        return notification.objects.filter(user=user).order_by("-id")
 class infoview(viewsets.ModelViewSet):
     queryset=info.objects.filter(is_active=True)[:1]
     serializer_class=infoserializer
