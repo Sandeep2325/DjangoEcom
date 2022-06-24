@@ -759,4 +759,10 @@ class redeemedcoupons(models.Model):
     coupon=models.CharField(max_length=100,null=True,blank=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     is_paid=models.BooleanField(default=False) 
+class info(models.Model):
+    phone=models.CharField(max_length=50,null=True,blank=True)
+    mail=models.EmailField(max_length=266,null=True,blank=True)
+    Address=models.TextField(null=True,blank=True)
+    about=models.TextField(null=True,blank=True)
+    is_active=models.BooleanField(default=False)
    

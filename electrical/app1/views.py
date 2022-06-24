@@ -612,7 +612,7 @@ class AddCouponView(APIView):
             try:
                 data=Coupon.objects.get(coupon=coupon)
                 data.coupon_discount
-                redeemedcoupons.objects.create(user=self.request.user,coupon=coupon)
+                redeemedcoupons.objects.create(user=self.request.user,coupon=coupon,is_paid=True)
                 return Response({"data":data.coupon_discount},status=status.HTTP_202_ACCEPTED)   
             except:
                 return Response({"data":"Invalid coupon"},status=status.HTTP_404_NOT_FOUND)  
@@ -1907,6 +1907,8 @@ class universalnotificationlist(viewsets.ModelViewSet):
     authentication_classes=[JWTAuthentication,]
     serializer_class = unotificationserializer
     queryset = notification.objects.all().order_by("-id") 
-
+class infoview(viewsets.ModelViewSet):
+    queryset=info.objects.filter(is_active=True)[:1]
+    serializer_class=infoserializer
 def handler404(request,exception):
     return render(request, '404.html', status=404)

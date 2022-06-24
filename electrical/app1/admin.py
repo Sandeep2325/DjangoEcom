@@ -689,6 +689,14 @@ class paymentadmin(admin.ModelAdmin):
     list_display=["id","order_id","payment_id","signature_id","amount"]
 class refundadmin(admin.ModelAdmin):
     list_display=["refundId","entity","currency","amount","payment_id","created_at","status","speed_processed","speed_requested"]
+class infoadmin(admin.ModelAdmin):
+    list_display=['id','phone','mail','Address','about','is_active']
+    list_editable=['phone',"mail","is_active"]
+    MAX_OBJECTS = 1
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 1:
+            return False
+        return super().has_add_permission(request)
 admin.site.register(userphoto,userphotoadmin)
 admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
@@ -719,6 +727,7 @@ admin.site.register(cart_order,cartorderadmin)
 admin.site.register(payment,paymentadmin)
 admin.site.register(refund,refundadmin)
 admin.site.register(redeemedcoupons)
+admin.site.register(info,infoadmin)
 # admin.site.register(cart2)
 # admin.site.register(notificationn)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 

@@ -425,4 +425,8 @@ class cancelorderserializer(serializers.Serializer):
     order_id=serializers.CharField()
 class cartidserializer(serializers.Serializer):
     cart_id=serializers.ListField()
+class infoserializer(serializers.ModelSerializer):
+    class Meta:
+        model=info
+        fields="__all__"
 
