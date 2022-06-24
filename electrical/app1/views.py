@@ -676,7 +676,7 @@ class checkoutsummaryview(APIView):
         delivery_charges=(price*0.04)
         # delivery_charges=100
         total_payable=(price+delivery_charges)
-        data2=[{"total_items":total_items,"price":price,"delivery_charges":"{:.2f}".format(delivery_charges),"total_payable":"{:.2f}".format(total_payable)}]
+        data2=[{"total_items":total_items,"price":"{:.2f}".format(price),"delivery_charges":"{:.2f}".format(delivery_charges),"total_payable":"{:.2f}".format(total_payable)}]
         results=checkoutsummary(data2,many=True).data
         return Response(results)
 class deletenotification(DestroyAPIView): 
@@ -1897,8 +1897,20 @@ class cancelorder(APIView):
         status = res['status'],
         speed_processed = res['speed_processed'],
         speed_requested = res['speed_requested'],).save()
-        data1=cart_order.objects.filter(order_payment_id=order_id).update(status="Cancelled")
+        cart_order.objects.filter(order_payment_id=order_id).update(status="Cancelled")
         return Response({"msg":"Ordered Cancelled"}, status=status.HTTP_200_OK) 
+class deleteunordered(APIView):
+    # permission_classes=(IsAuthenticated,)
+    # authentication_classes=[JWTAuthentication,]
+    serializer_class=cancelorderserializer
+    def post(self,request):
+        self.serializer_class(data=request.data)
+        order_id = request.data['order_id']
+        try:
+            cart_order.objects.get(order_payment_id=order_id,is_paid=False).delete()
+            return Response({"msg":"Action completed"},status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({"msg":"Invalid Order ID"},status=status.HTTP_404_NOT_FOUND)
 class universalnotificationlist(viewsets.ModelViewSet):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]
