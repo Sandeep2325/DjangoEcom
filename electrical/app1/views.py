@@ -415,23 +415,18 @@ class myaccountupdateview(APIView):
     def put(self, request, pk, format=None):
         email=request.data['email']
         data=my_account.objects.filter(Q(user=self.request.user)& Q(email=email)& Q(is_confirmed=True))
-        # data=my_account.objects.filter(email=email)
         print(data)  
         if data.exists():
             item = get_object_or_404(my_account.objects.all(), pk=pk)
             serializer = myaccountserializers(item, data=request.data)
             if serializer.is_valid():
                 serializer.save(user=self.request.user)
-                # my_account.objects.filter(email=email).update(
-                # is_confirmed=True)
                 return Response({"msg":"updated successfully"},status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
         else:
             item = get_object_or_404(my_account.objects.all(), pk=pk)
             serializer = myaccountserializers(item, data=request.data)
             if serializer.is_valid():
-                # if data.exists():
-                #     return Response({"msg":"Entered Email id already in use"},status=status.HTTP_409_CONFLICT)
                 serializer.save(user=self.request.user)
                 my_account.objects.filter(user=self.request.user).update(is_confirmed=False)
                 return Response({"msg":"updated successfully verify your email"},status=status.HTTP_201_CREATED)

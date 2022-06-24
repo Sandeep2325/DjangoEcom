@@ -37,82 +37,81 @@ class myaccountserializers(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
         read_only_fields = ("user",) 
-        
         model=my_account
     
-    def validate_first_name(self, value):
-        # if value == None:
-        if value==None:
-            raise serializers.ValidationError("Please enter the first name")
-        return value
-    def validate_last_name(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please enter the last name")
-        return value
+    # def validate_first_name(self, value):
+    #     # if value == None:
+    #     if value==None:
+    #         raise serializers.ValidationError("Please enter the first name")
+    #     return value
+    # def validate_last_name(self, value):
+    #     if value == None:
+    #         raise serializers.ValidationError("Please enter the last name")
+    #     return value
 
-    def validate_phone_number(self, value):
-        regex=re.compile(r"\d{9}[-\.\s]??\d{9}[-\.\s]??\d{9}|\(\d{9}\)\s*\d{9}[-\.\s]??\d{9}|\d{9}[-\.\s]??\d{2}")
-        if re.match(regex, str(value)):
-        # if len(str(value)) !=10 :
-            raise serializers.ValidationError("invalid phone number")
-        return value
-    def validate_email(self, value):
-        # regex = re.compile(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b')
-        # if re.match(regex,value):
-        if value == None:
-            raise serializers.ValidationError("Please enter the email address")
-        return value
-    def validate_address(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please enter the address")
-        return value
-    def validate_city(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please enter the city")
-        return value
-    def validate_state(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please enter the state")
-        return value
-    def validate_postal_address(self, value):
-        if value == None:
-            raise serializers.ValidationError("Please enter the postal address")
-        return value
+    # def validate_phone_number(self, value):
+    #     regex=re.compile(r"\d{9}[-\.\s]??\d{9}[-\.\s]??\d{9}|\(\d{9}\)\s*\d{9}[-\.\s]??\d{9}|\d{9}[-\.\s]??\d{2}")
+    #     if re.match(regex, str(value)):
+    #     # if len(str(value)) !=10 :
+    #         raise serializers.ValidationError("invalid phone number")
+    #     return value
+    # def validate_email(self, value):
+    #     # regex = re.compile(r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b')
+    #     # if re.match(regex,value):
+    #     if value == None:
+    #         raise serializers.ValidationError("Please enter the email address")
+    #     return value
+    # def validate_address(self, value):
+    #     if value == None:
+    #         raise serializers.ValidationError("Please enter the address")
+    #     return value
+    # def validate_city(self, value):
+    #     if value == None:
+    #         raise serializers.ValidationError("Please enter the city")
+    #     return value
+    # def validate_state(self, value):
+    #     if value == None:
+    #         raise serializers.ValidationError("Please enter the state")
+    #     return value
+    # def validate_postal_address(self, value):
+    #     if value == None:
+    #         raise serializers.ValidationError("Please enter the postal address")
+    #     return value
  
 class CustomerAddressSerializers(serializers.ModelSerializer):
     class Meta:
         fields = ("id","fullname","phone","locality","state","city","pincode","address","home","work","default")
         read_only_fields = ("user",)
         model = Address
-    # def validate_fullname(self, value):
-    #     if value == "":
-    #         raise serializers.ValidationError("Please provide Full Name")
-    #     return value
-    # def validate_phone(self,value):
-    #     if value==None:
-    #         raise serializers.ValidationError("Please Enter phone number")
-    #     return value
-    # def validate_locality(self,value):
-    #     if value=="":
-    #         raise serializers.ValidationError("Please Enter locality")
-    #     return value
+    def validate_fullname(self, value):
+        if value == "":
+            raise serializers.ValidationError("Please provide Full Name")
+        return value
+    def validate_phone(self,value):
+        if value==None:
+            raise serializers.ValidationError("Please Enter phone number")
+        return value
+    def validate_locality(self,value):
+        if value=="":
+            raise serializers.ValidationError("Please Enter locality")
+        return value
     
-    # def validate_state(self,value):
-    #     if value=="":
-    #         raise serializers.ValidationError("Please provide state name")
-    #     return value
-    # def validate_city(self,value):
-    #     if value=="":
-    #         raise serializers.ValidationError("Please provide city name")
-    #     return value
-    # def validate_pincode(self,value):
-    #     if value==None:
-    #         raise serializers.ValidationError("Please provide pincode")
-    #     return value
-    # def validate_address(self,value):
-    #     if value=="":
-    #         raise serializers.ValidationError("Please provide address")
-    #     return value
+    def validate_state(self,value):
+        if value=="":
+            raise serializers.ValidationError("Please provide state name")
+        return value
+    def validate_city(self,value):
+        if value=="":
+            raise serializers.ValidationError("Please provide city name")
+        return value
+    def validate_pincode(self,value):
+        if value==None:
+            raise serializers.ValidationError("Please provide pincode")
+        return value
+    def validate_address(self,value):
+        if value=="":
+            raise serializers.ValidationError("Please provide address")
+        return value
 class defaultaddressserailizer(serializers.ModelSerializer):
     class Meta:
         fields=("default",)   
