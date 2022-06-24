@@ -606,7 +606,7 @@ class AddCouponView(APIView):
         serializer=CouponSerializer(data=request.data)
         coupon=request.data["coupon"]
         try:
-            data=redeemedcoupons.objects.get(user=self.request.user,coupon=coupon)
+            cart_order.objects.get(user=self.request.user,coupon=coupon,is_paid=True)
             return Response({"data":"This coupon already used"},status=status.HTTP_409_CONFLICT)
         except:
             try:

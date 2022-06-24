@@ -757,5 +757,6 @@ class refund(models.Model):
     speed_requested=models.CharField(max_length=100,null=True,blank=True)
 class redeemedcoupons(models.Model):
     coupon=models.CharField(max_length=100,null=True,blank=True)
-    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True) 
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    is_paid=models.BooleanField(default=False) 
    
