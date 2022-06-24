@@ -118,7 +118,11 @@ def handle_payment_success(request):
 
     # checking if the transaction is valid or not if it is "valid" then check will return None
     check = client.utility.verify_payment_signature(data)
+    # generated_signature = hmac_sha256(order_id + "|" + razorpay_payment_id, secret);
 
+    # if (generated_signature == razorpay_signature) {
+    #     payment is successful
+#   }
     # if check is not None:
     #     print("Redirect to error url or error page")
     #     return Response({'error': 'Something went wrong'})

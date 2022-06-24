@@ -564,7 +564,7 @@ class customer_message(models.Model):
         return str(self.first_name,)
 
     class Meta:
-        verbose_name_plural = "Customer msgs/contact us"
+        verbose_name_plural = "Customer msgs"
 
 
 class Banner(models.Model):
@@ -728,7 +728,8 @@ class cart_order(models.Model):
         message="Hello {} your Order({}) is {}".format(str(self.user.username),self.order_payment_id,self.status)
         notification.objects.create(user=self.user,message=message)
         return super().save(*args, **kwargs)
-    
+    class Meta:
+        verbose_name_plural="Orders"
 class payment(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     order_id=models.CharField(max_length=1000,null=True,blank=True)
@@ -737,6 +738,8 @@ class payment(models.Model):
     amount=models.CharField(max_length=20,null=True,blank=True)
     def __str__(self):
         return str(self.order_id)
+    class Meta:
+        verbose_name_plural="Payments"
 class cart2(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     product=models.ForeignKey(Product,on_delete=models.CASCADE,null=True,blank=True)
@@ -755,14 +758,21 @@ class refund(models.Model):
     status=models.CharField(max_length=100,null=True,blank=True)
     speed_processed=models.CharField(max_length=100,null=True,blank=True)
     speed_requested=models.CharField(max_length=100,null=True,blank=True)
+    class Meta:
+        verbose_name_plural="Refunds"
 class redeemedcoupons(models.Model):
     coupon=models.CharField(max_length=100,null=True,blank=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     is_paid=models.BooleanField(default=False) 
+    class Meta:
+        verbose_name_plural="Redeemed Coupons"
 class info(models.Model):
     phone=models.CharField(max_length=50,null=True,blank=True)
     mail=models.EmailField(max_length=266,null=True,blank=True)
     Address=models.TextField(null=True,blank=True)
     about=models.TextField(null=True,blank=True)
     is_active=models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name_plural="Contact Info"
    

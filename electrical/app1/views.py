@@ -753,9 +753,11 @@ class invoice(APIView):
         gst= amount*0.18
         deliver_charge=(amount+gst)*0.04
         grand_total=order.total_price
+        paymentid=payment.objects.get(order_id=order_id)
         print(data)
         context_dict={
             "order_id":order.order_payment_id,
+            "payment_id":paymentid.payment_id,
             "date":order.date,
             "total_price":amount,
             "data":data,
