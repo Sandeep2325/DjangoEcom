@@ -84,35 +84,35 @@ class CustomerAddressSerializers(serializers.ModelSerializer):
         fields = ("id","fullname","phone","locality","state","city","pincode","address","home","work","default")
         read_only_fields = ("user",)
         model = Address
-    def validate_fullname(self, value):
-        if value == "":
-            raise serializers.ValidationError("Please provide Full Name")
-        return value
-    def validate_phone(self,value):
-        if value==None:
-            raise serializers.ValidationError("Please Enter phone number")
-        return value
-    def validate_locality(self,value):
-        if value=="":
-            raise serializers.ValidationError("Please Enter locality")
-        return value
+    # def validate_fullname(self, value):
+    #     if value == "":
+    #         raise serializers.ValidationError("Please provide Full Name")
+    #     return value
+    # def validate_phone(self,value):
+    #     if value==None:
+    #         raise serializers.ValidationError("Please Enter phone number")
+    #     return value
+    # def validate_locality(self,value):
+    #     if value=="":
+    #         raise serializers.ValidationError("Please Enter locality")
+    #     return value
     
-    def validate_state(self,value):
-        if value=="":
-            raise serializers.ValidationError("Please provide state name")
-        return value
-    def validate_city(self,value):
-        if value=="":
-            raise serializers.ValidationError("Please provide city name")
-        return value
-    def validate_pincode(self,value):
-        if value==None:
-            raise serializers.ValidationError("Please provide pincode")
-        return value
-    def validate_address(self,value):
-        if value=="":
-            raise serializers.ValidationError("Please provide address")
-        return value
+    # def validate_state(self,value):
+    #     if value=="":
+    #         raise serializers.ValidationError("Please provide state name")
+    #     return value
+    # def validate_city(self,value):
+    #     if value=="":
+    #         raise serializers.ValidationError("Please provide city name")
+    #     return value
+    # def validate_pincode(self,value):
+    #     if value==None:
+    #         raise serializers.ValidationError("Please provide pincode")
+    #     return value
+    # def validate_address(self,value):
+    #     if value=="":
+    #         raise serializers.ValidationError("Please provide address")
+    #     return value
 class defaultaddressserailizer(serializers.ModelSerializer):
     class Meta:
         fields=("default",)   
