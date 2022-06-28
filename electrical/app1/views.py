@@ -357,12 +357,14 @@ class subproducts(viewsets.ModelViewSet):
         # pro1=[]
         for i in Cart.objects.all():
             subcategory.append(str(i.product.subcategory))
+        print(subcategory)
         a=list(set(subcategory))
         print(a)
         for i in a:
-            a=Cart.objects.filter(product__subcategory__sub_category=i,user=self.request.user)
-            for i in a:
-                product[str(i.product.subcategory)]=a
+            print(i)
+            b=Cart.objects.filter(product__subcategory__sub_category=i,user=self.request.user)
+            # for i in b:
+            product[i]=b
             for k,v in product.items():
                 pro=v
             serializer=self.serializer_class(pro,many=True)
