@@ -345,6 +345,8 @@ class subcategoryproductview(viewsets.ModelViewSet):
     #     serializer = categorySerializer01(item,many=True)
     #     return Response(serializer.data)
 class subproducts(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = [JWTAuthentication,]
     queryset=Product.objects.all()
     serializer_class = cartserializer11
     # renderer_classes=(JSONRenderer,)
