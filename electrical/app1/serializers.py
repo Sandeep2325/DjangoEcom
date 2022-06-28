@@ -130,7 +130,20 @@ class categorySerializer01(serializers.ModelSerializer):
     subcategory=subcategoryserializer(many=True,read_only=True)
     class Meta:
         fields = ("category","subcategory")
-        model = Category       
+        model = Category 
+class productSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("id","title", "discounted_price", "category","subcategory","attributes","brand","sku", "short_description", "detail_description","specification", "image","price",
+                 "is_active","available_stocks", "created_at", "updated_at")
+        model = Product
+        depth=1
+    # def __str__(self):
+    #     return self.fields
+class subcategory_products(serializers.ModelSerializer):
+    subcategory_product=productSerializer(many=True,read_only=True)  
+    class Meta:
+        fields=("sub_category","subcategory_product")  
+        model=subcategory
 class brandserializer(serializers.ModelSerializer):
     class Meta:
         fields="__all__"
@@ -143,13 +156,6 @@ class productsearchSerializer(serializers.ModelSerializer):
     
     class Meta:
         fields = ("id","title","category","image","price","discounted_price","subcategory","attributes","brand",)
-        model = Product
-        depth=1
-class productSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        fields = ("id","title", "discounted_price", "category","subcategory","attributes","brand","sku", "short_description", "detail_description","specification", "image","price",
-                 "is_active","available_stocks", "created_at", "updated_at")
         model = Product
         depth=1
 
@@ -212,8 +218,9 @@ class cartproductSerializer(serializers.HyperlinkedModelSerializer):
     category=cartcategorySerializer(read_only=True)
     brand=cartbrandserializer(read_only=True)
     image=imageserializer(many=True,read_only=True)
+    subcategory=subcategoryserializer(read_only=True)
     class Meta:
-        fields = ("id","title", "discounted_price", "category","brand","sku","image",)
+        fields = ("id","title", "discounted_price", "category","brand","subcategory","sku","image",)
         model = Product
          
 class cartserializer(serializers.ModelSerializer):
@@ -222,7 +229,12 @@ class cartserializer(serializers.ModelSerializer):
     class Meta:
         fields=('id','user','product','attributes','quantity','Total_amount','updated_at',"is_active")
         model=Cart
-    
+class cartserializer11(serializers.ModelSerializer):
+    product=cartproductSerializer(read_only=True)
+    attributes=attributesSerializer(read_only=True)
+    class Meta:
+        fields=('id','product','attributes','quantity','Total_amount','updated_at',"is_active")
+        model=Cart    
 class ordersummary(serializers.Serializer):
    """Your data serializer, define your fields here."""
    total_items = serializers.CharField()

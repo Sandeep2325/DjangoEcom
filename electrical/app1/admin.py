@@ -247,9 +247,9 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
         image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True
-        list_display = ['id', 'title','category','subcategory','brand',"attributes",'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
+        list_display = ['id', 'title',"type",'category','subcategory','brand',"attributes",'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
                         'updated_at','created_at','action_btn']  # ,'is_active','is_featured'
-        list_editable = ('category','attributes', 'is_active','brand','available_stocks')
+        list_editable = ('category','attributes', 'is_active','brand','available_stocks',"type")
         list_filter = ('category', 'is_active', 'updated_at')
         list_per_page = 20
         #inlines = [ImagemInline]
@@ -287,7 +287,8 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                         "update app1_product set discounted_price =NULL where discounted_price=0")
 
         def sales_discount(self, request, queryset):
-            Sales = sales.objects.all()
+            Sales = sales.objects.filter(is_active=True)
+            # Sales = sales.objects.all()
             # print(Sales)
             for sale in Sales:
                 discount = sale.sales_discount 
@@ -697,6 +698,9 @@ class infoadmin(admin.ModelAdmin):
         if self.model.objects.count() >= 1:
             return False
         return super().has_add_permission(request)
+class typeadmin(admin.ModelAdmin):
+    list_display=["type",]
+    
 admin.site.register(userphoto,userphotoadmin)
 admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
@@ -728,6 +732,7 @@ admin.site.register(payment,paymentadmin)
 admin.site.register(refund,refundadmin)
 admin.site.register(redeemedcoupons)
 admin.site.register(info,infoadmin)
+admin.site.register(producttype,typeadmin)
 # admin.site.register(cart2)
 # admin.site.register(notificationn)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 

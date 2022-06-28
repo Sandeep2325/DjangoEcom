@@ -1,7 +1,6 @@
 from django.urls import path,include
 from app1.models import Attributes
 from rest_framework_simplejwt import views as jwt_views
-from app1.dummyview import hightolow,lowtohigh,discount,newest,filters
 from app1 import dummyview
 from app1.views import *
 from app1.views1 import *
@@ -30,6 +29,7 @@ router.register('cartCreateView1',cartCreateView1)
 router.register('userphoto1',userphoto1,basename="userphoto1")
 router.register('addresscreate',AddressCreateView)
 router.register("listsubcategory",subcategoryview)
+router.register("subcategory-products",subproducts)
 router.register('newsletter',newsletterCreateView)
 router.register('products',productsearch)
 router.register('addresses',addresslist)

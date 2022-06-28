@@ -100,7 +100,9 @@ class productview(viewsets.ModelViewSet,PaginationHandlerMixin):
     filter_backends = (filters.SearchFilter,filters.OrderingFilter)
     def list(self, request,):
         # page = self.paginate_queryset(self.queryset)
-        serializer = productSerializer(self.queryset, many=True)
+        page = self.paginate_queryset(self.queryset)
+        # serializer = productSerializer(self.queryset, many=True)
+        serializer = self.get_paginated_response(productSerializer(page,many=True).data)
         return Response(serializer.data)
     def retrieve(self, request, pk=None):
         item = Product.objects.filter(Q(brand_id=pk)& Q(is_active=True))
@@ -332,6 +334,38 @@ class subcategoryview(viewsets.ModelViewSet):
         item = Category.objects.filter(id=pk)
         serializer = categorySerializer01(item,many=True)
         return Response(serializer.data)
+class subcategoryproductview(viewsets.ModelViewSet):
+    queryset=subcategory.objects.filter(sub_category__in=["MCB","Switch"])
+    serializer_class = subcategory_products
+    def list(self, request,):
+        serializer = self.serializer_class(self.queryset, many=True)
+        return Response(serializer.data)
+    # def retrieve(self, request, pk=None):
+    #     item = Category.objects.filter(id=pk)
+    #     serializer = categorySerializer01(item,many=True)
+    #     return Response(serializer.data)
+class subproducts(viewsets.ModelViewSet):
+    queryset=Product.objects.all()
+    serializer_class = cartserializer11
+    # renderer_classes=(JSONRenderer,)
+    def list(self,request):
+        subcategory=[]
+        product={}
+        lst=[]
+        # pro1=[]
+        for i in Cart.objects.all():
+            subcategory.append(str(i.product.subcategory))
+        a=list(set(subcategory))
+        print(a)
+        for i in a:
+            a=Cart.objects.filter(product__subcategory__sub_category=i)
+            for i in a:
+                product[str(i.product.subcategory)]=a
+            for k,v in product.items():
+                pro=v
+            serializer=self.serializer_class(pro,many=True)
+            lst.append({k:serializer.data})
+        return Response(lst)
 class newsletterCreateView(ModelViewSet):
     serializer_class = newsletterserializer
     queryset = newsletter.objects.all()
@@ -344,7 +378,6 @@ class newsletterCreateView(ModelViewSet):
         email = request.data['Email']
         print(email)
         serializer = self.serializer_class(data=request.data)
-       
         data1 = newsletter.objects.filter(Q(Email=email))
         if serializer.is_valid():
             if data1.exists():
@@ -382,7 +415,6 @@ class defaultaddressget(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication,]
     queryset = Address.objects.all()
     serializer_class=defaultaddressserailizer
-    
     def retrieve(self, request, pk=None):
         queryset=Address.objects.filter(user=self.request.user,id=pk)
         print(queryset)
@@ -394,7 +426,6 @@ class listattributes(viewsets.ModelViewSet):
 class listbrand(viewsets.ModelViewSet):
     queryset=Brand.objects.all()
     serializer_class=brandserializer  
-
 class CurrentUserViewSet(APIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
@@ -521,8 +552,6 @@ class product_brand(viewsets.ModelViewSet):
     pagination_class = MyPaginator
     def get_queryset(self):
         if 'pk' in self.kwargs:
-            print(self.kwargs['pk'])
-            print(Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True)))
             queryset=Product.objects.filter(Q(brand_id=self.kwargs['pk'])& Q(is_active=True))
             serializer = productSerializer(queryset,many=True)
             print(serializer.data)

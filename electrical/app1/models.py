@@ -213,7 +213,12 @@ class subcategory(models.Model):
     def __str__(self):
         template = '{0.sub_category}'
         return template.format(self)
-    
+class producttype(models.Model):
+    type=models.CharField(max_length=100,null=True,blank=True,verbose_name="Type")
+    def __str__(self):
+        return self.type
+    class Meta:
+        verbose_name_plural = '  Products Type'
 class Product(models.Model):
     def validate_image(fieldfile_obj):
         filesize = fieldfile_obj.file.size
@@ -240,7 +245,9 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category, verbose_name="Product category", on_delete=models.SET_NULL, null=True,blank=True)
     subcategory=models.ForeignKey(
-        subcategory, verbose_name="sub category", on_delete=models.SET_NULL, null=True,blank=True)
+        subcategory, verbose_name="sub category", on_delete=models.SET_NULL, null=True,blank=True,related_name="subcategory_product")
+    type=models.ForeignKey(
+        producttype, verbose_name="Type", on_delete=models.SET_NULL, null=True,blank=True)
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
     attributes = models.ForeignKey(
         "Attributes", verbose_name=" Product Attributes", on_delete=models.SET_NULL, null=True, blank=True)

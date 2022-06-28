@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-2x+5j9-5@8^tvzl-l--2%k_m!1ne!okdey#_rp8&v!@f=n0gf)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1','162.240.55.20',"322f-115-96-19-102.in.ngrok.io",'localhost:3000']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','162.240.55.20','localhost:3000','499f-116-74-253-32.in.ngrok.io']
 
 
 # Application definition
@@ -77,9 +77,9 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:8000','http://162.240.55.20',"https://322f-115-96-19-102.in.ngrok.io",'http://localhost:3000',
+    'http://127.0.0.1:8000','http://162.240.55.20','http://localhost:3000',"https://499f-116-74-253-32.in.ngrok.io"
 ]
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000','http://162.240.55.20','https://322f-115-96-19-102.in.ngrok.io','http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000','http://162.240.55.20','http://localhost:3000',"https://499f-116-74-253-32.in.ngrok.io"]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
