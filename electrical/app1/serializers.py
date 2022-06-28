@@ -229,12 +229,12 @@ class cartserializer(serializers.ModelSerializer):
     class Meta:
         fields=('id','user','product','attributes','quantity','Total_amount','updated_at',"is_active")
         model=Cart
-class cartserializer11(serializers.ModelSerializer):
-    product=cartproductSerializer(read_only=True)
-    attributes=attributesSerializer(read_only=True)
-    class Meta:
-        fields=('id','product','attributes','quantity','Total_amount','updated_at',"is_active")
-        model=Cart    
+# class cartserializer11(serializers.ModelSerializer):
+#     product=cartproductSerializer(read_only=True)
+#     attributes=attributesSerializer(read_only=True)
+#     class Meta:
+#         fields=('id','product','attributes','quantity','Total_amount','updated_at',"is_active")
+#         model=Cart    
 class ordersummary(serializers.Serializer):
    """Your data serializer, define your fields here."""
    total_items = serializers.CharField()

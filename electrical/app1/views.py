@@ -348,7 +348,7 @@ class subproducts(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     queryset=Product.objects.all()
-    serializer_class = cartserializer11
+    serializer_class = cartserializer
     # renderer_classes=(JSONRenderer,)
     def list(self,request):
         subcategory=[]
@@ -360,7 +360,7 @@ class subproducts(viewsets.ModelViewSet):
         a=list(set(subcategory))
         print(a)
         for i in a:
-            a=Cart.objects.filter(product__subcategory__sub_category=i)
+            a=Cart.objects.filter(product__subcategory__sub_category=i,user=self.request.user)
             for i in a:
                 product[str(i.product.subcategory)]=a
             for k,v in product.items():
