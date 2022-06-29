@@ -220,7 +220,7 @@ class cartproductSerializer(serializers.ModelSerializer):
     # image=imageserializer(many=True,read_only=True)
     # subcategory=subcategoryserializer(read_only=True)
     class Meta:
-        fields = ("id","title", "discounted_price", "category","brand","type","subcategory","attributes","amps","volts","sku","image",)
+        fields = ("id","title", "discounted_price","price", "category","brand","type","subcategory","attributes","amps","volts","sku","image",)
         model = Product
         depth=1
          
