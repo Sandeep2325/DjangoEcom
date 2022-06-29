@@ -215,17 +215,17 @@ class cartbrandserializer(serializers.ModelSerializer):
         fields=("brand_name",)
         model=Brand
 class cartproductSerializer(serializers.ModelSerializer):
-    category=cartcategorySerializer(read_only=True)
-    brand=cartbrandserializer(read_only=True)
-    image=imageserializer(many=True,read_only=True)
-    subcategory=subcategoryserializer(read_only=True)
+    # category=cartcategorySerializer(read_only=True)
+    # brand=cartbrandserializer(read_only=True)
+    # image=imageserializer(many=True,read_only=True)
+    # subcategory=subcategoryserializer(read_only=True)
     class Meta:
-        fields = ("id","title", "discounted_price", "category","brand","type","subcategory","attributes","sku","image",)
+        fields = ("id","title", "discounted_price", "category","brand","type","subcategory","attributes","amps","volts","sku","image",)
         model = Product
+        depth=1
          
 class cartserializer(serializers.ModelSerializer):
     product=cartproductSerializer(read_only=True)
-    attributes=attributesSerializer(read_only=True)
     class Meta:
         fields=('id','user','product','quantity','Total_amount','updated_at',"is_active")
         model=Cart
