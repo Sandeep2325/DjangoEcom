@@ -133,7 +133,7 @@ class categorySerializer01(serializers.ModelSerializer):
         model = Category 
 class productSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ("id","title", "discounted_price", "category","subcategory","attributes","brand","sku", "short_description", "detail_description","specification", "image","price",
+        fields = ("id","title", "discounted_price", "category","subcategory","attributes","brand","sku","amps","volts","short_description", "detail_description","specification", "image","price",
                  "is_active","available_stocks", "created_at", "updated_at")
         model = Product
         depth=1
@@ -214,20 +214,20 @@ class cartbrandserializer(serializers.ModelSerializer):
     class Meta:
         fields=("brand_name",)
         model=Brand
-class cartproductSerializer(serializers.HyperlinkedModelSerializer):
+class cartproductSerializer(serializers.ModelSerializer):
     category=cartcategorySerializer(read_only=True)
     brand=cartbrandserializer(read_only=True)
     image=imageserializer(many=True,read_only=True)
     subcategory=subcategoryserializer(read_only=True)
     class Meta:
-        fields = ("id","title", "discounted_price", "category","brand","subcategory","sku","image",)
+        fields = ("id","title", "discounted_price", "category","brand","type","subcategory","attributes","sku","image",)
         model = Product
          
 class cartserializer(serializers.ModelSerializer):
     product=cartproductSerializer(read_only=True)
     attributes=attributesSerializer(read_only=True)
     class Meta:
-        fields=('id','user','product','attributes','quantity','Total_amount','updated_at',"is_active")
+        fields=('id','user','product','quantity','Total_amount','updated_at',"is_active")
         model=Cart
 # class cartserializer11(serializers.ModelSerializer):
 #     product=cartproductSerializer(read_only=True)
@@ -441,3 +441,13 @@ class infoserializer(serializers.ModelSerializer):
         model=info
         fields="__all__"
 
+class comparisionSerializer(serializers.Serializer):
+    brand_id = serializers.ListField()
+    attribute_id=serializers.ListField()
+    type_id=serializers.ListField()
+    subcategory_key=serializers.CharField()
+    product_amps=serializers.ListField()
+    product_volts=serializers.ListField()
+    # subcategory_id=serializers.ListField()
+    # product_id=serializers.ListField()
+    # filter_by=serializers.CharField()

@@ -3,7 +3,10 @@
 {% get_jazzmin_ui_tweaks as jazzmin_ui %}
 {% load model_count %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+{% block bodyclass %}
+{{ block.super }}
+Dashboard
+ {% endblock %}
 {% comment %} <canvas id="myChart" width="1600" height="900"></canvas> {% endcomment %}
 {% block content_title %} {% trans 'Dashboard' %} {% endblock %}
 
@@ -17,7 +20,7 @@
 {% get_side_menu using="app_list" as dashboard_list %}
 {% for app in dashboard_list %}
 {% for model in app.models %}
-{%if model.name == "Orders" or model.name == "Users" or model.name == "  Products"%}
+{%if model.name == "Orders" or model.name == "Users" or model.name == "   Products"%}
 <div class="card bg-secondary m-2 text-white">
     <div class="card-header d-flex">
       {%if model.name == "Users" %}
@@ -30,9 +33,7 @@
     </div>
     <div class="card-body">
       <h5 class="card-title">Total {{ model.name }}</h5>
-
-      <p id="count" class="card-text">{}</p>
-      
+      <p id="count" class="card-text" value="">{}</p>
       <a class="btn btn-primary" href="{{ model.url }}">{{ model.name }}</a>
       {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
     </div>
@@ -99,26 +100,22 @@
                         <i class="fa fa-clock bg-gray"></i>
                     </div>
                 </div>
-            {% endif %}
+            {% endif %} 
         </div>
     </div>
 </div>
-{{ block.super }}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<input id="id1" value={{j}}>
+{{j.products}}
+{{block.super}} <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
-$.getJSON("/dashboard/", { id: $(this).val() }, function (j) {
-for (var i = 0; i < j.length; i++) {
-    console.log(j[i].id)
-    let product_count=j[i].products
-    let order_count=j[i].orders
-    let users=j[i].users
-    console.log(users)
-    console.log(product_count)
-    document.getElementById("count").innerHTML = product_count;
-}
-// inspect html to check id of subcategory select dropdown.
-$("select#count").html(users);
-});
-
+    console.log("hegfuyeyuer");
+$(document).ready(function(){
+$.getJSON("/dashboard",function (j) {
+   console.log(j)
+    for(let value of Object.values(j)){
+        console.log(value)
+    }
+})});
 </script>
+{% comment %} $('#id1').val(j.products); {% endcomment %}
 {%endblock%}

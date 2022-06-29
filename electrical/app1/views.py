@@ -1,21 +1,9 @@
-from ctypes import addressof
-from multiprocessing import context
-from re import U
+
 from rest_framework.viewsets import ViewSet
-from rest_framework.decorators import action
 from django.shortcuts import render, redirect
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
-from django.db.models.query_utils import Q
-from django.template.loader import render_to_string
+
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import PasswordResetForm
-from django.core.mail import send_mail, BadHeaderError
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
-from app1.admin import cartadmin, myaccount
-from .serializers import MyTokenObtainPairSerializer
 from rest_framework import generics
 from .serializers import *
 from rest_framework.response import Response
@@ -28,7 +16,6 @@ from rest_framework.generics import (
 from django.http import HttpResponse
 from rest_framework import permissions
 from rest_framework.views import APIView
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.shortcuts import render
 from app1.forms import *
 from rest_framework.pagination import PageNumberPagination
@@ -40,10 +27,6 @@ import pyotp
 from rest_framework_simplejwt.authentication import JWTAuthentication
 import json
 from django.http import FileResponse
-import io
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
-from reportlab.lib.pagesizes import letter
 from io import BytesIO
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -56,20 +39,19 @@ def get_subcategory(request):
     result = list(subcategory.objects.filter(category_id=int(id)).values('id','sub_category'))
     print(result)
     # print(result)
-    return HttpResponse(json.dumps(result), content_type="application/json")
+    return HttpResponse(json.dumps(result))
 
 def dashboard(request):
     products=Product.objects.all().count()
     orders=cart_order.objects.all().count()
     users=User.objects.all().count()
-    
     context={
         "products":products,
         "orders":orders,
         "users":users,
     }
     print(context)
-    return HttpResponse(json.dumps(context))
+    return HttpResponse(json.dumps(context),content_type="application/json")
   
 def generateOTP():
     global totp
@@ -349,7 +331,6 @@ class subproducts(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication,]
     queryset=Product.objects.all()
     serializer_class = cartserializer
-    # renderer_classes=(JSONRenderer,)
     def list(self,request):
         subcategory=[]
         product={}

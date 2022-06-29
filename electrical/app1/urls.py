@@ -9,6 +9,8 @@ from rest_framework import routers
 from django.conf.urls.static import static
 from django.conf import settings 
 from . import payment
+from .comparision import *
+from .payment import *
 router = routers.DefaultRouter()
 router.register('products-brand', dummyview.productview)
 router.register('products-category',most_categoryview,basename="products-category")
@@ -41,8 +43,8 @@ router.register("brands",listbrand)
 router.register('unotification',universalnotificationlist,basename="unotification")
 app_name = 'Product'
 urlpatterns = [
-     path('pay/', payment.start_payment, name="payment"),
-    path('payment/success/', payment.handle_payment_success, name="payment_success"),
+     path('pay/', start_payment, name="payment"),
+    path('payment/success/', handle_payment_success, name="payment_success"),
     path('getSubcategory/', get_subcategory),
     path('dashboard',dashboard),
     path('', include(router.urls)),
@@ -101,6 +103,7 @@ urlpatterns = [
     path('lowtohigh/', dummyview.lowtohigh.as_view(),name="lowtohigh"),
     path('newest/', dummyview.newest.as_view(),name="newest"),
     path('discount/', dummyview.discount.as_view(),name="discount"),
+    path('comparision/',comparisionview.as_view(),name="comparision"),
 #     path('sidebarfilter/', sidebarfilterview.as_view(),name="side-bar-filter"),
     path('socialmedia/', socialmedialist.as_view({'get': 'list'}), name="social media"),
     path('register1/', RegistrationAPIView.as_view(),name="register"), #Registration

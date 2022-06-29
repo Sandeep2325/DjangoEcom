@@ -1,6 +1,7 @@
 from ctypes import BigEndianStructure
 from itertools import product
 from logging import exception
+from tabnanny import verbose
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.html import strip_tags
@@ -147,7 +148,8 @@ class Brand(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.brand_name
-
+    class Meta:
+        verbose_name_plural="  Product Brands"
 class image(models.Model):
     image = models.ImageField(upload_to="images")
     """ def __str__(self):
@@ -203,7 +205,7 @@ class Category(models.Model):
         return self.category
 
     class Meta:
-        verbose_name_plural = " Category"
+        verbose_name_plural = "  Product Category"
         
 class subcategory(models.Model):
     sub_category=models.CharField(max_length=255,null=True,blank=True)
@@ -213,12 +215,26 @@ class subcategory(models.Model):
     def __str__(self):
         template = '{0.sub_category}'
         return template.format(self)
+    class Meta:
+        verbose_name_plural="  Product Subcategory"
 class producttype(models.Model):
     type=models.CharField(max_length=100,null=True,blank=True,verbose_name="Type")
     def __str__(self):
         return self.type
     class Meta:
         verbose_name_plural = '  Products Type'
+class currentrating(models.Model):
+    rating=models.IntegerField(null=True,blank=True,verbose_name="Amps")
+    def __str__(self):
+        return str(self.rating)
+    class Meta:
+        verbose_name_plural = '  Products Current ratings'
+class voltagerating(models.Model):
+    rating=models.IntegerField(null=True,blank=True,verbose_name="Volts")
+    def __str__(self):
+        return str(self.rating)
+    class Meta:
+        verbose_name_plural = '  Products voltage ratings'
 class Product(models.Model):
     def validate_image(fieldfile_obj):
         filesize = fieldfile_obj.file.size
@@ -249,6 +265,8 @@ class Product(models.Model):
     type=models.ForeignKey(
         producttype, verbose_name="Type", on_delete=models.SET_NULL, null=True,blank=True)
     brand=models.ForeignKey(Brand,verbose_name="Product Brand",on_delete=models.SET_NULL,null=True)
+    amps=models.ForeignKey(currentrating,verbose_name="Ampere",on_delete=models.SET_NULL,null=True)
+    volts=models.ForeignKey(voltagerating,verbose_name="Voltage",on_delete=models.SET_NULL,null=True)
     attributes = models.ForeignKey(
         "Attributes", verbose_name=" Product Attributes", on_delete=models.SET_NULL, null=True, blank=True)
     available_stocks=models.CharField(max_length=10,null=True,blank=True)
@@ -309,7 +327,7 @@ class Product(models.Model):
    
     
     class Meta:
-        verbose_name_plural = '  Products'
+        verbose_name_plural = '   Products'
         ordering = ('-created_at',)
 
     def __str__(self):
@@ -323,7 +341,7 @@ class Attributes(models.Model):
         template = 'color: {0.Color}'
         return template.format(self)
     class Meta:
-        verbose_name_plural = "Attributes"
+        verbose_name_plural = "  Product Attributes"
 
 class Cart(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,verbose_name="User")

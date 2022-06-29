@@ -1,15 +1,7 @@
-
-from email.mime.text import MIMEText
-from multiprocessing import context
 from django.contrib.auth.admin import UserAdmin as OriginalUserAdmin
-from django.db import connection
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.forms import UserChangeForm
 from .models import User
-import mailbox
 from django.contrib.auth.models import Group
 from logging import exception
 from django.contrib import admin
@@ -20,9 +12,7 @@ from django.urls import reverse
 from . models import *
 from django.urls import path
 from . forms import *
-from django.shortcuts import redirect, render
-from django.http import HttpResponse
-from django.template.loader import get_template
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils.html import format_html
 from math import ceil
@@ -31,18 +21,8 @@ from django.contrib import messages
 from import_export.admin import ExportActionMixin
 from django_summernote.admin import SummernoteModelAdmin
 from django_summernote.utils import get_attachment_model
-# from embed_video.admin import AdminVideoMixin
-# import pdfkit
-import tempfile
-import zipfile
-import csv
-from django.urls import reverse_lazy
 from django.contrib.auth.admin import UserAdmin
-from django.db.models import Avg
 from django.core.mail import send_mail
-import math
-import random
-from admin_actions.admin import ActionsModelAdmin
 
 class AddressAdmin(ExportActionMixin, admin.ModelAdmin):
    #
@@ -56,7 +36,6 @@ class AddressAdmin(ExportActionMixin, admin.ModelAdmin):
     # actions=['downloadCV']
     #autocomplete_fields = ['user']
     save_on_top = True
-
     class Meta:
         verbose_name_plural = "Customer Address"
 
@@ -247,9 +226,9 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                 return format_html('<img src="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg" width="100" height="100"/>')
         image_tag2.short_description = 'Product Thumbnail'
         image_tag2.allow_tags = True
-        list_display = ['id', 'title',"type",'category','subcategory','brand',"attributes",'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
+        list_display = ['id', 'title',"type",'category','subcategory','brand',"attributes","amps","volts",'imagee', 'price', 'discounted_price','available_stocks', 'is_active',
                         'updated_at','created_at','action_btn']  # ,'is_active','is_featured'
-        list_editable = ('category','attributes', 'is_active','brand','available_stocks',"type")
+        list_editable = ('category','attributes', 'is_active','brand','available_stocks',"type","amps","volts")
         list_filter = ('category', 'is_active', 'updated_at')
         list_per_page = 20
         #inlines = [ImagemInline]
@@ -733,6 +712,8 @@ admin.site.register(refund,refundadmin)
 admin.site.register(redeemedcoupons)
 admin.site.register(info,infoadmin)
 admin.site.register(producttype,typeadmin)
+admin.site.register(currentrating)
+admin.site.register(voltagerating)
 # admin.site.register(cart2)
 # admin.site.register(notificationn)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 

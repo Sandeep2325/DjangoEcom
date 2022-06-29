@@ -181,6 +181,8 @@ ADMIN_ORDERING = [
         'image',
     ]),
 ]
+
+
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -306,3 +308,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # SITE_ID = 1
 # DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #BOOTSTRAP_ADMIN_SIDEBAR_MENU = False
+JAZZMIN_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "Prakash Electricals",
+
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "Prakash Electricals",
+
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "Prakash Electricals",
+    
+    }
