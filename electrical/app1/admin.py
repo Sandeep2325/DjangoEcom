@@ -292,6 +292,9 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
             return new_urls + urls
 
         def upload_csv(self, request):
+            # file = open('sample.csv')
+            # csv_reader = csv.reader(file)
+            # next(csv_reader)
             try:
                 if request.method == "POST":
                     csv_file = request.FILES["csv_upload"]
@@ -299,7 +302,6 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                         messages.warning(request, 'Please upload csv file')
                         return HttpResponseRedirect(request.path_info)
                     file_data = csv_file.read().decode("utf-8")
-                    
                     csv_data = file_data.split("\n")
 
                     for x in csv_data:
@@ -314,11 +316,17 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                 sku=fields[1],
                                 short_description=fields[2],
                                 detail_description=fields[3],
-                                product_image="product/"+fields[4],
-                                price=fields[6],
-                                category=Category.objects.get(pk=(fields[5])),
-                                brand=Brand.objects.get(pk=(fields[7])),
-                                specification=fields[9],
+                                specification=fields[4],
+                                price=fields[5],
+                                discounted_price=fields[6],
+                                category=Category.objects.get(pk=(fields[7])),
+                                subcategory=subcategory.objects.get(pk=(fields[8])),
+                                type=producttype.objects.get(pk=(fields[9])),
+                                brand=Brand.objects.get(pk=(fields[10])),
+                                amps=currentrating.objects.get(pk=(fields[11])),
+                                volts=voltagerating.objects.get(pk=(fields[12])),
+                                attributes=Attributes.objects.get(pk=(fields[13])),
+                                available_stocks=fields[14],
                             )
                             n = str(x)
                             l = n.split('"')
@@ -326,7 +334,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                 k = l[1].split('"')
                                 images_csv = (k[0].split('"'))
                                 splited_image = (images_csv[0].split(','))
-
+                                
                                 for i in range(len(splited_image)):
                                     iter_image = splited_image[i]
                                     
@@ -335,7 +343,7 @@ class ProductAdmin(ExportActionMixin, admin.ModelAdmin):
                                     created.image.add(imagess)
                                     created.save()
                             else:
-                                imagess = image.objects.get(pk=fields[8])
+                                imagess = image.objects.get(pk=fields[15])
                                 print("2222222",imagess)
                                 print(imagess)
                                 created.image.add(imagess)

@@ -7,6 +7,7 @@ from app1.forms import *
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from app1.paginations import PaginationHandlerMixin
+from rest_framework import viewsets, filters, status
 class MyPaginator(PageNumberPagination):
     page_size = 16
     page_size_query_param = 'page_size'
@@ -31,107 +32,319 @@ class comparisionview(APIView,PaginationHandlerMixin):
         print(bool(subcategory_key))
         product_amps=request.data["product_amps"]
         product_volts=request.data["product_volts"]
-        if bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and  bool(type_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
-            data=Product.objects.filter(subcategory__sub_category=subcategory_key,amps__in=product_amps,volts__in=product_volts)
-            product_serializer=productSerializer(data,many=True)
-            page = self.paginate_queryset(data)
-            if page is not None:
-                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
-                return Response(serializer.data)
-            else:
+        if bool(product_amps)==True and bool(product_volts)==False:
+            if bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==False and  bool(type_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,amps__in=product_amps)
                 product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
-            
-            
-        elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==False and bool(brand_id)==False:
-            data=Product.objects.filter(subcategory__sub_category=subcategory_key,attributes_id__in=attribute_id,amps__in=product_amps,volts__in=product_volts),
-            # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
-            product_serializer=productSerializer(data,many=True)
-            page = self.paginate_queryset(data)
-            if page is not None:
-                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
-                return Response(serializer.data)
-            else:
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==False and bool(attribute_id)==True and bool(type_id)==False and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,attributes_id__in=attribute_id,amps__in=product_amps),
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
                 product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
-            
-            
-            
-        elif bool(subcategory_key)==True and  bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==False:
-            data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,amps__in=product_amps,volts__in=product_volts)
-            # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
-            product_serializer=productSerializer(data,many=True)
-            page = self.paginate_queryset(data)
-            if page is not None:
-                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
-                return Response(serializer.data)
-            else:
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+                
+            elif bool(subcategory_key)==True and  bool(product_amps)==True and bool(product_volts)==False and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,amps__in=product_amps)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
                 product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
-            
-            
-        elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==False and bool(brand_id)==True:
-            data=Product.objects.filter(subcategory__sub_category=subcategory_key,brand_id__in=brand_id,amps__in=product_amps,volts__in=product_volts)
-            # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
-            product_serializer=productSerializer(data,many=True)
-            page = self.paginate_queryset(data)
-            if page is not None:
-                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
-                return Response(serializer.data)
-            else:
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==False and bool(attribute_id)==False and bool(type_id)==False and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,brand_id__in=brand_id,amps__in=product_amps)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
                 product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
-            
-            
-            
-        elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==False and bool(brand_id)==True:
-            data=Product.objects.filter(subcategory__sub_category=subcategory_key,brand_id__in=brand_id,attributes_id__in=attribute_id,amps__in=product_amps,volts__in=product_volts)
-            # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
-            product_serializer=productSerializer(data,many=True)
-            page = self.paginate_queryset(data)
-            if page is not None:
-                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
-                return Response(serializer.data)
-            else:
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==False and bool(attribute_id)==True and bool(type_id)==False and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,brand_id__in=brand_id,attributes_id__in=attribute_id,amps__in=product_amps)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
                 product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
-            
-            
-        elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==True and bool(brand_id)==False:
-            data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,attributes_id__in=attribute_id,amps__in=product_amps,volts__in=product_volts)
-            # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
-            product_serializer=productSerializer(data,many=True)
-            page = self.paginate_queryset(data)
-            if page is not None:
-                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
-                return Response(serializer.data)
-            else:
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==False and bool(attribute_id)==True and bool(type_id)==True and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,attributes_id__in=attribute_id,amps__in=product_amps)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
                 product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
-            
-            
-        elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==True:
-            data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,brand_id__in=brand_id,amps__in=product_amps,volts__in=product_volts)
-            # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
-            product_serializer=productSerializer(data,many=True)
-            page = self.paginate_queryset(data)
-            if page is not None:
-                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
-                return Response(serializer.data)
-            else:
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==False and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,brand_id__in=brand_id,amps__in=product_amps)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
                 product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
-            
-            
-        elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==True and bool(brand_id)==True:
-            data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,brand_id__in=brand_id,attributes_id__in=attribute_id,amps__in=product_amps,volts__in=product_volts)
-            # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
-            product_serializer=productSerializer(data,many=True)
-            page = self.paginate_queryset(data)
-            if page is not None:
-                serializer = self.get_paginated_response(productSerializer(page,many=True).data)
-                return Response(serializer.data)
-            else:
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==False and bool(attribute_id)==True and bool(type_id)==True and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,brand_id__in=brand_id,attributes_id__in=attribute_id,amps__in=product_amps)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
                 product_serializer=productSerializer(data,many=True)
-                return Response(product_serializer.data)
-            
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+        elif bool(product_volts)==True and bool(product_amps)==False:
+            if bool(subcategory_key)==True and bool(product_amps)==False and bool(product_volts)==True and  bool(type_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,volts__in=product_volts)
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==False and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==False and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,attributes_id__in=attribute_id,volts__in=product_volts),
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+                
+            elif bool(subcategory_key)==True and  bool(product_amps)==False and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==False and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==False and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,brand_id__in=brand_id,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==False and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==False and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,brand_id__in=brand_id,attributes_id__in=attribute_id,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==False and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==True and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,attributes_id__in=attribute_id,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==False and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,brand_id__in=brand_id,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==False and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==True and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,brand_id__in=brand_id,attributes_id__in=attribute_id,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+        elif bool(product_volts)==True and bool(product_amps)==True:
+            if bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and  bool(type_id)==False and bool(brand_id)==False and bool(attribute_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,amps__in=product_amps,volts__in=product_volts)
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==False and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,attributes_id__in=attribute_id,amps__in=product_amps,volts__in=product_volts),
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+                
+            elif bool(subcategory_key)==True and  bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,amps__in=product_amps,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==False and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,brand_id__in=brand_id,amps__in=product_amps,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==False and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,brand_id__in=brand_id,attributes_id__in=attribute_id,amps__in=product_amps,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==True and bool(brand_id)==False:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,attributes_id__in=attribute_id,amps__in=product_amps,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,brand_id__in=brand_id,amps__in=product_amps,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+                
+            elif bool(subcategory_key)==True and bool(product_amps)==True and bool(product_volts)==True and bool(attribute_id)==True and bool(type_id)==True and bool(brand_id)==True:
+                data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,brand_id__in=brand_id,attributes_id__in=attribute_id,amps__in=product_amps,volts__in=product_volts)
+                # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
+                product_serializer=productSerializer(data,many=True)
+                page = self.paginate_queryset(data)
+                if page is not None:
+                    serializer = self.get_paginated_response(productSerializer(page,many=True).data)
+                    return Response(serializer.data)
+                else:
+                    product_serializer=productSerializer(data,many=True)
+                    return Response(product_serializer.data)
+                
+        return Response({"msg":"No products",},status=status.HTTP_404_NOT_FOUND)

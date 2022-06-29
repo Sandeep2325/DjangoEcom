@@ -408,6 +408,9 @@ class defaultaddressget(viewsets.ModelViewSet):
 class listattributes(viewsets.ModelViewSet):
     queryset=Attributes.objects.all()
     serializer_class=attributesSerializer  
+class listtype(viewsets.ModelViewSet):
+    queryset=producttype.objects.all()
+    serializer_class=typeserializer 
 class listbrand(viewsets.ModelViewSet):
     queryset=Brand.objects.all()
     serializer_class=brandserializer  
@@ -672,7 +675,6 @@ class ordersummaryview(APIView):
         data2= [{"total_items":total_items, "items_amount": items_amount,"gst":"{:.2f}".format(gst),"total_amount":"{:.2f}".format(total_amount)}]
         results = ordersummary(data2, many=True).data
         return Response(results)
-    
 class checkoutsummaryview(APIView):
     permission_classes=(IsAuthenticated,)
     authentication_classes=[JWTAuthentication,]

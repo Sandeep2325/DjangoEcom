@@ -169,7 +169,10 @@ class attributesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Attributes
-        
+class typeserializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = producttype        
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives,EmailMessage
 
