@@ -284,7 +284,6 @@ class userphoto1(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     authentication_classes = [JWTAuthentication,]
     serializer_class = userphotoserializer
-
     def get_queryset(self):
         user = self.request.user
         return userphoto.objects.filter(user=user)

@@ -20,25 +20,39 @@ Dashboard
 {% get_side_menu using="app_list" as dashboard_list %}
 {% for app in dashboard_list %}
 {% for model in app.models %}
-{%if model.name == "Orders" or model.name == "Users" or model.name == "   Products"%}
-<div class="card bg-secondary m-2 text-white">
-    <div class="card-header d-flex">
-      {%if model.name == "Users" %}
-        <i class="fa fa-users" aria-hidden="true"></i>
-        {{ model.name }}
-        {%else%}
-      <i class="fas fa-shopping-cart"></i>
-        {{ model.name }}
-        {%endif%}
-    </div>
+{% comment %} {%if model.name == "Orders" or model.name == "Users" or model.name == "   Products"%} {% endcomment %}
+<div class='d-flex  '>
+    {%if model.name == "   Products"%}
+<div class="card w-100 m-2 bg-secondary">
+    <h5 class="card-header"></i>Products</h5>
     <div class="card-body">
-      <h5 class="card-title">Total {{ model.name }}</h5>
-      <p id="count" class="card-text" value="">{}</p>
-      <a class="btn btn-primary" href="{{ model.url }}">{{ model.name }}</a>
-      {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
+      <h5 class="card-title">Total Products</h5>
+      <p id="pcount" class="card-text">5</p>
+      <a href={{model.url}} class="btn btn-primary">Products</a>
     </div>
-  </div>
-  {%endif%}  
+</div>
+{%elif model.name == "Orders"%}
+<div class="card w-100 m-2 bg-secondary">
+    <h5 class="card-header"><i class="fas fa-shopping-cart"></i>Orders</h5>
+    <div class="card-body">
+      <h5 class="card-title">Total Orders</h5>
+      <p id="ocount"class="card-text">5</p>
+      <a href={{model.url}}  class="btn btn-primary">Orders</a>
+    </div>
+</div>
+{%elif model.name == "Users"%}
+<div class="card w-100 m-2 bg-secondary">
+    <h5 class="card-header"><i class="fa fa-users" aria-hidden="true"></i>Users</h5>
+    <div class="card-body">
+      <h5 class="card-title">Total Users</h5>
+      <p id="ucount" class="card-text">5</p>
+      <a href={{model.url}}  class="btn btn-primary">Users</a>
+    </div>
+</div>
+{%endif%}
+</div>
+  {% comment %} {%endif%}   {% endcomment %}
+{% comment %} {%endfor%} {% endcomment %}
 {%endfor%}
 {%endfor%}
 </div>
@@ -104,18 +118,63 @@ Dashboard
         </div>
     </div>
 </div>
-<input id="id1" value={{j}}>
 {{j.products}}
 {{block.super}} <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
-    console.log("hegfuyeyuer");
 $(document).ready(function(){
 $.getJSON("/dashboard",function (j) {
-   console.log(j)
-    for(let value of Object.values(j)){
-        console.log(value)
-    }
+   console.log(j.products)
+   pcount=j.products
+   ocount=j.orders
+   ucount=j.users
+   $("#pcount").text(pcount);
+   $("#ocount").text(ocount);
+   $("#ucount").text(ucount);
 })});
 </script>
 {% comment %} $('#id1').val(j.products); {% endcomment %}
 {%endblock%}
+
+
+
+<div class="card bg-secondary m-2 text-white ">
+    <div class="card-header d-flex">
+       {% comment %} {%if model.name == "Users" %}
+         <i class="fa fa-users" aria-hidden="true"></i>
+         {{ model.name }}
+         {%else%} {% endcomment %}
+       <i class="fas fa-shopping-cart"></i>
+         Products
+         {% comment %} {%endif%} {% endcomment %}
+     </div>
+     <div class="card-body">
+       {% comment %} <h5 class="card-title">Total {{ model.name }}</h5> {% endcomment %}
+       <h5 class="card-title">Total Products</h5>
+       <p id="product-count" class="card-text " value=""></p>
+       {% comment %} <p id="count" class="card-text " value="">{}</p> {% endcomment %}
+       {% comment %} <a class="btn btn-primary" href="{{ model.url }}">{{ model.name }}</a> {% endcomment %}
+       {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
+     </div>
+   </div>
+   <div class="card-header d-flex">
+       {% comment %} {%if model.name == "Users" %}
+         <i class="fa fa-users" aria-hidden="true"></i>
+         {{ model.name }}
+         {%else%} {% endcomment %}
+       <i class="fas fa-shopping-cart"></i>
+         Products
+         {% comment %} {%endif%} {% endcomment %}
+     </div>
+     <div class="card-body">
+       {% comment %} <h5 class="card-title">Total {{ model.name }}</h5> {% endcomment %}
+       <h5 class="card-title">Total Products</h5>
+       <p id="product-count" class="card-text " value=""></p>
+       {% comment %} <p id="count" class="card-text " value="">{}</p> {% endcomment %}
+       {% comment %} <a class="btn btn-primary" href="{{ model.url }}">{{ model.name }}</a> {% endcomment %}
+       {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
+     </div>
+   </div>
+     
+   
+   
+</div>

@@ -686,7 +686,11 @@ class infoadmin(admin.ModelAdmin):
             return False
         return super().has_add_permission(request)
 class typeadmin(admin.ModelAdmin):
-    list_display=["type",]
+    list_display=["id","type",]
+class currentadmin(admin.ModelAdmin):
+    list_display=["id","rating",]
+class voltageadmin(admin.ModelAdmin):
+    list_display=["id","rating",]
     
 admin.site.register(userphoto,userphotoadmin)
 admin.site.register(notification,notificationadmin)
@@ -720,8 +724,8 @@ admin.site.register(refund,refundadmin)
 admin.site.register(redeemedcoupons)
 admin.site.register(info,infoadmin)
 admin.site.register(producttype,typeadmin)
-admin.site.register(currentrating)
-admin.site.register(voltagerating)
+admin.site.register(currentrating,currentadmin)
+admin.site.register(voltagerating,voltageadmin)
 # admin.site.register(cart2)
 # admin.site.register(notificationn)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
