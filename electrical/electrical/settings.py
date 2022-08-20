@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-2x+5j9-5@8^tvzl-l--2%k_m!1ne!okdey#_rp8&v!@f=n0gf)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1','162.240.55.20','localhost:3000','499f-116-74-253-32.in.ngrok.io']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','162.240.55.20','localhost:3000','499f-116-74-253-32.in.ngrok.io','.herokuapp.com']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     # 'embed_video',
     'app1',
@@ -67,6 +68,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -191,11 +193,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'electrical02',
         'USER': 'root',
-        'PASSWORD': 'mySqlServer@#$432',#mySqlServer@#$432
+        'PASSWORD': 'Sandeep@8105',#mySqlServer@#$432
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
 """ DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
@@ -208,7 +213,8 @@ DATABASES = {
 }  """
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
+WHITENOISE_USE_FINDERS = True
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

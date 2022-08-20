@@ -24,35 +24,25 @@ Dashboard
 <div class='d-flex  '>
     {%if model.name == "   Products"%}
 <div class="card w-100 m-2 bg-secondary">
-    <h5 class="card-header"></i>Products</h5>
+    <h5 class="card-header" style="font-size:17px"><i class="fas fa-shopping-cart"></i>Products</h5>
     <div class="card-body">
-      <h5 class="card-title">Total Products</h5>
-      <p id="pcount" class="card-text">5</p>
-      <a href={{model.url}} class="btn btn-primary">Products</a>
+      <h5 class="card-title" style="font-size:14px">Total Products</h5>
+      <p id="pcount" style="text-align:center;" class="card-text">5</p>
+      <a style="margin:auto;display:block" href={{model.url}} class="btn btn-primary btn-sm">Products</a>
     </div>
 </div>
 {%elif model.name == "Orders"%}
 <div class="card w-100 m-2 bg-secondary">
-    <h5 class="card-header"><i class="fas fa-shopping-cart"></i>Orders</h5>
+    <h5 class="card-header" style="font-size:17px"><i class="fas fa-shopping-cart"></i>Orders</h5>
     <div class="card-body">
-      <h5 class="card-title">Total Orders</h5>
-      <p id="ocount"class="card-text">5</p>
-      <a href={{model.url}}  class="btn btn-primary">Orders</a>
-    </div>
-</div>
-{%elif model.name == "Users"%}
-<div class="card w-100 m-2 bg-secondary">
-    <h5 class="card-header"><i class="fa fa-users" aria-hidden="true"></i>Users</h5>
-    <div class="card-body">
-      <h5 class="card-title">Total Users</h5>
-      <p id="ucount" class="card-text">5</p>
-      <a href={{model.url}}  class="btn btn-primary">Users</a>
+      <h5 class="card-title" style="font-size:14px">Total Orders</h5>
+      <p id="ocount" style="text-align:center;"class="card-text">5</p>
+      <a style="margin:auto;display:block" href={{model.url}}  class="btn btn-primary btn-sm">Orders</a>
     </div>
 </div>
 {%endif%}
 </div>
-  {% comment %} {%endif%}   {% endcomment %}
-{% comment %} {%endfor%} {% endcomment %}
+
 {%endfor%}
 {%endfor%}
 </div>

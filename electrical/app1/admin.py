@@ -169,8 +169,8 @@ class CategoryAdmin(ExportActionMixin, admin.ModelAdmin):
                 form = CsvImportForm()
                 data = {"form": form}
                 return render(request, "admin/csv_upload.html", data)
-            except TypeError:
-                return HttpResponse("Something went wrong")
+            except:
+                pass
     except exception:
         raise Http404
 
@@ -696,7 +696,7 @@ admin.site.register(userphoto,userphotoadmin)
 admin.site.register(notification,notificationadmin)
 admin.site.register(enquiryform,faq_enquiryAdmin)
 admin.site.register(socialmedialinks,socialmedialinksadmin)
-admin.site.register(latest_product,latestproductadmin)
+# admin.site.register(latest_product,latestproductadmin)
 admin.site.register(most_selled_products,mostselledproductadmin)
 admin.site.register(newsletter,newsletterproductadmin)
 admin.site.register(Cart,cartadmin) 
@@ -731,6 +731,7 @@ admin.site.register(voltagerating,voltageadmin)
 class UserAdmin(ExportActionMixin,OriginalUserAdmin): 
     list_display = ['id','username', 'email','is_staff', 'phone_no','is_confirmed','is_staff','action_btn','last_login','date_joined']
     list_editable=['is_confirmed']
+    
     def action_btn(self, obj):
         html = "<div class='field-action_btn d-flex m-8'> <a class='fa fa-edit ml-2' href='/admin/app1/user/" + \
             str(obj.id)+"/change/'></a><br></br>"

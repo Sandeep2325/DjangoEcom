@@ -55,7 +55,6 @@ class User(AbstractUser,PermissionsMixin):
     # last_login=models.CharField(max_length=255,blank=True,null=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name','phone_no']
-     
     def __str__(self):
         return "{}".format(str(self.username))
 class userphoto(models.Model):

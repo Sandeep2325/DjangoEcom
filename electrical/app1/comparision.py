@@ -58,7 +58,6 @@ class comparisionview(APIView,PaginationHandlerMixin):
                     return Response(product_serializer.data)
                 
                 
-                
             elif bool(subcategory_key)==True and  bool(product_amps)==True and bool(product_volts)==False and bool(attribute_id)==False and bool(type_id)==True and bool(brand_id)==False:
                 data=Product.objects.filter(subcategory__sub_category=subcategory_key,type_id__in=type_id,amps__in=product_amps)
                 # data1=Product.objects.filter(id__in=product_id,attributes_id__in=attribute_id).order_by('-created_at')
